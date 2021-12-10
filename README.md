@@ -1,0 +1,2 @@
+# sneky
+Snake in Python
