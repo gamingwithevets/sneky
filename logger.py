@@ -12,7 +12,7 @@ def log(text):
 		print('No.')
 		return
 	f = open(logfile, 'a', encoding = 'utf8')
-	print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
+	print('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
 	f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
 	f.write('\n')
 	f.close()

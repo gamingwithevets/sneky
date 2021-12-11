@@ -363,9 +363,12 @@ class ControlsMenu(Menu):
 				self.run_display = False
 				self.game.DRsnd_select.play()
 			self.game.display.fill(self.game.BLACK)
-			self.game.draw_text('CONTROLS', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
+			self.game.draw_text('GAME CONTROLS', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			self.game.draw_text('↑ ↓ ← → - Move Snake', int(self.game.font_size * 3/4), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, font_name = self.game.arrow_font)
-			self.game.draw_text('ESC - Quit', int(self.game.font_size * 3/4), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 40, font_name = self.game.menu2_font)
+			self.game.draw_text('X - Toggle AI Snake', int(self.game.font_size * 3/4), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 40, font_name = self.game.menu2_font)
+			self.game.draw_text('CTRL (hold) - Turbo Mode', int(self.game.font_size * 3/4), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 70, font_name = self.game.menu2_font)
+			self.game.draw_text('ESC - Pause', int(self.game.font_size * 3/4), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 100, font_name = self.game.menu2_font)
+			self.game.draw_text('BACKSPACE - Quit', int(self.game.font_size * 3/4), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 130, font_name = self.game.menu2_font)
 			self.blit_screen()
 
 class PressStart(Menu):
@@ -483,6 +486,7 @@ class ModeMenu(Menu):
 			self.game.inmenu = False
 			self.run_display = False
 			self.game.DRsnd_select.play()
+			self.game.change_volume()
 				
 	def move_cursor(self):
 		if  self.game.BACK_KEY:
