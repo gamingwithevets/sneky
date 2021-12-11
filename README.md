@@ -20,11 +20,11 @@ The snake switches color and power every time you collect **a certain amount of 
 **You** are the apple! You're tired of the snake eating all of your mates, so you try to escape the snake by running out of the playfield!  
 If you escape the snake, you get 1 point and be spawned somewhere else, but the snake will recieve power. If the snake eats you, you die. If it dies, you win!
 ## De Snake Mode
-The *Debug* Mode of Sneky. Like cheating? This is for you! You can walk through yourself, turn around, and walk through the portal borders!'
+The *Debug* Mode of Sneky. Like cheating? This is for you! You can walk through yourself, turn around, and walk through the portal borders!
 ## How to win
 To win in a mode (except for Angry Apple), you must somehow fill the entire screen with yourself so that **no apples remain on-screen**!
 
-# Features
+# Game Features
 ## Turbo Mode
 The snake's speed is 0% at first, which is VERY slow. Normally, eating an apple makes the snake speed up by *a little bit*.  
 But that's slow, right? Hold down LCTRL to speed the snake up until you lift the key! Keep in mind that this speed is *slower* than the max speed.  
