@@ -14,11 +14,22 @@ class Game():
 		pygame.display.set_caption("Sneky")
 		# game version
 		self.gamestatus = 'beta'
-		self.gameversion = '1.1.0'
+		self.gameversion = '1.2.0'
 
-		self.running, self.playing, self.inmenu = True, False, True
+		# default keys
+		self.CTRL_BIND = pygame.K_LCTRL
+		self.START_BIND = pygame.K_RETURN
+		self.BACK_BIND = pygame.K_ESCAPE
+		self.MENU_BIND = pygame.K_BACKSPACE
+		self.SPACE_BIND = pygame.K_SPACE
+		self.UP_BIND = pygame.K_UP
+		self.DOWN_BIND = pygame.K_DOWN
+		self.LEFT_BIND = pygame.K_LEFT
+		self.RIGHT_BIND = pygame.K_RIGHT
+		self.X_BIND = pygame.K_x
+
+		self.running, self.playing, self.inmenu, self.show_instructions = True, False, True, False
 		self.reset_keys()
-		self.CTRL_KEY = False
 		# self.START_KEY, self.BACK_KEY, self.SPACE_KEY, self.CTRL_KEY = False, False, False, False
 		# self.UP_KEY, self.DOWN_KEY, self.LEFT_KEY, self.RIGHT_KEY = False, False, False, False
 		self.DISPLAY_W, self.DISPLAY_H = 800, 600
@@ -53,24 +64,22 @@ class Game():
 				pygame.quit()
 				sys.exit()
 			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_RETURN:
+				if event.key == self.START_BIND:
 					self.START_KEY = True
-				if event.key == pygame.K_ESCAPE:
+				if event.key == self.BACK_BIND:
 					self.BACK_KEY = True
-				if event.key == pygame.K_BACKSPACE:
+				if event.key == self.MENU_BIND:
 					self.MENU_KEY = True
-				if event.key == pygame.K_SPACE:
+				if event.key == self.SPACE_BIND:
 					self.SPACE_KEY = True
-				if event.key == pygame.K_LCTRL:
-					self.CTRL_KEY = not self.CTRL_KEY
 
-				if event.key == pygame.K_UP:
+				if event.key == self.UP_BIND:
 					self.UP_KEY = True
-				if event.key == pygame.K_DOWN:
+				if event.key == self.DOWN_BIND:
 					self.DOWN_KEY = True
-				if event.key == pygame.K_LEFT:
+				if event.key == self.LEFT_BIND:
 					self.LEFT_KEY = True
-				if event.key == pygame.K_RIGHT:
+				if event.key == self.RIGHT_BIND:
 					self.RIGHT_KEY = True
 
 	def reset_keys(self):
@@ -93,12 +102,7 @@ class Game():
 
 	def game_loop(self):
 		self.new_game()
-		if self.playing:
-			self.draw_game_screen()
-			self.window.blit(self.display, (0,0))
-			pygame.display.update()
-			self.show_instructions = True
-			self.game_over()
+		self.game_over()
 		while self.playing:
 			self.check_events()
 			self.test()
@@ -116,6 +120,8 @@ class Game():
 	def game_over(self):
 		
 		if self.g_over:
+			self.draw_game_screen()
+
 			# fade diplay
 			self.fadeBg = pygame.Surface((self.DISPLAY_W - self.border_x - 20, self.DISPLAY_H - self.border_y - 20))
 			self.fadeBg.set_alpha(int(255 / 100 * self.alpha_percentage))
@@ -123,10 +129,11 @@ class Game():
 			self.window.blit(self.fadeBg, (self.border_x, self.border_y))
 
 			# gameover text
+			self.gamemus.stop()
 			if self.win:
 				self.draw_text('YOU WIN!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 				if self.ai_snake == 0:
-					logger.log('Player ' + os.getenv('USERNAME') + ' has won!')
+					logger.log('Player ' + os.getenv('USERNAME') + ' won!')
 				else:
 					if self.angry_apple == 0:
 						logger.log('Oh Yeah Can I Collect Bananas Now')
@@ -137,7 +144,7 @@ class Game():
 			else:
 				self.draw_text('YOU DIED!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 				if self.ai_snake == 0:
-					logger.log('Player ' + os.getenv('USERNAME') + ' has died!')
+					logger.log('Player ' + os.getenv('USERNAME') + ' died!')
 					self.GSdie.play()
 				else:
 					if self.angry_apple == 0:
@@ -146,8 +153,8 @@ class Game():
 					else:
 						logger.log('Yum Yum')
 						self.SMB2down.play()
-			self.draw_text('SPACE: New Game', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
-			self.draw_text('ESCAPE/BACKSPACE: Quit', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.game_font, screen = self.window)
+			self.draw_text('{0}: New Game'.format(pygame.key.name(self.SPACE_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
+			self.draw_text('{0}/{1}: Quit'.format(pygame.key.name(self.BACK_BIND).upper(), pygame.key.name(self.MENU_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.game_font, screen = self.window)
 
 			# self.window.blit(self.over_text, self.over_rect)
 			pygame.display.update()
@@ -162,7 +169,8 @@ class Game():
 					self.playing = True
 					self.g_over = False
 					self.reset_keys()
-					logger.log('Player ' + os.getenv('USERNAME') + ' decides to play again!')
+					logger.log('Player ' + os.getenv('USERNAME') + ' decided to play again!')
+					self.gamemus.play(-1)
 					self.game_loop()
 				self.reset_keys()
 
@@ -175,8 +183,8 @@ class Game():
 			# gameover text
 			self.draw_text('GAME PAUSED', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 			logger.log('Player ' + os.getenv('USERNAME') + ' paused the game!')
-			self.draw_text('ESC: Resume Game', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
-			self.draw_text('BACKSPACE: Quit', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.game_font, screen = self.window)
+			self.draw_text('{0}: Resume Game'.format(pygame.key.name(self.BACK_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
+			self.draw_text('{0}: Quit'.format(pygame.key.name(self.MENU_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.game_font, screen = self.window)
 
 				# self.window.blit(self.over_text, self.over_rect)
 			pygame.display.update()
@@ -196,6 +204,9 @@ class Game():
 					return
 
 		elif self.show_instructions:
+			self.draw_game_screen()
+			self.window.blit(self.display, (0,0))
+
 			# fade diplay
 			self.fadeBg = pygame.Surface((self.DISPLAY_W - self.border_x - 20, self.DISPLAY_H - self.border_y - 20))
 			self.fadeBg.set_alpha(int(255 / 100 * self.alpha_percentage))
@@ -203,27 +214,28 @@ class Game():
 			self.window.blit(self.fadeBg, (self.border_x, self.border_y))
 
 			# game instructions
-			self.draw_text('GAME INSTRUCTIONS', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
+			self.draw_text('INTRODUCTION', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 			if self.portal_border == 1 and self.curled_up == 1 and self.apple_bag == 1:
-				self.draw_text('The Debug Mode of Sneky. Like cheating? This is for you!', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
-				self.draw_text('You can walk through yourself, turn around, and walk through the', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.game_font, screen = self.window)
-				self.draw_text('portal borders!', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.game_font, screen = self.window)
+				self.draw_text('The Debug Mode of Sneky. Like cheating? This is for you!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('You can walk through yourself, turn around, and walk through the', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('portal borders!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.menu2_font, screen = self.window)
 			elif self.snake_instinct == 1:
-				self.draw_text('The snake switches color and power every time you collect a', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
-				self.draw_text('certain amount of apples. Let\'s use the snake\'s powers to win!', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.game_font, screen = self.window)
+				self.draw_text('The snake switches color and power every time you collect a', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('certain amount of apples. Let\'s use the snake\'s powers to win!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
 			elif self.apple_bag == 1:
-				self.draw_text('Multiple apples are spawning! Will the snake eat them or be hungry?', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
+				self.draw_text('Multiple apples are spawning! Will the snake eat them or be hungry?', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
 			elif self.portal_border == 1:
-				self.draw_text('The border turns into a portal to go to the other side of the playfield!', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
+				self.draw_text('The border turns into a portal to go to the other side of the playfield!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
 			elif self.angry_apple == 1:
-				self.draw_text('You are the apple! You\'re tired of the snake eating all of your mates,', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
-				self.draw_text('so you try to escape the snake by running out of the playfield!', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.game_font, screen = self.window)
-				self.draw_text('Escape the snake and get 1 point, but this\'ll give power', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.game_font, screen = self.window)
-				self.draw_text('to the snake. If the snake eats you, you die. If it dies, you win!', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 5, font_name = self.game_font, screen = self.window)
+				self.draw_text('You are the apple! You\'re tired of the snake eating all of your mates,', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('so you try to escape the snake by running out of the playfield!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('Escape the snake and get 1 point, but this\'ll give power', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('to the snake. If the snake eats you, you die. If it dies, you win!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 5, font_name = self.menu2_font, screen = self.window)
 			else:
-				self.draw_text('It\'s just Snake. You will die if you bump into yourself or hit the border.', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
-			self.draw_text('SPACE: Start', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 7, font_name = self.game_font, screen = self.window)
-			self.draw_text('ESCAPE/BACKSPACE: Quit', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 8, font_name = self.game_font, screen = self.window)
+				self.draw_text('Eat the apple, and don\'t bump into yourself or the border!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
+
+			self.draw_text('{0}: Start'.format(pygame.key.name(self.SPACE_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 7, font_name = self.game_font, screen = self.window)
+			self.draw_text('{0}/{1}: Quit'.format(pygame.key.name(self.BACK_BIND).upper(), pygame.key.name(self.MENU_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 8, font_name = self.game_font, screen = self.window)
 
 			# self.window.blit(self.over_text, self.over_rect)
 			pygame.display.update()
@@ -241,12 +253,15 @@ class Game():
 					return
 				self.reset_keys()
 
-		if not self.inmenu:
-			logger.log('Player ' + os.getenv('USERNAME') + ' has quitted!')
+		if not self.inmenu and not self.playing:
+			logger.log('Player ' + os.getenv('USERNAME') + ' quit the game!')
 			self.show_instructions = False
 			self.inmenu = True
+			self.gamemus.stop()
+			self.NAPSR.play(-1)
 
 	def draw_game_screen(self):
+		# white BG
 		self.display.fill(self.WHITE)
 
 		# speed
@@ -331,14 +346,16 @@ class Game():
 			self.display.blit(self.imgApple,pygame.Rect(ap[0], ap[1], self.cell_size, self.cell_size))
 		#self.display.blit(self.imgApple,pygame.Rect(self.apple[0], self.apple[1], self.cell_size, self.cell_size))
 		if self.g_over:
-			if self.angry_apple == 1 and self.win:
-				self.display.blit(self.imgHead_die,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
-			elif self.angry_apple == 0:
-				self.display.blit(self.imgHead_die,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))	
-			elif self.angry_apple == 1:
-				self.display.blit(self.imgHead_win,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
-			elif self.angry_apple == 0 and self.win:
-				self.display.blit(self.imgHead_win,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size)) 
+			if not self.win:
+				if self.angry_apple == 0:
+					self.display.blit(self.imgHead_die,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+				else:
+					self.display.blit(self.imgHead_win,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+			else:
+				if self.angry_apple == 0:
+					self.display.blit(self.imgHead_win,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+				else:
+					self.display.blit(self.imgHead_die,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
 		else:
 			if self.direction == 'RIGHT':
 				self.display.blit(self.imgHead_r,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
@@ -349,10 +366,48 @@ class Game():
 			if self.direction == 'DOWN':
 				self.display.blit(self.imgHead_d,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
 
+	def move_apple(self):
+		key_pressed = pygame.key.get_pressed()
+		if key_pressed[pygame.K_UP]:
+			self.apple_List[0][1] -= self.cell_size
+		elif key_pressed[pygame.K_DOWN]:
+			self.apple_List[0][1] += self.cell_size
+		elif key_pressed[pygame.K_RIGHT]:
+			self.apple_List[0][0] += self.cell_size
+		elif key_pressed[pygame.K_LEFT]:
+			self.apple_List[0][0] -= self.cell_size
+
+		# if self.UP_KEY:
+		# 	self.apple_List[0][1] -= self.cell_size
+		# elif self.DOWN_KEY:
+		# 	self.apple_List[0][1] += self.cell_size
+		# elif self.RIGHT_KEY:
+		# 	self.apple_List[0][0] += self.cell_size
+		# elif self.LEFT_KEY:
+		# 	self.apple_List[0][0] -= self.cell_size
+
+		if (self.apple_List[0][0] >= self.DISPLAY_W - 20
+		or self.apple_List[0][0] <= self.border_x - 10
+		or self.apple_List[0][1] >= self.DISPLAY_H - 20
+		or self.apple_List[0][1] <= self.border_y - 10):
+			self.score += 1
+			del self.apple_List[0]
+			self.BAcorrect.play()
+			self.disallowpopping = True
+			if int(self.speed) > 0:
+				self.speed *= 0.97
+			else:
+				self.speed -= 0.5
+			while True:
+				# generate 1 apple
+				apple_x = random.randrange(self.border_x,self.DISPLAY_W-self.border_x,20)
+				apple_y = random.randrange(self.border_y,self.DISPLAY_H-self.border_y,20)
+				self.apple = [apple_x, apple_y]
+				if self.apple not in self.snake:
+					self.apple_List.insert(-1,self.apple)
+					break
 
 	def test(self):
-		# white BG
-		self.display.fill(self.white)
 
 		self.turbo = False
 		# check function input
@@ -361,8 +416,9 @@ class Game():
 		elif self.MENU_KEY:
 			self.playing = False
 
+
 		key_pressed = pygame.key.get_pressed()
-		if key_pressed[pygame.K_x]:
+		if key_pressed[self.X_BIND]:
 			if self.angry_apple == 0:
 				if self.ai_snake:
 					logger.log('OK I Will Let You Play Now')
@@ -371,7 +427,9 @@ class Game():
 				self.ai_snake = not self.ai_snake
 			else:
 				logger.log('Oh Sorry I Am Controlling The Snake Now Haha')
-		if key_pressed[pygame.K_LCTRL]:
+
+
+		if key_pressed[self.CTRL_BIND]:
 			self.turbo = True
 
 		self.draw_game_screen()
@@ -385,7 +443,6 @@ class Game():
 					self.playing = False
 					self.g_over = True
 					self.win = True
-					self.draw_game_screen()
 					return
 
 			if self.curled_up == 0:
@@ -486,35 +543,7 @@ class Game():
 						self.allowmovesound = True
 
 		else:
-			if self.UP_KEY:
-				self.apple_List[0][1] -= self.cell_size
-			elif self.DOWN_KEY:
-				self.apple_List[0][1] += self.cell_size
-			elif self.RIGHT_KEY:
-				self.apple_List[0][0] += self.cell_size
-			elif self.LEFT_KEY:
-				self.apple_List[0][0] -= self.cell_size
-
-			if (self.apple_List[0][0] >= self.DISPLAY_W - 20
-			or self.apple_List[0][0] <= self.border_x - 10
-			or self.apple_List[0][1] >= self.DISPLAY_H - 20
-			or self.apple_List[0][1] <= self.border_y - 10):
-				self.score += 1
-				del self.apple_List[0]
-				self.BAcorrect.play()
-				self.disallowpopping = True
-				if int(self.speed) > 0:
-					self.speed *= 0.97
-				else:
-					self.speed -= 0.5
-				while True:
-					# generate 1 apple
-					apple_x = random.randrange(self.border_x,self.DISPLAY_W-self.border_x,20)
-					apple_y = random.randrange(self.border_y,self.DISPLAY_H-self.border_y,20)
-					self.apple = [apple_x, apple_y]
-					if self.apple not in self.snake:
-						self.apple_List.insert(-1,self.apple)
-						break
+			self.move_apple()
 
 		# check direction
 		if self.direction == 'UP':
@@ -645,7 +674,6 @@ class Game():
 			self.playing = False
 			self.g_over = True
 			self.win = True
-			self.draw_game_screen()
 
 	def mode(self, portal_border = 0, curled_up = 0, apple_bag = 0, break_border = 0, snake_instinct = 0, angry_apple = 0):
 		# size each cell
@@ -754,7 +782,6 @@ class Game():
 		# ANGRY APPLE: makes snake longer when 1 point is added
 		self.disallowpopping = False
 
-		self.show_instructions = False
 		self.paused = False
 		self.g_over = False
 		self.win = False
@@ -962,6 +989,7 @@ class Game():
 	def change_volume(self):
 			# set volume (MUST SET FOR ALL SOUNDS)
 			self.NAPSR.set_volume(self.musicvol * self.volume)
+			self.gamemus.set_volume(self.musicvol * self.volume)
 
 			self.DRsnd_menumove.set_volume(self.soundvol * self.volume)
 			self.DRsnd_select.set_volume(self.soundvol * self.volume)
@@ -985,12 +1013,32 @@ class Game():
 		self.window.blit(self.display, (0,0))
 		pygame.display.update()
 		self.NAPSR = pygame.mixer.Sound('audio/napsr.mp3')
+		self.gamemus = pygame.mixer.Sound('audio/bg_music_1.mp3')
 
 		pygame.time.delay(2000)
 		self.display.fill(self.BLACK)
 		self.window.blit(self.display, (0,0))
 		pygame.display.update()
 		pygame.time.delay(100)
+
+	def save_settings(self):
+		# save settings to settings.py
+		f = open('settings.py', 'w', encoding = 'utf8')
+		f.write('# WARNING! This script is auto-generated by Sneky.\n# You should NOT modify it in any way!\n\n')
+		f.write('# master volume\nvolume = {0}\n\n'.format(self.volume))
+		f.write('# music volume\nmusicvol = {0}\n\n'.format(self.musicvol))
+		f.write('# sound volume\nsoundvol = {0}\n\n'.format(self.soundvol))
+		f.write('# key binds\nCTRL_BIND = {0}\n'.format(self.CTRL_BIND))
+		f.write('START_BIND = {0}\n'.format(self.START_BIND))
+		f.write('BACK_BIND = {0}\n'.format(self.BACK_BIND))
+		f.write('MENU_BIND = {0}\n'.format(self.MENU_BIND))
+		f.write('SPACE_BIND = {0}\n'.format(self.SPACE_BIND))
+		f.write('UP_BIND = {0}\n'.format(self.UP_BIND))
+		f.write('DOWN_BIND = {0}\n'.format(self.DOWN_BIND))
+		f.write('LEFT_BIND = {0}\n'.format(self.LEFT_BIND))
+		f.write('RIGHT_BIND = {0}\n'.format(self.RIGHT_BIND))
+		f.write('X_BIND = {0}\n'.format(self.X_BIND))
+		f.close()
 
 if __name__ == '__main__':
 	print('Please run main.py to start the game!')

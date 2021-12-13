@@ -16,7 +16,7 @@ try:
 
 except pygame.error:
 	pygame.quit()
-	logger.log('Sneky closed because Pygame got an error.\n' + traceback.format_exc() + '\nSneky session closed. (Pygame Error)\n')
+	logger.log('Sneky closed because Pygame thrown an error.\n' + traceback.format_exc() + '\nSneky session closed. (pygame.error)\n')
 	exit()
 except KeyboardInterrupt:
 	pygame.quit()
