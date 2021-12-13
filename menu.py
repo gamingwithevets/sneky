@@ -40,7 +40,7 @@ class MainMenu(Menu):
 			self.game.display.fill(self.game.BLACK)
 			self.game.draw_text('MAIN MENU', self.game.font_size, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - self.game.font_size)
 			self.game.draw_text('LAUNCH GAME', self.game.font_size, self.startx, self.starty)
-			self.game.draw_text('OPTIONS', self.game.font_size, self.optionsx, self.optionsy)
+			self.game.draw_text('SETTINGS', self.game.font_size, self.optionsx, self.optionsy)
 			self.game.draw_text('CREDITS', self.game.font_size, self.creditsx, self.creditsy)
 			self.game.draw_text('QUIT', self.game.font_size, self.quitx, self.quity)
 			self.draw_cursor()
@@ -116,7 +116,7 @@ class OptionsMenu(Menu):
 			self.game.check_events()
 			self.check_input()
 			self.game.display.fill(self.game.BLACK)
-			self.game.draw_text('OPTIONS', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size * 3/2) 
+			self.game.draw_text('SETTINGS', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size * 3/2) 
 			self.game.draw_text('VOLUME', int(self.game.font_size * 3/4), self.volx, self.voly) 
 			self.game.draw_text('CONTROLS', int(self.game.font_size * 3/4), self.controlsx, self.controlsy) 
 			self.draw_cursor()
@@ -457,10 +457,9 @@ class ControlsMenu(Menu):
 			self.game.DRsnd_select.play()
 			self.game.display.fill(self.game.BLACK)
 			self.game.draw_text('REBIND CONTROLS', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
-			self.game.draw_text('Press a key within 5 seconds to rebind.', 15, self.game.DISPLAY_W / 2, self.opt9y + 25, font_name = self.game.menu2_font)
-			self.draw_cursor(size = int(self.game.font_size / 2))
+			self.game.draw_text('Press a key within 5 seconds to rebind.', 15, self.opt10x, self.opt10y, font_name = self.game.menu2_font)
 			if self.state == 'enter':
-				self.game.draw_text('___ (menu) - Select Option', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
+				self.game.draw_text('{0} (menu) - Select Option'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 				self.blit_screen()
 				while self.checks != 5000:
 					for event in pygame.event.get():
@@ -470,7 +469,7 @@ class ControlsMenu(Menu):
 					pygame.time.delay(1)
 					self.checks += 1
 			elif self.state == 'up':
-				self.game.draw_text('___ - Move Cursor/Snake Up', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
+				self.game.draw_text('{0} - Move Cursor/Snake Up'.format(pygame.key.name(self.game.UP_BIND).upper()), int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 				self.blit_screen()
 				while self.checks != 5000:
 					for event in pygame.event.get():
@@ -480,7 +479,7 @@ class ControlsMenu(Menu):
 					pygame.time.delay(1)
 					self.checks += 1
 			elif self.state == 'down':
-				self.game.draw_text('___ - Move Cursor/Snake Down', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
+				self.game.draw_text('{0} - Move Cursor/Snake Down'.format(pygame.key.name(self.game.DOWN_BIND).upper()), int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
 				self.blit_screen()
 				while self.checks != 5000:
 					for event in pygame.event.get():
@@ -490,7 +489,7 @@ class ControlsMenu(Menu):
 					pygame.time.delay(1)
 					self.checks += 1
 			elif self.state == 'left':
-				self.game.draw_text('___ - Move Cursor/Snake Left', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
+				self.game.draw_text('{0} - Move Cursor/Snake Left'.format(pygame.key.name(self.game.LEFT_BIND).upper()), int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
 				self.blit_screen()
 				while self.checks != 5000:
 					for event in pygame.event.get():
@@ -500,7 +499,7 @@ class ControlsMenu(Menu):
 					pygame.time.delay(1)
 					self.checks += 1
 			elif self.state == 'right':
-				self.game.draw_text('___ - Move Cursor/Snake Right', int(self.game.font_size / 2), self.opt4x, self.opt4y, font_name = self.game.menu2_font)
+				self.game.draw_text('{0} - Move Cursor/Snake Right'.format(pygame.key.name(self.game.RIGHT_BIND).upper()), int(self.game.font_size / 2), self.opt4x, self.opt4y, font_name = self.game.menu2_font)
 				self.blit_screen()
 				while self.checks != 5000:
 					for event in pygame.event.get():
@@ -510,7 +509,7 @@ class ControlsMenu(Menu):
 					pygame.time.delay(1)
 					self.checks += 1
 			elif self.state == 'x':
-				self.game.draw_text('___ (game) - Toggle AI Snake', int(self.game.font_size / 2), self.opt5x, self.opt5y, font_name = self.game.menu2_font)
+				self.game.draw_text('{0} (game) - Toggle AI Snake'.format(pygame.key.name(self.game.X_BIND).upper()), int(self.game.font_size / 2), self.opt5x, self.opt5y, font_name = self.game.menu2_font)
 				self.blit_screen()
 				while self.checks != 5000:
 					for event in pygame.event.get():
@@ -520,7 +519,7 @@ class ControlsMenu(Menu):
 					pygame.time.delay(1)
 					self.checks += 1
 			elif self.state == 'ctrl':
-				self.game.draw_text('___ (game) - Turbo Mode', int(self.game.font_size / 2), self.opt6x, self.opt6y, font_name = self.game.menu2_font)
+				self.game.draw_text('{0} (hold) - Turbo Mode'.format(pygame.key.name(self.game.CTRL_BIND).upper()), int(self.game.font_size / 2), self.opt6x, self.opt6y, font_name = self.game.menu2_font)
 				self.blit_screen()
 				while self.checks != 5000:
 					for event in pygame.event.get():
@@ -530,7 +529,7 @@ class ControlsMenu(Menu):
 					pygame.time.delay(1)
 					self.checks += 1
 			elif self.state == 'esc':
-				self.game.draw_text('___ - Back/Pause', int(self.game.font_size / 2), self.opt7x, self.opt7y, font_name = self.game.menu2_font)
+				self.game.draw_text('{0} - Back/Pause'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.opt7x, self.opt7y, font_name = self.game.menu2_font)
 				self.blit_screen()
 				while self.checks != 5000:
 					for event in pygame.event.get():
@@ -540,7 +539,7 @@ class ControlsMenu(Menu):
 					pygame.time.delay(1)
 					self.checks += 1
 			elif self.state == 'space':
-				self.game.draw_text('___ (game) - New Game', int(self.game.font_size / 2), self.opt8x, self.opt8Y, font_name = self.game.menu2_font)
+				self.game.draw_text('{0} (game over) - New Game'.format(pygame.key.name(self.game.SPACE_BIND).upper()), int(self.game.font_size / 2), self.opt8x, self.opt8y, font_name = self.game.menu2_font)
 				self.blit_screen()
 				while self.checks != 5000:
 					for event in pygame.event.get():
@@ -550,7 +549,7 @@ class ControlsMenu(Menu):
 					pygame.time.delay(1)
 					self.checks += 1
 			elif self.state == 'backspace':
-				self.game.draw_text('___ (game) - Quit', int(self.game.font_size / 2), self.opt9x, self.opt9y, font_name = self.game.menu2_font)
+				self.game.draw_text('{0} (game) - Quit'.format(pygame.key.name(self.game.MENU_BIND).upper()), int(self.game.font_size / 2), self.opt9x, self.opt9y, font_name = self.game.menu2_font)
 				self.blit_screen()
 				while self.checks != 5000:
 					for event in pygame.event.get():

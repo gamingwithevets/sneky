@@ -13,8 +13,8 @@ class Game():
 		pygame.init()
 		pygame.display.set_caption("Sneky")
 		# game version
-		self.gamestatus = 'beta'
-		self.gameversion = '1.2.0'
+		self.gamestatus = 'release'
+		self.gameversion = '1.0.0'
 
 		# default keys
 		self.CTRL_BIND = pygame.K_LCTRL
@@ -107,8 +107,9 @@ class Game():
 			self.check_events()
 			self.test()
 			self.reset_keys()
-			if self.g_over and self.angry_apple:
+			if self.g_over:
 				self.draw_game_screen()
+	
 			self.window.blit(self.display, (0,0))
 			pygame.display.update()
 
@@ -301,7 +302,7 @@ class Game():
 				pygame.draw.rect(self.display,(170, 215, 81),(x + 20,y,self.cell_size,self.cell_size))
 				pygame.draw.rect(self.display,(162, 209, 72),(x,y,self.cell_size,self.cell_size))
 
-		#border
+		# border
 		pygame.draw.rect(self.display,self.gray,(self.border_x,self.border_y,self.DISPLAY_W - self.border_x - 20,self.DISPLAY_H - self.border_y - 20),10)        
 
 		if self.snake_instinct == 1:
@@ -345,17 +346,18 @@ class Game():
 		for ap in self.apple_List:
 			self.display.blit(self.imgApple,pygame.Rect(ap[0], ap[1], self.cell_size, self.cell_size))
 		#self.display.blit(self.imgApple,pygame.Rect(self.apple[0], self.apple[1], self.cell_size, self.cell_size))
+
 		if self.g_over:
 			if not self.win:
 				if self.angry_apple == 0:
-					self.display.blit(self.imgHead_die,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+					self.display.blit(self.imgHead_die,pygame.Rect(self.snake[0][0], self.snake[0][1], self.cell_size, self.cell_size))
 				else:
 					self.display.blit(self.imgHead_win,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
 			else:
 				if self.angry_apple == 0:
 					self.display.blit(self.imgHead_win,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
 				else:
-					self.display.blit(self.imgHead_die,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+					self.display.blit(self.imgHead_die,pygame.Rect(self.snake[0][0], self.snake[0][1], self.cell_size, self.cell_size))
 		else:
 			if self.direction == 'RIGHT':
 				self.display.blit(self.imgHead_r,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
@@ -369,13 +371,13 @@ class Game():
 	def move_apple(self):
 		key_pressed = pygame.key.get_pressed()
 		if key_pressed[pygame.K_UP]:
-			self.apple_List[0][1] -= self.cell_size
+			self.apple_List[0][1] -= self.cell_size * 1.25
 		elif key_pressed[pygame.K_DOWN]:
-			self.apple_List[0][1] += self.cell_size
+			self.apple_List[0][1] += self.cell_size * 1.25
 		elif key_pressed[pygame.K_RIGHT]:
-			self.apple_List[0][0] += self.cell_size
+			self.apple_List[0][0] += self.cell_size * 1.25
 		elif key_pressed[pygame.K_LEFT]:
-			self.apple_List[0][0] -= self.cell_size
+			self.apple_List[0][0] -= self.cell_size * 1.25
 
 		# if self.UP_KEY:
 		# 	self.apple_List[0][1] -= self.cell_size
@@ -612,7 +614,8 @@ class Game():
 						self.GSportal.play()
 		
 		# snake moving
-		self.snake.insert(0, list(self.snake_head))
+		if not self.g_over:
+			self.snake.insert(0, list(self.snake_head))
 		
 		# eat apple
 		if self.snake_head in self.apple_List:
@@ -665,7 +668,8 @@ class Game():
 				
 		else:
 			if not self.disallowpopping:
-				self.snake.pop()
+				if not self.g_over:
+					self.snake.pop()
 			else:
 				self.disallowpopping = False
 
@@ -681,6 +685,12 @@ class Game():
 
 		#load image
 		self.imgLoad = pygame.transform.scale(pygame.image.load('images/loading.png'), (self.DISPLAY_W, self.DISPLAY_H))
+		self.imgGWE = pygame.transform.scale(pygame.image.load('images/GWE.png'), (512, 438))
+		self.imgGWE_rect = self.imgGWE.get_rect()
+		self.imgSJ = pygame.image.load('images/SJ.png')
+		self.imgSJ_rect = self.imgSJ.get_rect()
+		self.imgSJ_rect.center, self.imgGWE_rect.center = (self.DISPLAY_W / 2, self.DISPLAY_H / 2), (self.DISPLAY_W / 2, self.DISPLAY_H / 2)
+		self.imgSJ.get_rect().center = (self.DISPLAY_W / 2, self.DISPLAY_H / 2)
 		self.imgMenu = pygame.transform.scale(pygame.image.load('images/menu.png'), (self.DISPLAY_W, self.DISPLAY_H))
 
 		#self.body_default = pygame.transform.scale(pygame.image.load('images/body_default.png'),(self.cell_size,self.cell_size))
@@ -1009,21 +1019,61 @@ class Game():
 			self.BAcorrect.set_volume(self.soundvol * self.volume)
 
 	def load_music(self):
-		self.display.blit(self.imgLoad, (0, 0))
+		self.draw_text('Loading...', self.font_size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.menu2_font)
 		self.window.blit(self.display, (0,0))
 		pygame.display.update()
 		self.NAPSR = pygame.mixer.Sound('audio/napsr.mp3')
 		self.gamemus = pygame.mixer.Sound('audio/bg_music_1.mp3')
-
-		pygame.time.delay(2000)
-		self.display.fill(self.BLACK)
+		self.fadeBg = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
+		self.fadeBg.set_alpha(255)
+		self.fadeBg.fill(self.black)
+		self.alpha = 0
+		self.display.blit(self.imgLoad, (0, 0))
+		self.display.blit(self.imgSJ, self.imgSJ_rect)
+		while self.alpha < 255:
+			pygame.time.delay(25)
+			self.alpha += 20
+			self.display.set_alpha(self.alpha)
+			self.window.blit(self.fadeBg, (0,0))
+			self.window.blit(self.display, (0,0))
+			pygame.display.update()
+		pygame.time.delay(1000)
+		self.alpha = 0
+		while self.alpha < 255:
+			pygame.time.delay(25)
+			self.alpha += 20
+			self.fadeBg.set_alpha(self.alpha)
+			self.window.blit(self.display, (0,0))
+			self.window.blit(self.fadeBg, (0,0))
+			pygame.display.update()
+		self.display.blit(self.imgLoad, (0, 0))
+		self.display.blit(self.imgGWE, self.imgGWE_rect)
+		self.window.blit(self.display, (0,0))
+		self.alpha = 0
+		while self.alpha < 255:
+			pygame.time.delay(25)
+			self.alpha += 20
+			self.display.set_alpha(self.alpha)
+			self.window.blit(self.fadeBg, (0,0))
+			self.window.blit(self.display, (0,0))
+			pygame.display.update()
+		pygame.time.delay(1000)
+		self.alpha = 0
+		while self.alpha < 255:
+			pygame.time.delay(25)
+			self.alpha += 20
+			self.fadeBg.set_alpha(self.alpha)
+			self.window.blit(self.display, (0,0))
+			self.window.blit(self.fadeBg, (0,0))
+			pygame.display.update()
+		pygame.time.delay(500)
+		self.display.fill(self.black)
 		self.window.blit(self.display, (0,0))
 		pygame.display.update()
-		pygame.time.delay(100)
 
 	def save_settings(self):
 		# save settings to settings.py
-		f = open('settings.py', 'w', encoding = 'utf8')
+		f = open(os.getenv('LOCALAPPDATA') + '\\Sneky\\settings.py', 'w', encoding = 'utf8')
 		f.write('# WARNING! This script is auto-generated by Sneky.\n# You should NOT modify it in any way!\n\n')
 		f.write('# master volume\nvolume = {0}\n\n'.format(self.volume))
 		f.write('# music volume\nmusicvol = {0}\n\n'.format(self.musicvol))
