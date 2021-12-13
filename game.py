@@ -683,7 +683,7 @@ class Game():
 		self.imgLoad = pygame.transform.scale(pygame.image.load('images/loading.png'), (self.DISPLAY_W, self.DISPLAY_H))
 		self.imgMenu = pygame.transform.scale(pygame.image.load('images/menu.png'), (self.DISPLAY_W, self.DISPLAY_H))
 
-		self.body_default = pygame.transform.scale(pygame.image.load('images/body_default.png'),(self.cell_size,self.cell_size))
+		#self.body_default = pygame.transform.scale(pygame.image.load('images/body_default.png'),(self.cell_size,self.cell_size))
 
 		self.imgHead_r = pygame.transform.scale(pygame.image.load('images/head_r.png'),(self.cell_size,self.cell_size))
 		self.imgHead_l = pygame.transform.scale(pygame.image.load('images/head_l.png'),(self.cell_size,self.cell_size))
@@ -691,10 +691,10 @@ class Game():
 		self.imgHead_d = pygame.transform.scale(pygame.image.load('images/head_d.png'),(self.cell_size,self.cell_size))
 		self.imgHead_die = pygame.transform.scale(pygame.image.load('images/head_die.png'),(self.cell_size,self.cell_size))
 		self.imgHead_win = pygame.transform.scale(pygame.image.load('images/head_win.png'),(self.cell_size,self.cell_size))
-		self.imgTail_r = pygame.transform.scale(pygame.image.load('images/tail_r.png'),(self.cell_size,self.cell_size))
-		self.imgTail_l = pygame.transform.rotate(self.imgTail_r, 180)
-		self.imgTail_u = pygame.transform.rotate(self.imgTail_r, 90)
-		self.imgTail_d = pygame.transform.rotate(self.imgTail_r, 270)
+		#self.imgTail_r = pygame.transform.scale(pygame.image.load('images/tail_r.png'),(self.cell_size,self.cell_size))
+		#self.imgTail_l = pygame.transform.rotate(self.imgTail_r, 180)
+		#self.imgTail_u = pygame.transform.rotate(self.imgTail_r, 90)
+		#self.imgTail_d = pygame.transform.rotate(self.imgTail_r, 270)
 
 		self.imgApple = pygame.transform.scale(pygame.image.load('images/apple.png'),(self.cell_size,self.cell_size))
 
