@@ -4,6 +4,10 @@ import sys
 import traceback
 import logger
 
+if not os.path.exists(os.getenv('LOCALAPPDATA') + '\\Sneky'):
+	os.mkdir(os.getenv('LOCALAPPDATA') + '\\Sneky')
+sys.path.insert(0, os.getenv('LOCALAPPDATA') + '\\Sneky')
+
 try:
 
 	from game import Game
