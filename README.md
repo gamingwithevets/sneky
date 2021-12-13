@@ -4,6 +4,7 @@ Snake, now made in Pygame!
 # Requirements
 Well, you need **Pygame**, of course. Oh, and don't forget **Python**!  
 After that, run `main.py` to start the game!  
+NOTE: The game only supports Windows.
 
 # Gameplay
 Currently, the game has 6 modes.
