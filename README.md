@@ -4,7 +4,6 @@ Snake, now made in Pygame!
 # Requirements
 Well, you need **Pygame**, of course. Oh, and don't forget **Python**!  
 After that, run `main.py` to start the game!  
-Oh, and keep in mind: this game does **not** feature key rebinding. So if you break a key and you need to use it to play the game OR you wanna play with a controller, you are ***outta luck***!
 
 # Gameplay
 Currently, the game has 6 modes.
@@ -27,16 +26,27 @@ To win in a mode (except for Angry Apple), you must somehow fill the entire scre
 # Game Features
 ## Turbo Mode
 The snake's speed is 0% at first, which is VERY slow. Normally, eating an apple makes the snake speed up by *a little bit*.  
-But that's slow, right? Hold down LCTRL to speed the snake up until you lift the key! Keep in mind that this speed is *slower* than the max speed.  
+But that's slow, right? Hold down the Turbo key (default: LCTRL) to speed the snake up until you lift the key! Keep in mind that this speed is *slower* than the max speed.  
 In Angry Apple mode, this slows down the snake to 0%, making escaping the snake easier.
 ## AI Snake
-Serial Number **Q**5**U**4**E**X7YY2**E**9**N**, a.k.a. Queen from *Deltarune*, comes to help you! Press X to receive help from her and let her play instead. Press X again to regain control of the snake.  
+Serial Number **Q**5**U**4**E**X7YY2**E**9**N**, a.k.a. Queen from *Deltarune*, comes to help you! Press the AI Snake key (default: X) to receive help from her and let her play instead. Press the AI Snake key again to regain control of the snake.  
 Keep in mind: The Queen will not help you in Angry Apple mode, since she's controlling the snake!
+## The Snake's Colors
+The snake has different colors, and that represents different powers.
+- Green: The pain 'ol snake that dies when bumping into borders or itself.
+- Super Yellow: Makes more apples spawn.
+- God Red: Allows you to turn around and go past yourself. (Debug Mode only; different color due to Light Blue overlapping)
+- Light Blue: Makes the borders act as portals to the other side of the playfield.
+- Ultra Instinct White: You become so fast that the border completely breaks, allowing you to go outside of the playfield. Be careful, because you can lose track of the snake. Ultimate Mode Only.
+## Key Rebinding
+Yup, that's right!!! You didn't expect this, right? You wouldn't think a game coming from GitHub wouldn't have key rebinding, right?  
+Well, you can say it's very unnecessary, but who cares?
 
 # Credits
 Apple Graphic: Luna4s  
 Title Screen & Snake Graphics: GamingWithEvets (GWE Inc.)  
 Menu Music: "Nintendo Anti-Piracy Self-Reporter" - Joey Perleoni  
+Game Music: "Nothing to Say" - Md Abdul Kader Zilani  
 Sounds from DELTARUNE, Google Snake Game, Super Mario Bros. 2 USA, Brain Age  
 
 Menu Template: ChristianD37  
