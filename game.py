@@ -10,11 +10,16 @@ from pygame import mixer
 
 class Game():
 	def __init__(self):
+		try:
+			self.temp_path = sys._MEIPASS + '/'
+		except Exception:
+			self.temp_path = ''
+
 		pygame.init()
 		pygame.display.set_caption("Sneky")
 		# game version
 		self.gamestatus = 'release'
-		self.gameversion = '1.0.0'
+		self.gameversion = '1.1.0'
 
 		# default keys
 		self.CTRL_BIND = pygame.K_LCTRL
@@ -28,17 +33,27 @@ class Game():
 		self.RIGHT_BIND = pygame.K_RIGHT
 		self.X_BIND = pygame.K_x
 
-		self.running, self.playing, self.inmenu, self.show_instructions = True, False, True, False
+		# allows modes to be playable or not
+		self.allowmode0 = False # apple bag
+		self.allowmode1 = False # portal border
+		self.allowmode2 = False # ultimate mode
+		self.allowmode3 = False # angry apple
+		self.allowmode4 = False # de snake mode
+
+
+		self.running, self.playing, self.inmenu, self.show_instructions, self.newmode, self.newmoded = True, False, True, False, False, False
 		self.reset_keys()
 		# self.START_KEY, self.BACK_KEY, self.SPACE_KEY, self.CTRL_KEY = False, False, False, False
 		# self.UP_KEY, self.DOWN_KEY, self.LEFT_KEY, self.RIGHT_KEY = False, False, False, False
+
+		# display resolution. large resolutions not recommended.
 		self.DISPLAY_W, self.DISPLAY_H = 800, 600
 		self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-		self.window = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)))
-		self.arrow_font = 'fonts/MinecraftRegular.ttf'
-		self.menu2_font = 'fonts/Minecraftia.ttf'
-		self.menu_font = 'fonts/8_BIT_WONDER.ttf'
-		self.game_font = 'fonts/River Adventurer.TTF'
+		self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
+		self.arrow_font = self.temp_path + 'fonts/MinecraftRegular.ttf'
+		self.menu2_font = self.temp_path + 'fonts/Minecraftia.ttf'
+		self.menu_font = self.temp_path + 'fonts/8_BIT_WONDER.ttf'
+		self.game_font = self.temp_path + 'fonts/River Adventurer.TTF'
 		self.font_size = 32
 		self.BLACK, self.WHITE = (0,0,0), (255,255,255)
 		self.press_start = PressStart(self)
@@ -109,13 +124,14 @@ class Game():
 			self.reset_keys()
 			if self.g_over:
 				self.draw_game_screen()
-	
+			
 			self.window.blit(self.display, (0,0))
-			pygame.display.update()
 
-			if self.paused:
+			if self.paused or self.newmode:
 				self.game_over()
 
+			pygame.display.update()
+		
 		self.game_over()
 
 	def game_over(self):
@@ -254,6 +270,43 @@ class Game():
 					return
 				self.reset_keys()
 
+		elif self.newmode:
+			self.draw_game_screen()
+			self.window.blit(self.display, (0,0))
+
+			# fade diplay
+			self.fadeBg = pygame.Surface((self.DISPLAY_W - self.border_x - 20, self.DISPLAY_H - self.border_y - 20))
+			self.fadeBg.set_alpha(int(255 / 100 * self.alpha_percentage))
+			self.fadeBg.fill(self.black)
+			self.window.blit(self.fadeBg, (self.border_x, self.border_y))
+
+			# new mode message
+			self.draw_text('NEW MODE UNLOCKED!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
+			self.draw_text('Do you want to try it out?', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size, font_name = self.menu2_font, screen = self.window)
+
+			self.draw_text('{0}: Yes, please'.format(pygame.key.name(self.BACK_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 3, font_name = self.game_font, screen = self.window)
+			self.draw_text('{0}: No thanks, continue playing'.format(pygame.key.name(self.SPACE_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.game_font, screen = self.window)
+
+			self.DRsnd_won.play()
+			# self.window.blit(self.over_text, self.over_rect)
+			pygame.display.update()
+
+			self.save_settings()
+
+			while self.newmode:
+
+				# check input
+				self.check_events()
+				if self.BACK_KEY or self.MENU_KEY:
+					self.newmode = False
+					self.playing = False
+				if self.SPACE_KEY:
+					self.reset_keys()
+					self.newmode = False
+					self.newmoded = True
+					return
+				self.reset_keys()
+
 		if not self.inmenu and not self.playing:
 			logger.log('Player ' + os.getenv('USERNAME') + ' quit the game!')
 			self.show_instructions = False
@@ -272,11 +325,11 @@ class Game():
 			#self.show_delay()
 		else:
 			if self.angry_apple == 0:
-				pygame.time.delay(5)
-				self.draw_text('TURBO MODE IS ON', 25, 350, 30, self.red, self.game_font)
+				pygame.time.delay(0)
+				self.draw_text('TURBO MODE IS ON', 25, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
 			else:
-				pygame.time.delay(150)
-				self.draw_text('THE SNAKE SLOWED DOWN!', 15, 350, 30, self.red, self.game_font)
+				pygame.time.delay(100)
+				self.draw_text('THE SNAKE SLOWED DOWN!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
 
 		#score
 		self.show_score()
@@ -288,7 +341,7 @@ class Game():
 		#self.draw_text('Apple: {0}, {1}'.format(self.apple[0], self.apple[1]), 25, 100, 30, self.gray, self.game_font)
 
 		# snake pos
-		#self.draw_text('Snake: {0}, {1}'.format(self.snake_head[0], self.snake_head[1]), 25, 350, 30, self.gray, self.game_font)
+		#self.draw_text('Snake: {0}, {1}'.format(self.snake_head[0], self.snake_head[1]), 25, self.DISPLAY_W / 2 - 50, 30, self.gray, self.game_font)
 
 		# apple_bag pos
 		#self.draw_text('Last Apple: {0}, {1}'.format(self.apple_List[0][0], self.apple_List[0][1]), 25, 100, 30, self.gray, self.game_font)
@@ -370,13 +423,13 @@ class Game():
 
 	def move_apple(self):
 		key_pressed = pygame.key.get_pressed()
-		if key_pressed[pygame.K_UP]:
+		if key_pressed[self.UP_BIND]:
 			self.apple_List[0][1] -= self.cell_size * 1.25
-		elif key_pressed[pygame.K_DOWN]:
+		elif key_pressed[self.DOWN_BIND]:
 			self.apple_List[0][1] += self.cell_size * 1.25
-		elif key_pressed[pygame.K_RIGHT]:
+		elif key_pressed[self.RIGHT_BIND]:
 			self.apple_List[0][0] += self.cell_size * 1.25
-		elif key_pressed[pygame.K_LEFT]:
+		elif key_pressed[self.LEFT_BIND]:
 			self.apple_List[0][0] -= self.cell_size * 1.25
 
 		# if self.UP_KEY:
@@ -673,6 +726,23 @@ class Game():
 			else:
 				self.disallowpopping = False
 
+		# unlock modes
+		if self.score == 20 and self.portal_border == 0 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode0 and not self.newmoded:
+			self.newmode = True
+			self.allowmode0 = True
+		if self.score == 20 and self.portal_border == 0 and self.curled_up == 0 and self.apple_bag == 1 and not self.allowmode1 and not self.newmoded:
+			self.newmode = True
+			self.allowmode1 = True
+		if self.score == 20 and self.portal_border == 1 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode2 and not self.newmoded:
+			self.newmode = True
+			self.allowmode2 = True
+		if self.score == 20 and self.snake_instinct == 1 and not self.allowmode3 and not self.newmoded:
+			self.newmode = True
+			self.allowmode3 = True
+		if self.score == 20 and self.angry_apple == 1 and not self.allowmode4 and not self.newmoded:
+			self.newmode = True
+			self.allowmode4 = True
+
 		# if no more apples are left, auto win
 		if self.apple_List == []:
 			self.playing = False
@@ -684,47 +754,48 @@ class Game():
 		self.cell_size = 20
 
 		#load image
-		self.imgLoad = pygame.transform.scale(pygame.image.load('images/loading.png'), (self.DISPLAY_W, self.DISPLAY_H))
-		self.imgGWE = pygame.transform.scale(pygame.image.load('images/GWE.png'), (512, 438))
-		self.imgGWE_rect = self.imgGWE.get_rect()
-		self.imgSJ = pygame.image.load('images/SJ.png')
-		self.imgSJ_rect = self.imgSJ.get_rect()
-		self.imgSJ_rect.center, self.imgGWE_rect.center = (self.DISPLAY_W / 2, self.DISPLAY_H / 2), (self.DISPLAY_W / 2, self.DISPLAY_H / 2)
-		self.imgSJ.get_rect().center = (self.DISPLAY_W / 2, self.DISPLAY_H / 2)
-		self.imgMenu = pygame.transform.scale(pygame.image.load('images/menu.png'), (self.DISPLAY_W, self.DISPLAY_H))
+		self.imgLoad = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/loading.png'), (self.DISPLAY_W, self.DISPLAY_H))
+		self.imgGWE = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/GWE.png'), (512, 438))
+		self.imgSJ = pygame.image.load(self.temp_path + 'images/SJ.png')
+		self.imgPG = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/pygame.png'), (512, 144))
+		self.imgSJ_rect, self.imgGWE_rect, self.imgPG_rect = self.imgSJ.get_rect(), self.imgGWE.get_rect(), self.imgPG.get_rect()
+		self.imgSJ_rect.center, self.imgGWE_rect.center, self.imgPG_rect.center = (self.DISPLAY_W / 2, self.DISPLAY_H / 2), (self.DISPLAY_W / 2, self.DISPLAY_H / 2), (self.DISPLAY_W / 2, self.DISPLAY_H / 2)
+		self.imgMenu = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/menu.png'), (self.DISPLAY_W, self.DISPLAY_H))
+		self.imgMenuBG = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/menubg.png'), (self.DISPLAY_W, self.DISPLAY_H))
 
 		#self.body_default = pygame.transform.scale(pygame.image.load('images/body_default.png'),(self.cell_size,self.cell_size))
 
-		self.imgHead_r = pygame.transform.scale(pygame.image.load('images/head_r.png'),(self.cell_size,self.cell_size))
-		self.imgHead_l = pygame.transform.scale(pygame.image.load('images/head_l.png'),(self.cell_size,self.cell_size))
-		self.imgHead_u = pygame.transform.scale(pygame.image.load('images/head_u.png'),(self.cell_size,self.cell_size))
-		self.imgHead_d = pygame.transform.scale(pygame.image.load('images/head_d.png'),(self.cell_size,self.cell_size))
-		self.imgHead_die = pygame.transform.scale(pygame.image.load('images/head_die.png'),(self.cell_size,self.cell_size))
-		self.imgHead_win = pygame.transform.scale(pygame.image.load('images/head_win.png'),(self.cell_size,self.cell_size))
-		#self.imgTail_r = pygame.transform.scale(pygame.image.load('images/tail_r.png'),(self.cell_size,self.cell_size))
+		self.imgHead_r = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_r.png'),(self.cell_size,self.cell_size))
+		self.imgHead_l = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_l.png'),(self.cell_size,self.cell_size))
+		self.imgHead_u = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_u.png'),(self.cell_size,self.cell_size))
+		self.imgHead_d = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_d.png'),(self.cell_size,self.cell_size))
+		self.imgHead_die = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_die.png'),(self.cell_size,self.cell_size))
+		self.imgHead_win = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_win.png'),(self.cell_size,self.cell_size))
+		#self.imgTail_r = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/tail_r.png'),(self.cell_size,self.cell_size))
 		#self.imgTail_l = pygame.transform.rotate(self.imgTail_r, 180)
 		#self.imgTail_u = pygame.transform.rotate(self.imgTail_r, 90)
 		#self.imgTail_d = pygame.transform.rotate(self.imgTail_r, 270)
 
-		self.imgApple = pygame.transform.scale(pygame.image.load('images/apple.png'),(self.cell_size,self.cell_size))
+		self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/apple.png'),(self.cell_size - 3, self.cell_size))
 
 		# Load audio
-		self.DRsnd_menumove = pygame.mixer.Sound('audio/dr.snd_menumove.wav')
-		self.DRsnd_select = pygame.mixer.Sound('audio/dr.snd_select.wav')
-		self.DRsnd_cantselect = pygame.mixer.Sound('audio/dr.snd_cantselect.wav')
+		self.DRsnd_menumove = pygame.mixer.Sound(self.temp_path + 'audio/dr.snd_menumove.wav')
+		self.DRsnd_select = pygame.mixer.Sound(self.temp_path + 'audio/dr.snd_select.wav')
+		self.DRsnd_cantselect = pygame.mixer.Sound(self.temp_path + 'audio/dr.snd_cantselect.wav')
+		self.DRsnd_won = pygame.mixer.Sound(self.temp_path + 'audio/dr.snd_won.wav')
 
-		self.GSmove_u = pygame.mixer.Sound('audio/ggsnake.move_up.wav')
-		self.GSmove_d = pygame.mixer.Sound('audio/ggsnake.move_down.wav')
-		self.GSmove_l = pygame.mixer.Sound('audio/ggsnake.move_left.wav')
-		self.GSmove_r = pygame.mixer.Sound('audio/ggsnake.move_right.wav')
-		self.GSeatapple = pygame.mixer.Sound('audio/ggsnake.eatapple.wav')
-		self.GSportal = pygame.mixer.Sound('audio/ggsnake.portal.wav')
-		self.GSwin = pygame.mixer.Sound('audio/ggsnake.win.wav')
-		self.GSdie = pygame.mixer.Sound('audio/ggsnake.die.wav')
+		self.GSmove_u = pygame.mixer.Sound(self.temp_path + 'audio/ggsnake.move_up.wav')
+		self.GSmove_d = pygame.mixer.Sound(self.temp_path + 'audio/ggsnake.move_down.wav')
+		self.GSmove_l = pygame.mixer.Sound(self.temp_path + 'audio/ggsnake.move_left.wav')
+		self.GSmove_r = pygame.mixer.Sound(self.temp_path + 'audio/ggsnake.move_right.wav')
+		self.GSeatapple = pygame.mixer.Sound(self.temp_path + 'audio/ggsnake.eatapple.wav')
+		self.GSportal = pygame.mixer.Sound(self.temp_path + 'audio/ggsnake.portal.wav')
+		self.GSwin = pygame.mixer.Sound(self.temp_path + 'audio/ggsnake.win.wav')
+		self.GSdie = pygame.mixer.Sound(self.temp_path + 'audio/ggsnake.die.wav')
 
-		self.SMB2down = pygame.mixer.Sound('audio/smb2.down.ogg')
+		self.SMB2down = pygame.mixer.Sound(self.temp_path + 'audio/smb2.down.ogg')
 
-		self.BAcorrect = pygame.mixer.Sound('audio/brainage.correct.wav')
+		self.BAcorrect = pygame.mixer.Sound(self.temp_path + 'audio/brainage.correct.wav')
 
 		# PERCENTAGE of the alpha layer
 		self.alpha_percentage = 20
@@ -821,36 +892,35 @@ class Game():
 	def show_score(self):
 		self.draw_text('Score: {0}'.format(self.score), 25, 100, 30, self.gray, self.game_font)
 
-
 	def show_speed(self):
 		# speed percent
 		speed_percent = (150 - self.speed) / 150 * 100
 		
 		if self.angry_apple == 1:
 			if self.turbo:
-				self.draw_text('Snake Speed: 0.00%', 25, 600, 30, self.gray, self.game_font)
-				self.draw_text('TEMPORARY!'.format(29 / 30 * 100), 13, 600, 50, self.red, self.game_font)
+				self.draw_text('Snake Speed: 0.67%', 25, self.DISPLAY_W - 200, 30, self.gray, self.game_font)
+				self.draw_text('TEMPORARY!'.format(29 / 30 * 100), 13, self.DISPLAY_W - 200, 50, self.red, self.game_font)
 			else:
 				if speed_percent >= 100:
-					self.draw_text('Snake Speed: 100.00%', 25, 600, 30, self.gray, self.game_font)
-					self.draw_text('MAX!'.format(29 / 30 * 100), 13, 600, 50, self.red, self.game_font)
+					self.draw_text('Snake Speed: 100.00%', 25, self.DISPLAY_W - 200, 30, self.gray, self.game_font)
+					self.draw_text('MAX!'.format(29 / 30 * 100), 13, self.DISPLAY_W - 200, 50, self.red, self.game_font)
 				else:
-					self.draw_text('Snake Speed: {:.2f}%'.format(speed_percent), 25, 600, 30, self.gray, self.game_font)
+					self.draw_text('Snake Speed: {:.2f}%'.format(speed_percent), 25, self.DISPLAY_W - 200, 30, self.gray, self.game_font)
 		else:
 			if self.turbo:
-				self.draw_text('Speed: {:.2f}%'.format(29 / 30 * 100), 25, 600, 30, self.gray, self.game_font)
-				self.draw_text('TEMPORARY!'.format(29 / 30 * 100), 13, 600, 50, self.red, self.game_font)
+				self.draw_text('Speed: 100.00%', 25, self.DISPLAY_W - 200, 30, self.gray, self.game_font)
+				self.draw_text('TEMPORARY!'.format(29 / 30 * 100), 13, self.DISPLAY_W - 200, 50, self.red, self.game_font)
 			else:
 				if speed_percent >= 100:
-					self.draw_text('Speed: 100.00%', 25, 600, 30, self.gray, self.game_font)
-					self.draw_text('MAX!'.format(29 / 30 * 100), 13, 600, 50, self.red, self.game_font)
+					self.draw_text('Speed: 100.00%', 25, self.DISPLAY_W - 200, 30, self.gray, self.game_font)
+					self.draw_text('MAX!'.format(29 / 30 * 100), 13, self.DISPLAY_W - 200, 50, self.red, self.game_font)
 				else:
-					self.draw_text('Speed: {:.2f}%'.format(speed_percent), 25, 600, 30, self.gray, self.game_font)
+					self.draw_text('Speed: {:.2f}%'.format(speed_percent), 25, self.DISPLAY_W - 200, 30, self.gray, self.game_font)
 
 	def show_delay(self):
 		# speed percent
 		delay = self.speed
-		self.draw_text('Delay: {:.2f}'.format(delay), 25, 350, 30, self.gray, self.game_font)
+		self.draw_text('Delay: {:.2f}'.format(delay), 25, self.DISPLAY_W / 2 - 50, 30, self.gray, self.game_font)
 
 	def run(self):
 		#mode_playing = True
@@ -1004,6 +1074,7 @@ class Game():
 			self.DRsnd_menumove.set_volume(self.soundvol * self.volume)
 			self.DRsnd_select.set_volume(self.soundvol * self.volume)
 			self.DRsnd_cantselect.set_volume(self.soundvol * self.volume)
+			self.DRsnd_won.set_volume(self.soundvol * self.volume)
 
 			self.GSmove_u.set_volume(self.soundvol * self.volume)
 			self.GSmove_d.set_volume(self.soundvol * self.volume)
@@ -1022,13 +1093,13 @@ class Game():
 		self.draw_text('Loading...', self.font_size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.menu2_font)
 		self.window.blit(self.display, (0,0))
 		pygame.display.update()
-		self.NAPSR = pygame.mixer.Sound('audio/napsr.mp3')
-		self.gamemus = pygame.mixer.Sound('audio/bg_music_1.mp3')
+		self.NAPSR = pygame.mixer.Sound(self.temp_path + 'audio/napsr.mp3')
+		self.gamemus = pygame.mixer.Sound(self.temp_path + 'audio/bg_music_1.mp3')
 		self.fadeBg = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
 		self.fadeBg.set_alpha(255)
 		self.fadeBg.fill(self.black)
 		self.alpha = 0
-		self.display.blit(self.imgLoad, (0, 0))
+		self.display.blit(self.imgLoad, (0,0))
 		self.display.blit(self.imgSJ, self.imgSJ_rect)
 		while self.alpha < 255:
 			pygame.time.delay(25)
@@ -1046,8 +1117,28 @@ class Game():
 			self.window.blit(self.display, (0,0))
 			self.window.blit(self.fadeBg, (0,0))
 			pygame.display.update()
-		self.display.blit(self.imgLoad, (0, 0))
+		self.display.blit(self.imgLoad, (0,0))
 		self.display.blit(self.imgGWE, self.imgGWE_rect)
+		self.window.blit(self.display, (0,0))
+		self.alpha = 0
+		while self.alpha < 255:
+			pygame.time.delay(25)
+			self.alpha += 20
+			self.display.set_alpha(self.alpha)
+			self.window.blit(self.fadeBg, (0,0))
+			self.window.blit(self.display, (0,0))
+			pygame.display.update()
+		pygame.time.delay(1000)
+		self.alpha = 0
+		while self.alpha < 255:
+			pygame.time.delay(25)
+			self.alpha += 20
+			self.fadeBg.set_alpha(self.alpha)
+			self.window.blit(self.display, (0,0))
+			self.window.blit(self.fadeBg, (0,0))
+			pygame.display.update()
+		self.display.blit(self.imgLoad, (0,0))
+		self.display.blit(self.imgPG, self.imgPG_rect)
 		self.window.blit(self.display, (0,0))
 		self.alpha = 0
 		while self.alpha < 255:
@@ -1087,7 +1178,12 @@ class Game():
 		f.write('DOWN_BIND = {0}\n'.format(self.DOWN_BIND))
 		f.write('LEFT_BIND = {0}\n'.format(self.LEFT_BIND))
 		f.write('RIGHT_BIND = {0}\n'.format(self.RIGHT_BIND))
-		f.write('X_BIND = {0}\n'.format(self.X_BIND))
+		f.write('X_BIND = {0}\n\n'.format(self.X_BIND))
+		f.write('# allows modes to be playable or not\nallowmode0 = {0}\n'.format(self.allowmode0))
+		f.write('allowmode1 = {0}\n'.format(self.allowmode1))
+		f.write('allowmode2 = {0}\n'.format(self.allowmode2))
+		f.write('allowmode3 = {0}\n'.format(self.allowmode3))
+		f.write('allowmode4 = {0}\n'.format(self.allowmode4))
 		f.close()
 
 if __name__ == '__main__':

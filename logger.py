@@ -5,12 +5,7 @@ from datetime import datetime
 # log file
 logfile = 'sneky.log'
 
-notsneky = False
-
 def log(text):
-	if notsneky:
-		print('No.')
-		return
 	f = open(os.getenv('LOCALAPPDATA') + '\\Sneky\\' + logfile, 'a', encoding = 'utf8')
 	print('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
 	f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
@@ -18,9 +13,6 @@ def log(text):
 	f.close()
 
 def startuplog(gamestatus, gameversion):
-	if notsneky:
-		print('No.')
-		return
 	f = open(os.getenv('LOCALAPPDATA') + '\\Sneky\\' + logfile, 'a', encoding = 'utf8')
 	if gamestatus != None and gamestatus != 'release':
 		print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (' + gamestatus + ' ' + gameversion + ')\nBegin logging for this session.')
@@ -36,7 +28,3 @@ def startuplog(gamestatus, gameversion):
 
 if __name__ == '__main__':
 	print('This logger is designed for Sneky.')
-else:
-	if not sys.argv[0].endswith('main.py'):
-		print('Hey! What are you doing?!')
-		notsneky = True

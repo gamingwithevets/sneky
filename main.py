@@ -25,8 +25,8 @@ except pygame.error:
 except KeyboardInterrupt:
 	pygame.quit()
 	logger.log('Sneky closed due to the user halting execution manually.\n' + traceback.format_exc() + '\nSneky session closed. (KeyboardInterrupt)\n')
-	exit()
+	sys.exit()
 except Exception as e:
 	pygame.quit()
 	logger.log('An error has occurred!\n' + traceback.format_exc() + '\nSneky session closed. (' + type(e).__name__ + ')\n')
-	exit()
+	sys.exit()
