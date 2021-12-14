@@ -2,9 +2,18 @@
 Snake, now made in Pygame!  
 
 # Requirements
-Well, you need **Pygame**, of course. Oh, and don't forget **Python**!  
+You just need a binary to run Sneky without having to install anything.  
+If you wanna run the game from source code... well, you can download the ZIP file, or if you prefer the Linux way, use `git clone https://github.com/gamingwithevets/sneky.git`.  
+Then, install Python (I recommend the latest version). Then, you should update `pip` first. Run `pip --update` to do that.  
+And, of course, run `pip install pygame`.
 After that, run `main.py` to start the game!  
-NOTE: The game only supports Windows.
+NOTE: The game only supports Windows, due to the game saving in %LOCALAPPDATA%, which is not present in Linux.
+## Building a Binary
+If you want to build your own binary, especially for versions older than `v1.0.0b`, first, of course, you need to clone the repo.  
+In addition to Pygame and Python, you need Pyinstaller. To install it, just use `pip install pyinstaller`.  
+Making a command of your own is very hard, so run this command (`path-to-repo`) with the path to the cloned repo. A folder seperator in Windows is `\`, while in Linux it's `/`. Do not confuse them!  
+`pyinstaller --noconfirm --onefile --console --name "sneky" --runtime-tmpdir "." --add-data "C:/Users/ADMIN/Documents/Python/Sneky/game.py;." --add-data "C:/Users/ADMIN/Documents/Python/Sneky/logger.py;." --add-data "C:/Users/ADMIN/Documents/Python/Sneky/menu.py;." --add-data "C:/Users/ADMIN/Documents/Python/Sneky/audio;audio/" --add-data "C:/Users/ADMIN/Documents/Python/Sneky/fonts;fonts/" --add-data "C:/Users/ADMIN/Documents/Python/Sneky/images;images/"  "C:/Users/ADMIN/Documents/Python/Sneky/main.py"`  
+Run that, and in the `dist` folder, there should be a file called `sneky.exe`. Now you can share it with your friends who doesn't have Python!
 
 # Gameplay
 Currently, the game has 6 modes.
