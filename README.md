@@ -11,9 +11,9 @@ NOTE: The game only supports Windows, due to the game saving in %LOCALAPPDATA%, 
 ## Building a Binary
 If you want to build your own binary, especially for versions older than `v1.0.0b`, first, of course, you need to clone the repo.  
 In addition to Pygame and Python, you need Pyinstaller. To install it, just use `pip install pyinstaller`.  
-Making a command of your own is very hard, so run this command (`path-to-repo`) with the path to the cloned repo. A folder seperator in Windows is `\`, while in Linux it's `/`. Do not confuse them!  
-`pyinstaller --noconfirm --onefile --console --name "sneky" --runtime-tmpdir "." --add-data "C:/Users/ADMIN/Documents/Python/Sneky/game.py;." --add-data "C:/Users/ADMIN/Documents/Python/Sneky/logger.py;." --add-data "C:/Users/ADMIN/Documents/Python/Sneky/menu.py;." --add-data "C:/Users/ADMIN/Documents/Python/Sneky/audio;audio/" --add-data "C:/Users/ADMIN/Documents/Python/Sneky/fonts;fonts/" --add-data "C:/Users/ADMIN/Documents/Python/Sneky/images;images/"  "C:/Users/ADMIN/Documents/Python/Sneky/main.py"`  
-Run that, and in the `dist` folder, there should be a file called `sneky.exe`. Now you can share it with your friends who doesn't have Python!
+Making a command of your own is very hard, so run this command (`path-to-repo`) with the path to the cloned repo.
+`pyinstaller --noconfirm --onefile --console --name "sneky" --runtime-tmpdir "." --add-data "path-to-repo/game.py;." --add-data "path-to-repo/logger.py;." --add-data "path-to-repo/menu.py;." --add-data "path-to-repo/audio;audio/" --add-data "path-to-repo/fonts;fonts/" --add-data "path-to-repo/images;images/" "path-to-repo/main.py"`  
+Run that, and in the `dist` folder of the repo folder, there should be a file called `sneky.exe`. Now you can share it with your friends who doesn't have Python!
 
 # Gameplay
 Currently, the game has 6 modes.
