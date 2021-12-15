@@ -21,6 +21,8 @@ class Game():
 		self.gamestatus = 'release'
 		self.gameversion = '1.1.0'
 
+		self.mousex, self.mousey = 0, 0
+
 		# default keys
 		self.CTRL_BIND = pygame.K_LCTRL
 		self.START_BIND = pygame.K_RETURN
@@ -46,7 +48,7 @@ class Game():
 		# self.START_KEY, self.BACK_KEY, self.SPACE_KEY, self.CTRL_KEY = False, False, False, False
 		# self.UP_KEY, self.DOWN_KEY, self.LEFT_KEY, self.RIGHT_KEY = False, False, False, False
 
-		# display resolution. large resolutions not recommended.
+		# display resolution
 		self.DISPLAY_W, self.DISPLAY_H = 800, 600
 		self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
 		self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
@@ -96,11 +98,23 @@ class Game():
 					self.LEFT_KEY = True
 				if event.key == self.RIGHT_BIND:
 					self.RIGHT_KEY = True
+			elif event.type == pygame.MOUSEMOTION:
+				self.MOUSEMOVE = True
+				self.mousex, self.mousey = event.pos
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				if event.button == 4:
+					self.MOUSESLIDERUP = True
+				elif event.button == 5:
+					self.MOUSESLIDERDOWN = True
+				else:
+					self.CLICK = True
 
 	def reset_keys(self):
 		self.START_KEY, self.BACK_KEY, self.MENU_KEY, self.SPACE_KEY = False, False, False, False
 		self.UP_KEY, self.DOWN_KEY, self.LEFT_KEY, self.RIGHT_KEY = False, False, False, False
-		
+		self.MOUSEMOVE, self.CLICK = False, False
+		self.MOUSESLIDERUP, self.MOUSESLIDERDOWN = False, False
+
 	def draw_text(self, text, size, x, y, color = None, font_name = None, screen = None):
 		if color == None:
 			color = self.WHITE
@@ -424,13 +438,13 @@ class Game():
 	def move_apple(self):
 		key_pressed = pygame.key.get_pressed()
 		if key_pressed[self.UP_BIND]:
-			self.apple_List[0][1] -= self.cell_size * 1.25
+			self.apple_List[0][1] -= self.cell_size
 		elif key_pressed[self.DOWN_BIND]:
-			self.apple_List[0][1] += self.cell_size * 1.25
+			self.apple_List[0][1] += self.cell_size
 		elif key_pressed[self.RIGHT_BIND]:
-			self.apple_List[0][0] += self.cell_size * 1.25
+			self.apple_List[0][0] += self.cell_size
 		elif key_pressed[self.LEFT_BIND]:
-			self.apple_List[0][0] -= self.cell_size * 1.25
+			self.apple_List[0][0] -= self.cell_size
 
 		# if self.UP_KEY:
 		# 	self.apple_List[0][1] -= self.cell_size
@@ -1090,21 +1104,32 @@ class Game():
 			self.BAcorrect.set_volume(self.soundvol * self.volume)
 
 	def load_music(self):
-		self.draw_text('Loading...', self.font_size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.menu2_font)
-		self.window.blit(self.display, (0,0))
-		pygame.display.update()
 		self.NAPSR = pygame.mixer.Sound(self.temp_path + 'audio/napsr.mp3')
 		self.gamemus = pygame.mixer.Sound(self.temp_path + 'audio/bg_music_1.mp3')
+
+	def logo_screen(self):
+		#self.draw_text('Loading...', self.font_size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.menu2_font)
+		#self.window.blit(self.display, (0,0))
+		#pygame.display.update()
+		
 		self.fadeBg = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
 		self.fadeBg.set_alpha(255)
 		self.fadeBg.fill(self.black)
 		self.alpha = 0
 		self.display.blit(self.imgLoad, (0,0))
 		self.display.blit(self.imgSJ, self.imgSJ_rect)
+
 		while self.alpha < 255:
 			pygame.time.delay(25)
 			self.alpha += 20
 			self.display.set_alpha(self.alpha)
+			for event in pygame.event.get():
+				if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+					self.display.set_alpha(255)
+					return
+				elif event.type == pygame.QUIT:
+					pygame.quit()
+					sys.exit()
 			self.window.blit(self.fadeBg, (0,0))
 			self.window.blit(self.display, (0,0))
 			pygame.display.update()
@@ -1114,6 +1139,12 @@ class Game():
 			pygame.time.delay(25)
 			self.alpha += 20
 			self.fadeBg.set_alpha(self.alpha)
+			for event in pygame.event.get():
+				if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+					return
+				elif event.type == pygame.QUIT:
+					pygame.quit()
+					sys.exit()
 			self.window.blit(self.display, (0,0))
 			self.window.blit(self.fadeBg, (0,0))
 			pygame.display.update()
@@ -1125,6 +1156,13 @@ class Game():
 			pygame.time.delay(25)
 			self.alpha += 20
 			self.display.set_alpha(self.alpha)
+			for event in pygame.event.get():
+				if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+					self.display.set_alpha(255)
+					return
+				elif event.type == pygame.QUIT:
+					pygame.quit()
+					sys.exit()
 			self.window.blit(self.fadeBg, (0,0))
 			self.window.blit(self.display, (0,0))
 			pygame.display.update()
@@ -1134,6 +1172,12 @@ class Game():
 			pygame.time.delay(25)
 			self.alpha += 20
 			self.fadeBg.set_alpha(self.alpha)
+			for event in pygame.event.get():
+				if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+					return
+				elif event.type == pygame.QUIT:
+					pygame.quit()
+					sys.exit()
 			self.window.blit(self.display, (0,0))
 			self.window.blit(self.fadeBg, (0,0))
 			pygame.display.update()
@@ -1145,6 +1189,13 @@ class Game():
 			pygame.time.delay(25)
 			self.alpha += 20
 			self.display.set_alpha(self.alpha)
+			for event in pygame.event.get():
+				if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+					self.display.set_alpha(255)
+					return
+				elif event.type == pygame.QUIT:
+					pygame.quit()
+					sys.exit()
 			self.window.blit(self.fadeBg, (0,0))
 			self.window.blit(self.display, (0,0))
 			pygame.display.update()
@@ -1154,14 +1205,19 @@ class Game():
 			pygame.time.delay(25)
 			self.alpha += 20
 			self.fadeBg.set_alpha(self.alpha)
+			for event in pygame.event.get():
+				if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+					return
+				elif event.type == pygame.QUIT:
+					pygame.quit()
+					sys.exit()
 			self.window.blit(self.display, (0,0))
 			self.window.blit(self.fadeBg, (0,0))
 			pygame.display.update()
-		pygame.time.delay(500)
 		self.display.fill(self.black)
 		self.window.blit(self.display, (0,0))
 		pygame.display.update()
-
+		
 	def save_settings(self):
 		# save settings to settings.py
 		f = open(os.getenv('LOCALAPPDATA') + '\\Sneky\\settings.py', 'w', encoding = 'utf8')

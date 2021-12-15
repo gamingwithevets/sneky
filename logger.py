@@ -6,6 +6,8 @@ from datetime import datetime
 logfile = 'sneky.log'
 
 def log(text):
+	if not os.path.exists(os.getenv('LOCALAPPDATA') + '\\Sneky'):
+		os.mkdir(os.getenv('LOCALAPPDATA') + '\\Sneky')
 	f = open(os.getenv('LOCALAPPDATA') + '\\Sneky\\' + logfile, 'a', encoding = 'utf8')
 	print('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
 	f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
@@ -13,6 +15,8 @@ def log(text):
 	f.close()
 
 def startuplog(gamestatus, gameversion):
+	if not os.path.exists(os.getenv('LOCALAPPDATA') + '\\Sneky'):
+		os.mkdir(os.getenv('LOCALAPPDATA') + '\\Sneky')
 	f = open(os.getenv('LOCALAPPDATA') + '\\Sneky\\' + logfile, 'a', encoding = 'utf8')
 	if gamestatus != None and gamestatus != 'release':
 		print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (' + gamestatus + ' ' + gameversion + ')\nBegin logging for this session.')
