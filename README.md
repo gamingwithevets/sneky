@@ -5,7 +5,7 @@ Snake, now made in Pygame!
 You just need a binary to run Sneky without having to install anything.
 
 If you wanna run the game from source code... well, you can download the ZIP file, or if you prefer the Linux way, use `git clone https://github.com/gamingwithevets/sneky.git`.  
-Then, install Python (I recommend the latest version). Then, you should update `pip` first. Run `pip --update` to do that.  
+Then, install Python (I recommend the latest version). Then, you should update `pip` first. Run `pip install --upgrade pip` to do that.  
 And, of course, run `pip install pygame`.
 After that, run `main.py` to start the game!  
 NOTE: The game only supports Windows, due to the game saving in %LOCALAPPDATA%, which is not present in Linux.
