@@ -13,10 +13,10 @@ NOTE: The game only supports Windows, due to the game saving in %LOCALAPPDATA%, 
 If you want to build your own binary, especially for versions older than `v1.0.0b`, first, of course, you need to clone the repo.  
 In addition to Pygame and Python, you need Pyinstaller. To install it, just use `pip install pyinstaller`.
 
-Making a command of your own is very hard, so run this command, replacing `path-to-repo` with the path to the cloned repo.
+Making a command of your own takes some time, so run this command in the root directory of the repo.
 
 ```
-pyinstaller --noconfirm --onefile --console --name "sneky" --runtime-tmpdir "." --add-data "path-to-repo/game.py;." --add-data "path-to-repo/logger.py;." --add-data "path-to-repo/menu.py;." --add-data "path-to-repo/audio;audio/" --add-data "path-to-repo/fonts;fonts/" --add-data "path-to-repo/images;images/" "path-to-repo/main.py"
+pyinstaller --noconfirm --onefile --name "sneky" --add-data game.py;. --add-data logger.py;. --add-data menu.py;. --add-data audio;audio/ --add-data fonts;fonts/ --add-data images;images/ main.py
 ```
 
 Run that, and in the `dist` folder of the repo folder, there should be a file called `sneky.exe`. Now you can share it with your friends who doesn't have Python!
