@@ -19,7 +19,7 @@ class Game():
 		pygame.display.set_caption("Sneky")
 		# game version
 		self.gamestatus = 'release'
-		self.gameversion = '1.1.0'
+		self.gameversion = '1.1.1'
 
 		self.mousex, self.mousey = 0, 0
 
@@ -260,8 +260,8 @@ class Game():
 			elif self.angry_apple == 1:
 				self.draw_text('You are the apple! You\'re tired of the snake eating all of your mates,', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
 				self.draw_text('so you try to escape the snake by running out of the playfield!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('Escape the snake and get 1 point, but this\'ll give power', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('to the snake. If the snake eats you, you die. If it dies, you win!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 5, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('Escape the snake to get points. You\'ll get faster, but so does the snake.', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('If the snake dies, you win! But if it eats you, you die!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 5, font_name = self.menu2_font, screen = self.window)
 			else:
 				self.draw_text('Eat the apple, and don\'t bump into yourself or the border!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
 
@@ -343,7 +343,10 @@ class Game():
 				self.draw_text('TURBO MODE IS ON', 25, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
 			else:
 				pygame.time.delay(100)
-				self.draw_text('THE SNAKE SLOWED DOWN!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
+				if self.speed < 100:
+					self.draw_text('YOU AND THE SNAKE SLOWED DOWN!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
+				else:
+					self.draw_text('YOU AND THE SNAKE SPED UP!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
 
 		#score
 		self.show_score()
@@ -912,7 +915,7 @@ class Game():
 		
 		if self.angry_apple == 1:
 			if self.turbo:
-				self.draw_text('Snake Speed: 0.67%', 25, self.DISPLAY_W - 200, 30, self.gray, self.game_font)
+				self.draw_text('Snake Speed: 33.33%', 25, self.DISPLAY_W - 200, 30, self.gray, self.game_font)
 				self.draw_text('TEMPORARY!'.format(29 / 30 * 100), 13, self.DISPLAY_W - 200, 50, self.red, self.game_font)
 			else:
 				if speed_percent >= 100:

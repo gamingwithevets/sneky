@@ -371,7 +371,6 @@ class VolumeMenu(Menu):
 			self.game.check_events()
 			self.check_input()
 			self.game.display.blit(self.game.imgMenuBG, (0,0))
-			self.game.draw_text('Mouse: {0}, {1} - Click: {2}'.format(self.game.mousex, self.game.mousey, str(self.game.CLICK)), self.game.font_size / 2, 180, 20, font_name = self.game.menu2_font)
 			self.game.draw_text('VOLUME', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			self.game.draw_text('MASTER VOLUME: {0}%'.format(round(self.game.volume * 100)), int(self.game.font_size * 3/4), self.mastervolx, self.mastervoly, font_name = self.game.menu2_font)
 			self.game.draw_text('MUSIC: {0}%'.format(round(self.game.musicvol * 100)), int(self.game.font_size * 3/4), self.musicvolx, self.musicvoly, font_name = self.game.menu2_font)
