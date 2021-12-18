@@ -16,7 +16,7 @@ In addition to Pygame and Python, you need Pyinstaller. To install it, just use 
 Making a command of your own takes some time, so run this command in the root directory of the repo.
 
 ```
-pyinstaller --noconfirm --onefile --name "sneky" --add-data game.py;. --add-data logger.py;. --add-data menu.py;. --add-data audio;audio/ --add-data fonts;fonts/ --add-data images;images/ main.py
+pyinstaller --noconfirm --onefile --name "sneky" --icon icon.ico --add-data game.py;. --add-data logger.py;. --add-data menu.py;. --add-data audio;audio/ --add-data fonts;fonts/ --add-data images;images/ main.py
 ```
 
 Run that, and in the `dist` folder of the repo folder, there should be a file called `sneky.exe`. Now you can share it with your friends who doesn't have Python!
