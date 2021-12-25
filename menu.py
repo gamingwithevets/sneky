@@ -347,12 +347,14 @@ class CreditsMenu(Menu):
 			self.game.draw_text('Menu Template: ChristianD37 - Mode Menu: SeverusFate', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, font_name = self.game.menu2_font)
 			self.game.draw_text('Game & Image Injection: SeverusFate & GamingWithEvets', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 50, font_name = self.game.menu2_font)
 			self.game.draw_text('Crash Handler & Logger: GamingWithEvets', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 70, font_name = self.game.menu2_font)
-			self.game.draw_text('Apple Image: Luna4s - Snake & Title Screen Images: GamingWithEvets', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
-			self.game.draw_text('Sounds from DELTARUNE, Google Snake Game, SMB2 USA, Brain Age', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.menu2_font)
-			self.game.draw_text('Music:', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 130, font_name = self.game.menu2_font)
-			self.game.draw_text('\"Nintendo Anti-Piracy Self-Reporter\" - Joey Perleoni', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 150, font_name = self.game.menu2_font)
-			self.game.draw_text('\"Nothing to Say\" - Md Abdul Kader Zilani', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 170, font_name = self.game.menu2_font)
-			self.game.draw_text('Made with: Pygame', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 210, font_name = self.game.menu2_font)
+			self.game.draw_text('Candy Cane Image: Kandi Patterns - Santa Hat: John3 from TopPNG', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
+			self.game.draw_text('Snake & Title Screen Images: GamingWithEvets', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.menu2_font)
+			self.game.draw_text('Sounds from DELTARUNE, Google Snake Game, SMB2 USA, Brain Age', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 130, font_name = self.game.menu2_font)
+			self.game.draw_text('Music:', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 150, font_name = self.game.menu2_font)
+			self.game.draw_text('\"Jingle Bells\" - From YouTube/KON', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 170, font_name = self.game.menu2_font)
+			self.game.draw_text('\"We Wish You A Merry Christmas\"', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 190, font_name = self.game.menu2_font)
+			self.game.draw_text('From YouTube/Pudding TV - Nursery Rhymes', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 210, font_name = self.game.menu2_font)
+			self.game.draw_text('Made with: Pygame', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 250, font_name = self.game.menu2_font)
 			self.blit_screen()
 
 class VolumeMenu(Menu):
@@ -981,7 +983,7 @@ class PressStart(Menu):
 class ModeMenu(Menu):
 	def __init__(self,game):
 		Menu.__init__(self,game)
-		self.allState = ['CLASSIC', 'APPLE BAG', 'PORTAL BORDER', 'ULTIMATE SNAKE', 'ANGRY APPLE', 'DE SNAKE MODE']
+		self.allState = ['CLASSIC', 'TREAT BAG', 'PORTAL BORDER', 'ULTIMATE SNAKE', 'ANGRY TREAT', 'DE SNAKE MODE']
 		self.stateIndex = 0
 		self.state = self.allState[self.stateIndex]
 		self.classicx, self.classicy = self.mid_w, self.mid_h + self.game.font_size
@@ -1003,13 +1005,13 @@ class ModeMenu(Menu):
 			self.game.draw_text('SELECT A MODE', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
 			self.game.draw_text('CLASSIC', self.game.font_size * 3/4, self.classicx, self.classicy)
 			if self.game.allowmode0:
-				self.game.draw_text('APPLE BAG', self.game.font_size * 3/4, self.appleBagx, self.appleBagy)
+				self.game.draw_text('TREAT BAG', self.game.font_size * 3/4, self.appleBagx, self.appleBagy)
 			if self.game.allowmode1:
 				self.game.draw_text('PORTAL BORDER', self.game.font_size * 3/4, self.portalx, self.portaly)
 			if self.game.allowmode2:
 				self.game.draw_text('ULTIMATE SNAKE', self.game.font_size * 3/4, self.ultimatex, self.ultimatey)
 			if self.game.allowmode3:
-				self.game.draw_text('ANGRY APPLE', self.game.font_size * 3/4, self.angryApplex, self.angryAppley)
+				self.game.draw_text('ANGRY TREAT', self.game.font_size * 3/4, self.angryApplex, self.angryAppley)
 			if self.game.allowmode4:
 				self.game.draw_text( self.allState[5], self.game.font_size * 3/4, self.deSnakex, self.deSnakey)
 			self.game.draw_text( self.state, self.game.font_size * 3/4, self.mid_w, 100)
@@ -1026,8 +1028,8 @@ class ModeMenu(Menu):
 			if self.state == 'CLASSIC':
 				self.game.mode()
 				logger.log('Classic Mode loaded.')
-			if self.state == 'APPLE BAG':
-				logger.log('Apple Bag Mode loaded.')
+			if self.state == 'TREAT BAG':
+				logger.log('Treat Bag Mode loaded.')
 				self.game.mode(apple_bag = 1)
 
 			if self.state == 'PORTAL BORDER':
@@ -1038,10 +1040,10 @@ class ModeMenu(Menu):
 				logger.log('Ultimate Snake Mode loaded.')
 				self.game.mode(snake_instinct = 1)
 
-			if self.state == 'ANGRY APPLE':
+			if self.state == 'ANGRY TREAT':
 				#logger.log('Tried to load Angry Apple mode, but failed (TBA)')
 				#self.work_in_progress()
-				logger.log('Angry Apple Mode loaded.')
+				logger.log('Angry Treat Mode loaded.')
 				self.game.mode(angry_apple = 1)
 
 			if self.state == 'DE SNAKE MODE':
@@ -1064,7 +1066,7 @@ class ModeMenu(Menu):
 				self.game.DRsnd_select.play()
 
 			elif self.game.mousey in range(346, 380) and self.game.allowmode0:
-				logger.log('Apple Bag Mode loaded.')
+				logger.log('Treat Bag Mode loaded.')
 				self.game.mode(apple_bag = 1)
 				self.game.DRsnd_select.play()
 
@@ -1079,7 +1081,7 @@ class ModeMenu(Menu):
 				self.game.DRsnd_select.play()
 
 			elif self.game.mousey in range(446, 475) and self.game.allowmode3:
-				logger.log('Angry Apple Mode loaded.')
+				logger.log('Angry Treat Mode loaded.')
 				self.game.mode(angry_apple = 1)
 				self.game.DRsnd_select.play()
 

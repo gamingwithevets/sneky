@@ -19,11 +19,11 @@ def startuplog(gamestatus, gameversion):
 		os.mkdir(os.getenv('LOCALAPPDATA') + '\\Sneky')
 	f = open(os.getenv('LOCALAPPDATA') + '\\Sneky\\' + logfile, 'a', encoding = 'utf8')
 	if gamestatus != None and gamestatus != 'release':
-		print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (' + gamestatus + ' ' + gameversion + ')\nBegin logging for this session.')
-		f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (' + gamestatus + ' ' + gameversion + ')\nBegin logging for this session.')
+		print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (' + gamestatus + ' ' + gameversion + ' - Christmas Edition)\nBegin logging for this session.')
+		f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (' + gamestatus + ' ' + gameversion + ' - Christmas Edition)\nBegin logging for this session.')
 	else:
-		print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (v.' + gameversion + ')\nBegin logging for this session.')
-		f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (v.' + gameversion + ')\nBegin logging for this session.')
+		print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (v.' + gameversion + ' - Christmas Edition)\nBegin logging for this session.')
+		f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (v.' + gameversion + ' - Christmas Edition)\nBegin logging for this session.')
 	print('Player: ' + os.getenv('USERNAME'))
 	f.write('\nPlayer: ' + os.getenv('USERNAME'))
 	print('Log file: ' + os.getenv('LOCALAPPDATA') + '\\Sneky\\' + logfile)

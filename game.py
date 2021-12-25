@@ -11,12 +11,12 @@ from pygame import mixer
 class Game():
 	def __init__(self):
 		try:
-			self.temp_path = sys._MEIPASS + '/'
+			self.temp_path = os.path.join(sys._MEIPASS) + '/'
 		except Exception:
 			self.temp_path = ''
 
 		pygame.init()
-		pygame.display.set_caption("Sneky")
+		pygame.display.set_caption("Sneky - Christmas Edition")
 		# game version
 		self.gamestatus = 'release'
 		self.gameversion = '1.1.1'
@@ -252,18 +252,21 @@ class Game():
 				self.draw_text('portal borders!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.menu2_font, screen = self.window)
 			elif self.snake_instinct == 1:
 				self.draw_text('The snake switches color and power every time you collect a', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('certain amount of apples. Let\'s use the snake\'s powers to win!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('certain amount of candy cones. Let\'s use the snake\'s powers to win!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
 			elif self.apple_bag == 1:
-				self.draw_text('Multiple apples are spawning! Will the snake eat them or be hungry?', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('Santa\'s giving out more candy cones! The snake doesn\'t hesitate', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('to eat \'em!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
 			elif self.portal_border == 1:
 				self.draw_text('The border turns into a portal to go to the other side of the playfield!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('Time to get some treats from Santa!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
 			elif self.angry_apple == 1:
-				self.draw_text('You are the apple! You\'re tired of the snake eating all of your mates,', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('so you try to escape the snake by running out of the playfield!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('Escape the snake to get points. You\'ll get faster, but so does the snake.', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('You are a candy cone! You see that the snake has eaten too much cones', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('and isn\'t stopping! He\'s gonna get fat at this rate. So you try to', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('escape the snake! You\'ll get a point and you and the snake will speed up.', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.menu2_font, screen = self.window)
 				self.draw_text('If the snake dies, you win! But if it eats you, you die!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 5, font_name = self.menu2_font, screen = self.window)
 			else:
-				self.draw_text('Eat the apple, and don\'t bump into yourself or the border!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('It\'s Christmas! The snake wants the candy cones! Eat \'em and don\'t', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('touch yourself or the border, or you\'ll die!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
 
 			self.draw_text('{0}: Start'.format(pygame.key.name(self.SPACE_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 7, font_name = self.game_font, screen = self.window)
 			self.draw_text('{0}/{1}: Quit'.format(pygame.key.name(self.BACK_BIND).upper(), pygame.key.name(self.MENU_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 8, font_name = self.game_font, screen = self.window)
@@ -421,22 +424,51 @@ class Game():
 			if not self.win:
 				if self.angry_apple == 0:
 					self.display.blit(self.imgHead_die,pygame.Rect(self.snake[0][0], self.snake[0][1], self.cell_size, self.cell_size))
+					self.draw_hat(self.snake[0][0], self.snake[0][1])
 				else:
 					self.display.blit(self.imgHead_win,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+					self.draw_hat()
 			else:
 				if self.angry_apple == 0:
 					self.display.blit(self.imgHead_win,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+					self.draw_hat()
 				else:
 					self.display.blit(self.imgHead_die,pygame.Rect(self.snake[0][0], self.snake[0][1], self.cell_size, self.cell_size))
+					self.draw_hat(self.snake[0][0], self.snake[0][1])
+			
 		else:
 			if self.direction == 'RIGHT':
 				self.display.blit(self.imgHead_r,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+				self.draw_hat()
 			if self.direction == 'LEFT':
 				self.display.blit(self.imgHead_l,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+				self.draw_hat()
 			if self.direction == 'UP':
 				self.display.blit(self.imgHead_u,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+				self.draw_hat()
 			if self.direction == 'DOWN':
 				self.display.blit(self.imgHead_d,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+				self.draw_hat()
+
+	def draw_hat(self, snakepos0 = None, snakepos1 = None):
+		if snakepos0 == None:
+			self.snakepos0 = self.snake_head[0]
+		else:
+			self.snakepos0 = snakepos0
+		if snakepos1 == None:
+			self.snakepos1 = self.snake_head[1]
+		else:
+			self.snakepos1 = snakepos1
+
+		if self.direction == 'RIGHT':
+			self.display.blit(self.imgHead_hat,pygame.Rect(self.snakepos0, self.snakepos1 - self.cell_size, self.cell_size, self.cell_size))
+		if self.direction == 'LEFT':
+			self.display.blit(self.imgHead_hat,pygame.Rect(self.snakepos0, self.snakepos1 - self.cell_size, self.cell_size, self.cell_size))
+		if self.direction == 'UP':
+			self.display.blit(self.imgHead_hat,pygame.Rect(self.snakepos0, self.snakepos1 - (self.cell_size + 3), self.cell_size, self.cell_size))
+		if self.direction == 'DOWN':
+			self.display.blit(self.imgHead_hat,pygame.Rect(self.snakepos0, self.snakepos1 - (self.cell_size + 3), self.cell_size, self.cell_size))
+
 
 	def move_apple(self):
 		key_pressed = pygame.key.get_pressed()
@@ -786,6 +818,7 @@ class Game():
 		self.imgHead_l = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_l.png'),(self.cell_size,self.cell_size))
 		self.imgHead_u = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_u.png'),(self.cell_size,self.cell_size))
 		self.imgHead_d = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_d.png'),(self.cell_size,self.cell_size))
+		self.imgHead_hat = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/hat.png'),(self.cell_size + 10, self.cell_size + 5))
 		self.imgHead_die = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_die.png'),(self.cell_size,self.cell_size))
 		self.imgHead_win = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_win.png'),(self.cell_size,self.cell_size))
 		#self.imgTail_r = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/tail_r.png'),(self.cell_size,self.cell_size))
@@ -793,7 +826,7 @@ class Game():
 		#self.imgTail_u = pygame.transform.rotate(self.imgTail_r, 90)
 		#self.imgTail_d = pygame.transform.rotate(self.imgTail_r, 270)
 
-		self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/apple.png'),(self.cell_size - 3, self.cell_size))
+		self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/apple.png'),(self.cell_size / 2, self.cell_size))
 
 		# Load audio
 		self.DRsnd_menumove = pygame.mixer.Sound(self.temp_path + 'audio/dr.snd_menumove.wav')
