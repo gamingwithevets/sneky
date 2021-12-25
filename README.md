@@ -1,8 +1,9 @@
 # Basic info
 Snake, now made in Pygame!  
+NOTE: This branch is for the **Christmas version**. For regular Sneky, please switch to the **main** branch.
 
 # Requirements
-You just need a binary to run Sneky without having to install anything.
+Just like regular Sneky, Yyou just need a binary to run this version without having to install anything.
 
 If you wanna run the game from source code... well, you can download the ZIP file, or if you prefer the Linux way, use `git clone https://github.com/gamingwithevets/sneky.git`.  
 Then, install Python (I recommend the latest version). Then, you should update `pip` first. Run `pip install --upgrade pip` to do that.  
@@ -10,7 +11,7 @@ And, of course, run `pip install pygame`.
 After that, run `main.py` to start the game!  
 NOTE: The game only supports Windows, due to the game saving in %LOCALAPPDATA%, which is not present in Linux.
 ## Building a Binary
-If you want to build your own binary, especially for versions older than `v1.0.0b`, first, of course, you need to clone the repo.  
+If you want to build your own binary of this version as well, first, of course, you need to clone the repo.  
 In addition to Pygame and Python, you need Pyinstaller. To install it, just use `pip install pyinstaller`.
 
 Making a command of your own takes some time, so run this command in the root directory of the repo.
@@ -24,20 +25,20 @@ Run that, and in the `dist` folder of the repo folder, there should be a file ca
 # Gameplay
 Currently, the game has 6 modes.
 ## Classic
-It's just... Snake. You will die if you bump into yourself or hit the border.
-## Apple Bag
-Multiple apples are spawning! Will the snake eat them or be hungry?
+It's Christmas! The snake wants the candy cones! Eat 'em and don't touch yourself or the border, or you'll die!
+## Treat Bag
+Santa's giving out more candy cones! The snake doesn't hesitate to eat 'em!
 ## Portal Border
 The border turns into a portal to go to the other side of the playfield!
 ## Ultimate Mode
-The snake switches color and power every time you collect **a certain amount of apples**. Let's use the snake's powers to win!
-## Angry Apple
-**You** are the apple! You're tired of the snake eating all of your mates, so you try to escape the snake by running out of the playfield!  
-If you escape the snake, you get 1 point and be spawned somewhere else, but the snake will recieve power. If the snake eats you, you die. If it dies, you win!
+The snake switches color and power every time you collect **a certain amount of candy cones**. Let's use the snake's powers to win!
+## Angry Treat
+**You** are a candy cone! You see that the snake has eaten too much cones and isn\'t stopping! He\'s gonna get fat at this rate.  
+So, you attempt to escape the snake and return to Santa to be sent somewhere else, but... uh oh! You look back and discover the snake chasing you!  If you escape the snake, you get 1 point and be spawned somewhere else, but the snake will recieve power. If the snake eats you, you die. If it dies, you win!
 ## De Snake Mode
 The *Debug* Mode of Sneky. Like cheating? This is for you! You can walk through yourself, turn around, and walk through the portal borders!
 ## How to win
-To win in a mode (except for Angry Apple), you must somehow fill the entire screen with yourself so that **no apples remain on-screen**!
+To win in a mode (except for Angry Treat), you must somehow fill the entire screen with yourself so that **no apples remain on-screen**!
 
 # Game Features
 ## Turbo Mode
@@ -46,12 +47,12 @@ But that's slow, right? Hold down the Turbo key (default: LCTRL) to speed the sn
 In Angry Apple mode, this slows down the snake to a little over 0%, making escaping the snake easier.
 ## AI Snake
 Serial Number **Q**5**U**4**E**X7YY2**E**9**N**, a.k.a. Queen from *Deltarune*, comes to help you! Press the AI Snake key (default: X) to receive help from her and let her play instead. Press the AI Snake key again to regain control of the snake.  
-Keep in mind: The Queen will not help you in Angry Apple mode, since she's controlling the snake!
+Keep in mind: The Queen will not help you in Angry Treat mode, since she's controlling the snake!
 ## The Snake's Colors
 The snake has different colors, and that represents different powers.
 - Green: The pain 'ol snake that dies when bumping into borders or itself.
 - Super Yellow: Makes more apples spawn.
-- God Red: Allows you to turn around and go past yourself. (Debug Mode only; different color due to Light Blue overlapping)
+- God Red: Allows you to turn around and go past yourself.
 - Light Blue: Makes the borders act as portals to the other side of the playfield.
 - Ultra Instinct White: You become so fast that the border completely breaks, allowing you to go outside of the playfield. Be careful, because you can lose track of the snake. Ultimate Mode only.
 ## Key Rebinding
@@ -61,10 +62,11 @@ In case you have one of your keys broken, especially if it's required to play Sn
 Just go to Settings > Controls, and you can rebind any key you want. This can also be helpful if you wanna change up the controls, e.g. you prefer WASD to move (the default move keys are the arrow keys).
 
 # Credits
-Apple Graphic: Luna4s  
+Candy Cane Image: Kandi Patterns  
+Santa Hat: John3 from TopPNG  
 Title Screen & Snake Graphics: GamingWithEvets (GWE Inc.)  
-Menu Music: "Nintendo Anti-Piracy Self-Reporter" - Joey Perleoni  
-Game Music: "Nothing to Say" - Md Abdul Kader Zilani  
+Menu Music: ["Jingle Bells\"](https://www.youtube.com/watch?v=R1gskElaLNo) - From [YouTube](https://www.youtube.com/)/[KON](https://www.youtube.com/channel/UCcmWi0LJKaovJG_DaEhGD_g)  
+Game Music: ["We Wish You A Merry Christmas"](https://www.youtube.com/watch?v=8vdXR_igALU) - From [YouTube](https://www.youtube.com/)/[Pudding TV - Nursery Rhymes](https://www.youtube.com/channel/UCjPZm-0TqBPNAzxSrs6zMHw)  
 Sounds from DELTARUNE, Google Snake Game, Super Mario Bros. 2 USA, Brain Age  
 
 Menu Template: ChristianD37  
