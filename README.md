@@ -3,7 +3,7 @@ Snake, now made in Pygame!
 NOTE: This branch is for the **Christmas version**. For regular Sneky, please switch to the **main** branch.
 
 # Requirements
-Just like regular Sneky, Yyou just need a binary to run this version without having to install anything.
+Just like regular Sneky, you just need a binary to run this version without having to install anything.
 
 If you wanna run the game from source code... well, you can download the ZIP file, or if you prefer the Linux way, use `git clone https://github.com/gamingwithevets/sneky.git`.  
 Then, install Python (I recommend the latest version). Then, you should update `pip` first. Run `pip install --upgrade pip` to do that.  
