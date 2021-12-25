@@ -44,7 +44,7 @@ To win in a mode (except for Angry Treat), you must somehow fill the entire scre
 ## Turbo Mode
 The snake's speed is 0% at first, which is VERY slow. Normally, eating an apple makes the snake speed up by *a little bit*.  
 But that's slow, right? Hold down the Turbo key (default: LCTRL) to speed the snake up to max speed until you lift the key!  
-In Angry Apple mode, this slows down the snake to a little over 0%, making escaping the snake easier.
+In Angry Treat mode, this slows down you and the snake to about 33%, making escaping the snake easier.
 ## AI Snake
 Serial Number **Q**5**U**4**E**X7YY2**E**9**N**, a.k.a. Queen from *Deltarune*, comes to help you! Press the AI Snake key (default: X) to receive help from her and let her play instead. Press the AI Snake key again to regain control of the snake.  
 Keep in mind: The Queen will not help you in Angry Treat mode, since she's controlling the snake!
