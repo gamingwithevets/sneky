@@ -51,7 +51,7 @@ Keep in mind: The Queen will not help you in Angry Apple mode, since she's contr
 The snake has different colors, and that represents different powers.
 - Green: The pain 'ol snake that dies when bumping into borders or itself.
 - Super Yellow: Makes more apples spawn.
-- God Red: Allows you to turn around and go past yourself. (Debug Mode only; different color due to Light Blue overlapping)
+- God Red: Allows you to turn around and go past yourself.
 - Light Blue: Makes the borders act as portals to the other side of the playfield.
 - Ultra Instinct White: You become so fast that the border completely breaks, allowing you to go outside of the playfield. Be careful, because you can lose track of the snake. Ultimate Mode only.
 ## Key Rebinding
