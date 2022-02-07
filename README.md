@@ -54,18 +54,25 @@ The snake has different colors, and that represents different powers.
 - God Red: Allows you to turn around and go past yourself.
 - Light Blue: Makes the borders act as portals to the other side of the playfield.
 - Ultra Instinct White: You become so fast that the border completely breaks, allowing you to go outside of the playfield. Be careful, because you can lose track of the snake. Ultimate Mode only.
-## Key Rebinding
+## Miscellaneous
+### Key Rebinding
 Yup, that's right!!! You didn't expect this, right? You wouldn't think a game coming from GitHub wouldn't have key rebinding, right?  
 Well, you can say it's very unnecessary, but who cares?  
 In case you have one of your keys broken, especially if it's required to play Sneky (like the ESC key, you can rebind the key to a non-broken key!
 Just go to Settings > Controls, and you can rebind any key you want. This can also be helpful if you wanna change up the controls, e.g. you prefer WASD to move (the default move keys are the arrow keys).
+### Themes
+Every time you load up Sneky, it checks the date to load the theme. For example, on December 24th, Sneky loads the Christmas theme!
+### Splashes
+On top of the logo is a splash that changes every time you reload the menu. What text it will show depends on RNG, the game theme, and the date.
 
 # Planned Features
 Here's the planned features of Sneky:
 - Halloween theme
+- Refreshing
+- Checking for updates
 - Multiplayer
 - Online leaderboard
-- Less lag in the game
+- Less lag in gameplay
 - Fullscreen without issues
 
 # Credits
