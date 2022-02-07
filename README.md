@@ -62,6 +62,7 @@ Just go to Settings > Controls, and you can rebind any key you want. This can al
 
 # Planned Features
 Here's the planned features of Sneky:
+- Halloween theme
 - Multiplayer
 - Online leaderboard
 - Less lag in the game
