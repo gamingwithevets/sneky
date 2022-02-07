@@ -61,9 +61,11 @@ Well, you can say it's very unnecessary, but who cares?
 In case you have one of your keys broken, especially if it's required to play Sneky (like the ESC key, you can rebind the key to a non-broken key!
 Just go to Settings > Controls, and you can rebind any key you want. This can also be helpful if you wanna change up the controls, e.g. you prefer WASD to move (the default move keys are the arrow keys).
 ### Themes
-Every time you load up Sneky, it checks the date to load the theme. For example, on December 24th, Sneky loads the Christmas theme!
+Every time you load up Sneky, it checks the date to load the theme. For example, on December 24th, Sneky loads the Christmas theme!  
+You can't change the game theme from within the game, though. What you can do to change the game theme is to change the date on your computer or modify the code!
 ### Splashes
-On top of the logo is a splash that changes every time you reload the menu. What text it will show depends on RNG, the game theme, and the date.
+On top of the logo is a splash that changes every time you reload the menu.  
+What text it will show depends on RNG, the game theme, and the date.
 
 # Planned Features
 Here's the planned features of Sneky:
