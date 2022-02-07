@@ -60,6 +60,13 @@ Well, you can say it's very unnecessary, but who cares?
 In case you have one of your keys broken, especially if it's required to play Sneky (like the ESC key, you can rebind the key to a non-broken key!
 Just go to Settings > Controls, and you can rebind any key you want. This can also be helpful if you wanna change up the controls, e.g. you prefer WASD to move (the default move keys are the arrow keys).
 
+# Planned Features
+Here's the planned features of Sneky:
+- Multiplayer
+- Online leaderboard
+- Less lag in the game
+- Fullscreen without issues
+
 # Credits
 Apple Graphic: Luna4s  
 Title Screen & Snake Graphics: GamingWithEvets (GWE Inc.)  
