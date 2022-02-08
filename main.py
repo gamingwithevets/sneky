@@ -4,9 +4,21 @@ import sys
 import traceback
 import logger
 
-if not os.path.exists(os.getenv('LOCALAPPDATA') + '\\Sneky'):
-	os.mkdir(os.getenv('LOCALAPPDATA') + '\\Sneky')
-sys.path.insert(0, os.getenv('LOCALAPPDATA') + '\\Sneky')
+
+
+if os.name == 'nt':
+	appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
+else:
+	if os.geteuid() != 0:
+		print('The application data path in Linux (/opt/) is protected by root,\nso you need to use sudo to run this port!')
+		exit()
+	else:
+		print('Since you\'re probably running as root, the player name will\nalways be root, no matter what account you\'re logged into.\nAnyway, enjoy the game!')
+		appdata_path = '/opt/Sneky'
+
+if not os.path.exists(appdata_path):
+	os.mkdir(appdata_path)
+sys.path.insert(0, appdata_path)
 
 try:
 	from game import Game

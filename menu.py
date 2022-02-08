@@ -4,6 +4,7 @@ import os
 import time
 import logger
 import shutil
+import random
 from datetime import datetime
 
 class Menu():
@@ -122,6 +123,11 @@ class MainMenu(Menu):
 				sys.exit()
 			self.run_display = False
 			self.game.DRsnd_select.play()
+		elif self.game.BACK_KEY:
+			self.run_display = False
+			self.game.DRsnd_select.play()
+			self.game.NAPSR.stop()
+			self.game.__init__()
 		elif self.game.CLICK and self.game.mousex in range(220, 575):
 			if self.game.mousey in range(333, 365):
 				self.game.curr_menu = self.game.mode_menu
@@ -267,10 +273,11 @@ class OptionsMenu(Menu):
 				self.clear_data3()
 			self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('CLEAR DATA', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
-			self.game.draw_text('WARNING! You are about to clear all saved data.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
-			self.game.draw_text('This cannot be undone!', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, color = self.game.red, font_name = self.game.menu2_font)
-			self.game.draw_text('{0}: CLEAR ALL SAVED DATA'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 70, font_name = self.game.arrow_font)
-			self.game.draw_text('{0}: CANCEL'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.arrow_font)
+			self.game.draw_text('WARNING! You are about to clear all saved data and settings,', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
+			self.game.draw_text('in addition to all saved session logs.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, color = self.game.red, font_name = self.game.menu2_font)
+			self.game.draw_text('This cannot be undone!', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 50, color = self.game.red, font_name = self.game.menu2_font)
+			self.game.draw_text('{0}: CLEAR ALL SAVED DATA'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.arrow_font)
+			self.game.draw_text('{0}: CANCEL'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.arrow_font)
 			self.blit_screen()
 
 	def clear_data3(self):
@@ -290,11 +297,13 @@ class OptionsMenu(Menu):
 			self.game.draw_text('CLEAR DATA', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			self.game.draw_text('Okay. One final challenge.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, font_name = self.game.menu2_font)
 			self.game.draw_text('WHICH BUTTONS DO WHAT!?!?!?', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, color = self.game.red, font_name = self.game.menu2_font)
-			self.game.draw_text('{0}:                                      '.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 70, font_name = self.game.arrow_font)
-			self.game.draw_text('{0}:             '.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.arrow_font)
+			self.game.draw_text('{0}:                                      '.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.arrow_font)
+			self.game.draw_text('{0}:             '.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.arrow_font)
 			self.blit_screen()
 
 	def clear_data_finale(self):
+		if os.path.exists(os.getenv('LOCALAPPDATA') + '\\Sneky'):
+			shutil.rmtree(os.getenv('LOCALAPPDATA') + '\\Sneky')
 		self.game.NAPSR.stop()
 		self.game.display.blit(self.game.imgMenuBG, (0,0))
 		self.game.draw_text('CLEAR DATA', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
@@ -323,11 +332,9 @@ class OptionsMenu(Menu):
 		self.blit_screen()
 		pygame.display.set_caption(' ')
 		pygame.time.delay(1000)
-		if os.path.exists(os.getenv('LOCALAPPDATA') + '\\Sneky'):
-			shutil.rmtree(os.getenv('LOCALAPPDATA') + '\\Sneky')
-		print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] All session logs and saved settings cleared.\nSneky session terminated.')
-		pygame.quit()
-		sys.exit()
+		print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] All session logs and saved settings cleared.\nRestarting Sneky.')
+		logger.log('Sneky session restarted after clearing save data and session logs.', False)
+		self.game.__init__()
 
 class CreditsMenu(Menu):
 	def __init__(self,game):
@@ -347,12 +354,21 @@ class CreditsMenu(Menu):
 			self.game.draw_text('Menu Template: ChristianD37 - Mode Menu: SeverusFate', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, font_name = self.game.menu2_font)
 			self.game.draw_text('Game & Image Injection: SeverusFate & GamingWithEvets', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 50, font_name = self.game.menu2_font)
 			self.game.draw_text('Crash Handler & Logger: GamingWithEvets', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 70, font_name = self.game.menu2_font)
-			self.game.draw_text('Apple Image: Luna4s - Snake & Title Screen Images: GamingWithEvets', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
-			self.game.draw_text('Sounds from DELTARUNE, Google Snake Game, SMB2 USA, Brain Age', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.menu2_font)
-			self.game.draw_text('Music:', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 130, font_name = self.game.menu2_font)
-			self.game.draw_text('\"Nintendo Anti-Piracy Self-Reporter\" - Joey Perleoni', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 150, font_name = self.game.menu2_font)
-			self.game.draw_text('\"Nothing to Say\" - Md Abdul Kader Zilani', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 170, font_name = self.game.menu2_font)
-			self.game.draw_text('Made with: Pygame', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 210, font_name = self.game.menu2_font)
+			self.game.draw_text('Snake & Title Screen Images: GamingWithEvets', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.menu2_font)
+			self.game.draw_text('Sounds from DELTARUNE, Google Snake Game, SMB2 USA, SMB3, Brain Age', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 130, font_name = self.game.menu2_font)
+			self.game.draw_text('Music:', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 150, font_name = self.game.menu2_font)
+			if self.game.holiday:
+				if self.game.holiday == 'christmas_exclusive/':
+					self.game.draw_text('Candy Cone Image: Kandi Patterns - Santa Hat: John3 from TopPNG', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
+					self.game.draw_text('\"Jingle Bells\" - From YouTube/KON', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 170, font_name = self.game.menu2_font)
+					self.game.draw_text('\"We Wish You A Merry Christmas\"', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 190, font_name = self.game.menu2_font)
+					self.game.draw_text('From YouTube/Pudding TV - Nursery Rhymes', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 210, font_name = self.game.menu2_font)
+					self.game.draw_text('Made with: Pygame', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 250, font_name = self.game.menu2_font)
+			else:
+				self.game.draw_text('Apple Image: Luna4s', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
+				self.game.draw_text('\"Nintendo Anti-Piracy Self-Reporter\" - Joey Perleoni', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 170, font_name = self.game.menu2_font)
+				self.game.draw_text('\"Nothing to Say\" - Md Abdul Kader Zilani', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 190, font_name = self.game.menu2_font)
+				self.game.draw_text('Made with: Pygame', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 230, font_name = self.game.menu2_font)
 			self.blit_screen()
 
 class VolumeMenu(Menu):
@@ -854,134 +870,67 @@ class PressStart(Menu):
 		self.game.logo_screen()
 		self.game.load_music()
 
-
-		# try importing settings from %localappdata%\sneky\settings.py
-		# needs importing every possible (valid) setting there is,
-		# and try clauses aren't restartable, so requires multiple try-except clauses
-
-		try:
-			from settings import volume
-			self.game.volume = volume
-		except Exception:
-			pass
-
-		try:
-			from settings import musicvol
-			self.game.musicvol = musicvol
-		except Exception:
-			pass
-
-		try:
-			from settings import soundvol
-			self.game.soundvol = soundvol
-		except Exception:
-			pass
-
-		try:
-			from settings import CTRL_BIND
-			self.game.CTRL_BIND = CTRL_BIND
-		except Exception:
-			pass
-
-		try:
-			from settings import START_BIND
-			self.game.START_BIND = START_BIND
-		except Exception:
-			pass
-
-		try:
-			from settings import BACK_BIND
-			self.game.BACK_BIND = BACK_BIND
-		except Exception:
-			pass
-
-		try:
-			from settings import MENU_BIND
-			self.game.MENU_BIND = MENU_BIND
-		except Exception:
-			pass
-
-		try:
-			from settings import SPACE_BIND
-			self.game.SPACE_BIND = SPACE_BIND
-		except Exception:
-			pass
-
-		try:
-			from settings import UP_BIND
-			self.game.UP_BIND = UP_BIND
-		except Exception:
-			pass
-
-		try:
-			from settings import DOWN_BIND
-			self.game.DOWN_BIND = DOWN_BIND
-		except Exception:
-			pass
-
-		try:
-			from settings import LEFT_BIND
-			self.game.LEFT_BIND = LEFT_BIND
-		except Exception:
-			pass
-
-		try:
-			from settings import RIGHT_BIND
-			self.game.RIGHT_BIND = RIGHT_BIND
-		except Exception:
-			pass
-
-		try:
-			from settings import allowmode0
-			self.game.allowmode0 = allowmode0
-		except Exception:
-			pass
-
-		try:
-			from settings import allowmode1
-			self.game.allowmode1 = allowmode1
-		except Exception:
-			pass
-
-		try:
-			from settings import allowmode2
-			self.game.allowmode2 = allowmode2
-		except Exception:
-			pass
-
-		try:
-			from settings import allowmode3
-			self.game.allowmode3 = allowmode3
-		except Exception:
-			pass
-
-		try:
-			from settings import allowmode4
-			self.game.allowmode4 = allowmode4
-		except Exception:
-			pass
+		# try importing settings from settings.py, in LOCALAPPDATA or current dir
+		self.importer('volume')
+		self.importer('musicvol')
+		self.importer('soundvol')
+		self.importer('CTRL_BIND')
+		self.importer('START_BIND')
+		self.importer('BACK_BIND')
+		self.importer('MENU_BIND')
+		self.importer('SPACE_BIND')
+		self.importer('X_BIND')
+		self.importer('UP_BIND')
+		self.importer('DOWN_BIND')
+		self.importer('LEFT_BIND')
+		self.importer('RIGHT_BIND')
+		self.importer('allowmode0')
+		self.importer('allowmode1')
+		self.importer('allowmode2')
+		self.importer('allowmode3')
+		self.importer('allowmode4')
 
 		self.game.change_volume()
 		self.game.NAPSR.play(-1)
 		logger.startuplog(self.game.gamestatus, self.game.gameversion)
+
 		while self.run_display:
 			for event in pygame.event.get():
 				if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
 					self.game.curr_menu = self.game.main_menu
 					self.run_display = False
 					self.game.DRsnd_select.play()
+				elif event.type == pygame.QUIT:
+					self.game.running = False
+					self.run_display = False
+					logger.log('Sneky session closed.\n')
+					pygame.quit()
+					sys.exit()	
+
 			self.game.display.blit(self.game.imgMenu, (0,0))
 			if self.game.gamestatus != None and self.game.gamestatus != 'release':
-				self.game.draw_text((self.game.gamestatus + ' ' + self.game.gameversion), self.game.font_size / 2, 70, 20, font_name = self.game.menu2_font)
+				self.game.draw_text((self.game.gamestatus + ' ' + self.game.gameversion), self.game.font_size / 2, 70, 40, font_name = self.game.menu2_font)
 			else:
-				self.game.draw_text(('v.' + self.game.gameversion), self.game.font_size / 2, 70, 20, font_name = self.game.menu2_font)
+				self.game.draw_text(('v.' + self.game.gameversion), self.game.font_size / 2, 70, 40, font_name = self.game.menu2_font)
+			self.game.draw_text(self.game.curr_splash, self.game.font_size / 2, int(self.game.DISPLAY_W/2), 20, color = self.game.red_god, font_name = self.game.menu2_font)
 			self.game.draw_text('PRESS ANY KEY', self.game.font_size, int(self.game.DISPLAY_W/2), int(self.game.DISPLAY_H/2 + 170))
 			self.blit_screen()
+
+	def importer(self, var):
+		try:
+			exec('from settings import ' + var)
+			exec('self.game.{0} = {0}'.format(var))
+		except Exception:
+			pass
+
 
 class ModeMenu(Menu):
 	def __init__(self,game):
 		Menu.__init__(self,game)
 		self.allState = ['CLASSIC', 'APPLE BAG', 'PORTAL BORDER', 'ULTIMATE SNAKE', 'ANGRY APPLE', 'DE SNAKE MODE']
+		if self.game.holiday:
+			if self.game.holiday == 'christmas_exclusive/':
+				self.allState[1], self.allState[4] = 'Treat Bag', 'Angry Treat'
 		self.stateIndex = 0
 		self.state = self.allState[self.stateIndex]
 		self.classicx, self.classicy = self.mid_w, self.mid_h + self.game.font_size
@@ -1003,16 +952,16 @@ class ModeMenu(Menu):
 			self.game.draw_text('SELECT A MODE', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
 			self.game.draw_text('CLASSIC', self.game.font_size * 3/4, self.classicx, self.classicy)
 			if self.game.allowmode0:
-				self.game.draw_text('APPLE BAG', self.game.font_size * 3/4, self.appleBagx, self.appleBagy)
+				self.game.draw_text(self.allState[1], self.game.font_size * 3/4, self.appleBagx, self.appleBagy)
 			if self.game.allowmode1:
 				self.game.draw_text('PORTAL BORDER', self.game.font_size * 3/4, self.portalx, self.portaly)
 			if self.game.allowmode2:
 				self.game.draw_text('ULTIMATE SNAKE', self.game.font_size * 3/4, self.ultimatex, self.ultimatey)
 			if self.game.allowmode3:
-				self.game.draw_text('ANGRY APPLE', self.game.font_size * 3/4, self.angryApplex, self.angryAppley)
+				self.game.draw_text(self.allState[4], self.game.font_size * 3/4, self.angryApplex, self.angryAppley)
 			if self.game.allowmode4:
-				self.game.draw_text( self.allState[5], self.game.font_size * 3/4, self.deSnakex, self.deSnakey)
-			self.game.draw_text( self.state, self.game.font_size * 3/4, self.mid_w, 100)
+				self.game.draw_text('DE SNAKE MODE', self.game.font_size * 3/4, self.deSnakex, self.deSnakey)
+			self.game.draw_text(self.state, self.game.font_size * 3/4, self.mid_w, 100)
 			self.draw_cursor()
 			self.blit_screen()
 
@@ -1026,8 +975,8 @@ class ModeMenu(Menu):
 			if self.state == 'CLASSIC':
 				self.game.mode()
 				logger.log('Classic Mode loaded.')
-			if self.state == 'APPLE BAG':
-				logger.log('Apple Bag Mode loaded.')
+			if self.state == self.allState[1]:
+				logger.log(self.allState[1] + ' Mode loaded.')
 				self.game.mode(apple_bag = 1)
 
 			if self.state == 'PORTAL BORDER':
@@ -1038,10 +987,10 @@ class ModeMenu(Menu):
 				logger.log('Ultimate Snake Mode loaded.')
 				self.game.mode(snake_instinct = 1)
 
-			if self.state == 'ANGRY APPLE':
+			if self.state == self.allState[4]:
 				#logger.log('Tried to load Angry Apple mode, but failed (TBA)')
 				#self.work_in_progress()
-				logger.log('Angry Apple Mode loaded.')
+				logger.log(self.allState[4] + ' Mode loaded.')
 				self.game.mode(angry_apple = 1)
 
 			if self.state == 'DE SNAKE MODE':
@@ -1054,7 +1003,6 @@ class ModeMenu(Menu):
 			self.game.DRsnd_select.play()
 			self.game.change_volume()
 			self.game.NAPSR.stop()
-			self.game.gamemus.play(-1)
 			self.game.show_instructions = True
 
 		elif self.game.CLICK and self.game.mousex in range(235, 560):
@@ -1064,7 +1012,7 @@ class ModeMenu(Menu):
 				self.game.DRsnd_select.play()
 
 			elif self.game.mousey in range(346, 380) and self.game.allowmode0:
-				logger.log('Apple Bag Mode loaded.')
+				logger.log(self.allState[1] + ' Mode loaded.')
 				self.game.mode(apple_bag = 1)
 				self.game.DRsnd_select.play()
 
@@ -1079,7 +1027,7 @@ class ModeMenu(Menu):
 				self.game.DRsnd_select.play()
 
 			elif self.game.mousey in range(446, 475) and self.game.allowmode3:
-				logger.log('Angry Apple Mode loaded.')
+				logger.log(self.allState[4] + ' Mode loaded.')
 				self.game.mode(angry_apple = 1)
 				self.game.DRsnd_select.play()
 
