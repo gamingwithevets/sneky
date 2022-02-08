@@ -1,6 +1,8 @@
 # Basic info
 Snake, now made in Pygame!  
-NOTE: This branch is for the **Christmas version**. For regular Sneky, please switch to the `main` branch.
+NOTE:
+- This branch is for the **Christmas version**. For regular Sneky, please switch to the `main` branch.
+- This branch is **obsolete**. The Christmas version has been reworked into the Christmas theme in regular Sneky (see [Game Features/Miscellaneous/Themes](https://github.com/gamingwithevets/sneky#themes) in `README.md` of branch `main`.
 
 # Requirements
 Just like regular Sneky, you just need a binary to run this version without having to install anything.
