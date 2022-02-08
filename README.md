@@ -8,6 +8,12 @@ If you wanna run the game from source code... well, you can download the ZIP fil
 Then, install Python (I recommend the latest version). Then, you should update `pip` first. Run `pip install --upgrade pip` to do that.  
 And, of course, run `pip install pygame`.
 After that, run `main.py` to start the game!  
+
+Currently, ports for Windows and Linux have been made.  
+A macOS port *is planned*, but due to me having frustrations with installing macOS on VirtualBox in the past, I probably need a real Mac to make a macOS port.  
+So please, if ***you*** have a real Mac, PLEASE ***open a new issue in the Issues tab*** with a title like "**macOS port for Sneky**".  
+Then, if I find one, I'll be sure to check it out!
+
 ## Building a Binary
 If you want to build your own binary, especially for versions older than `v1.0.0b`, first, of course, you need to clone the repo.  
 In addition to Pygame and Python, you need Pyinstaller. To install it, just use `pip install pyinstaller`.
