@@ -8,18 +8,21 @@ If you wanna run the game from source code... well, you can download the ZIP fil
 Then, install Python (I recommend the latest version). Then, you should update `pip` first. Run `pip install --upgrade pip` to do that.  
 And, of course, run `pip install pygame`.
 After that, run `main.py` to start the game!  
-NOTE: The game only supports Windows, due to the game saving in %LOCALAPPDATA%, which is not present in Linux.
 ## Building a Binary
 If you want to build your own binary, especially for versions older than `v1.0.0b`, first, of course, you need to clone the repo.  
 In addition to Pygame and Python, you need Pyinstaller. To install it, just use `pip install pyinstaller`.
 
-Making a command of your own takes some time, so run this command in the root directory of the repo.
-
+Making a command of your own takes some time, so run this command in the root directory of the repo.  
+For Windows:
 ```
 pyinstaller --noconfirm --onefile --name "sneky" --icon icon.ico --add-data game.py;. --add-data logger.py;. --add-data menu.py;. --add-data audio;audio/ --add-data fonts;fonts/ --add-data images;images/ main.py
 ```
+For Linux:
+```
+pyinstaller --noconfirm --onefile --name "sneky" --icon icon.ico --add-data game.py:. --add-data logger.py:. --add-data menu.py:. --add-data audio:audio/ --add-data fonts:fonts/ --add-data images:images/ main.py
+```
 
-Run that, and in the `dist` folder of the repo folder, there should be a file called `sneky.exe`. Now you can share it with your friends who doesn't have Python!
+Run that, and in the `dist` folder of the repo folder, there should be a file called `sneky`. Now you can share it with your friends who doesn't have Python!
 
 # Gameplay
 Currently, the game has 6 modes.
