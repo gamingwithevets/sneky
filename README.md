@@ -69,7 +69,7 @@ What text it will show depends on RNG, the game theme, and the date.
 
 # Planned Features
 Here's the planned features of Sneky:
-- A port for macOS
+- Ports for macOS ~~and Linux~~ There is a Linux port for v1.2.1! Check it out here.
 - Can be played with controller
 - Halloween theme
 - Refreshing
