@@ -9,7 +9,7 @@ Then, install Python (I recommend the latest version). Then, you should update `
 And, of course, run `pip install pygame`.
 After that, run `main.py` to start the game!  
 
-Currently, ports for Windows and Linux have been made.  
+Currently, ports for **Windows and Linux** have been made.  
 A macOS port *is planned*, but due to me having frustrations with installing macOS on VirtualBox in the past, I probably need a real Mac to make a macOS port.  
 So please, if ***you*** have a real Mac, PLEASE ***open a new issue in the Issues tab*** with a title like "**macOS port for Sneky**".  
 Then, if I find one, I'll be sure to check it out!
