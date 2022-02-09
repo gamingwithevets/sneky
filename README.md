@@ -14,6 +14,9 @@ A macOS port *is planned*, but due to me having frustrations with installing mac
 So please, if ***you*** have a real Mac, PLEASE ***open a new issue in the Issues tab*** with a title like "**macOS port for Sneky**".  
 Then, if I find one, I'll be sure to check it out!
 
+Also, the Linux port **does not support the Windows Subsystem for Linux**, so you'll most likely encounter an error running it in WSL.  
+However, I *might* be wrong! If you ran the Linux port of Sneky on WSL without issue, **PLEASE** post it [here](http://discord.gg/S4GQg5fEHN)!
+
 ## Building a Binary
 If you want to build your own binary, especially for versions older than `v1.0.0b`, first, of course, you need to clone the repo.  
 In addition to Pygame and Python, you need Pyinstaller. To install it, just use `pip install pyinstaller`.
