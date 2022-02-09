@@ -61,7 +61,7 @@ Serial Number **Q**5**U**4**E**X7YY2**E**9**N**, a.k.a. Queen from *Deltarune*, 
 Keep in mind: The Queen will not help you in Angry Apple mode, since she's controlling the snake!
 ## The Snake's Colors
 The snake has different colors, and that represents different powers.
-- Green: The pain 'ol snake that dies when bumping into borders or itself.
+- Green: The plain 'ol snake that dies when bumping into borders or itself.
 - Super Yellow: Makes more apples spawn.
 - God Red: Allows you to turn around and go past yourself.
 - Light Blue: Makes the borders act as portals to the other side of the playfield.
