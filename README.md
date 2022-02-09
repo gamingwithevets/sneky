@@ -61,11 +61,11 @@ Serial Number **Q**5**U**4**E**X7YY2**E**9**N**, a.k.a. Queen from *Deltarune*, 
 Keep in mind: The Queen will not help you in Angry Apple mode, since she's controlling the snake!
 ## The Snake's Colors
 The snake has different colors, and that represents different powers.
-- Green: The plain 'ol snake that dies when bumping into borders or itself.
-- Super Yellow: Makes more apples spawn.
-- God Red: Allows you to turn around and go past yourself.
-- Light Blue: Makes the borders act as portals to the other side of the playfield.
-- Ultra Instinct White: You become so fast that the border completely breaks, allowing you to go outside of the playfield. Be careful, because you can lose track of the snake. Ultimate Mode only.
+- **Green**: The plain 'ol snake that dies when bumping into borders or itself.
+- **Super Yellow**: Makes more apples spawn.
+- **God Red**: Allows you to turn around and go past yourself.
+- **Light Blue**: Makes the borders act as portals to the other side of the playfield.
+- **Ultra Instinct White**: You become so fast that the border completely breaks, allowing you to go outside of the playfield. Be careful, because you can lose track of the snake. Ultimate Mode only.
 ## Miscellaneous
 ### Key Rebinding
 Yup, that's right!!! You didn't expect this, right? You wouldn't think a game coming from GitHub wouldn't have key rebinding, right?  
