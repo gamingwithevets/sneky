@@ -12,7 +12,7 @@ Then, install Python (I recommend the latest version). Then, you should update `
 And, of course, run `pip install pygame`.
 After that, run `main.py` to start the game!
 
-The game is based on Sneky v1.1.1, which doesn't *officially* support Linux, but you can have Linux support with some code changes based on v.1.2.1+.  
+The game is based on Sneky v1.1.1, which doesn't *officially* support Linux, but you *can* have Linux support with some code changes based on v.1.2.1+.  
 However, I will NOT create an official Linux port of the Christmas edition because of the reasons mentioned above.
 
 
