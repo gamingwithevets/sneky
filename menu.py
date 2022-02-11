@@ -909,9 +909,9 @@ class PressStart(Menu):
 
 			self.game.display.blit(self.game.imgMenu, (0,0))
 			if self.game.gamestatus != None and self.game.gamestatus != 'release':
-				self.game.draw_text((self.game.gamestatus + ' ' + self.game.gameversion), self.game.font_size / 2, 70, 40, font_name = self.game.menu2_font)
+				self.game.draw_text((self.game.gamestatus + ' ' + self.game.gameversion), self.game.font_size / 2, 20, 550, anchor = 'topleft', font_name = self.game.menu2_font)
 			else:
-				self.game.draw_text(('v.' + self.game.gameversion), self.game.font_size / 2, 70, 40, font_name = self.game.menu2_font)
+				self.game.draw_text(('v.' + self.game.gameversion), self.game.font_size / 2, 20, 550, anchor = 'topleft', font_name = self.game.menu2_font)
 			self.game.draw_text(self.game.curr_splash, self.game.font_size / 2, int(self.game.DISPLAY_W/2), 20, color = self.game.red_god, font_name = self.game.menu2_font)
 			self.game.draw_text('PRESS ANY KEY', self.game.font_size, int(self.game.DISPLAY_W/2), int(self.game.DISPLAY_H/2 + 170))
 			self.blit_screen()

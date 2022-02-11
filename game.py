@@ -20,7 +20,7 @@ class Game():
 		pygame.display.set_caption("Sneky")
 		# game version
 		self.gamestatus = 'release'
-		self.gameversion = '1.2.1'
+		self.gameversion = '1.2.2-dev1'
 
 		if os.name == 'nt':
 			self.playername = os.getenv('USERNAME')
@@ -57,7 +57,12 @@ class Game():
 		# display resolution
 		self.DISPLAY_W, self.DISPLAY_H = 800, 600
 		self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-		self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
+		try:
+			self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.SCALED | pygame.FULLSCREEN)
+		except:
+			pygame.quit()
+			print('Uh oh... it seems that you don\'t have a video driver!\nWithout it, how can you even run Pygame games? :))))')
+			sys.exit()
 		self.arrow_font = self.temp_path + 'fonts/MinecraftRegular.ttf'
 		self.menu2_font = self.temp_path + 'fonts/Minecraftia.ttf'
 		self.menu_font = self.temp_path + 'fonts/8_BIT_WONDER.TTF'
@@ -197,7 +202,7 @@ class Game():
 		self.MOUSEMOVE, self.CLICK = False, False
 		self.MOUSESLIDERUP, self.MOUSESLIDERDOWN = False, False
 
-	def draw_text(self, text, size, x, y, color = None, font_name = None, screen = None):
+	def draw_text(self, text, size, x, y, anchor = 'center', color = None, font_name = None, screen = None):
 		if color == None:
 			color = self.WHITE
 		if font_name == None:
@@ -207,7 +212,7 @@ class Game():
 		font = pygame.font.Font(font_name, int(size))
 		text_surface = font.render(text, True, color)
 		text_rect = text_surface.get_rect()
-		text_rect.center = (x,y)
+		exec('text_rect.' + anchor + ' = (x,y)')
 		screen.blit(text_surface, text_rect)
 
 

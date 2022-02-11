@@ -11,7 +11,7 @@ if os.name == 'nt':
 else:
 	if os.geteuid() != 0:
 		print('The application data path in Linux (/opt/) is protected by root,\nso you need to use sudo to run this port!')
-		exit()
+		sys.exit()
 	else:
 		print('Since you\'re probably running as root, the player name will\nalways be root, no matter what account you\'re logged into.\nAnyway, enjoy the game!')
 		appdata_path = '/opt/Sneky'
@@ -32,7 +32,7 @@ try:
 except pygame.error:
 	pygame.quit()
 	logger.log('Sneky closed because Pygame thrown an error.\n' + traceback.format_exc() + '\nSneky session closed. (pygame.error)\n')
-	exit()
+	sys.exit()
 except KeyboardInterrupt:
 	pygame.quit()
 	logger.log('Sneky closed due to the user halting execution manually.\n' + traceback.format_exc() + '\nSneky session closed. (KeyboardInterrupt)\n')
