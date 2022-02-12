@@ -106,7 +106,7 @@ Game Code & Graphics Injection: SeverusFate & GamingWithEvets
 Music & SFX Injection: GamingWithEvets  
 Crash Handler & Logger: GamingWithEvets  
 
-## Themes
+## Theme Credits
 Themes: GamingWithEvets
 ### Christmas Theme Credits  
 Candy Cane Image: Kandi Patterns  
