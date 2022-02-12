@@ -106,4 +106,12 @@ Game Code & Graphics Injection: SeverusFate & GamingWithEvets
 Music & SFX Injection: GamingWithEvets  
 Crash Handler & Logger: GamingWithEvets  
 
+## Themes
+Themes: GamingWithEvets
+### Christmas Theme Credits  
+Candy Cane Image: Kandi Patterns  
+Santa Hat: John3 from TopPNG  
+Menu Music: ["Jingle Bells\"](https://www.youtube.com/watch?v=R1gskElaLNo) - From [YouTube](https://www.youtube.com/)/[KON](https://www.youtube.com/channel/UCcmWi0LJKaovJG_DaEhGD_g)  
+Game Music: ["We Wish You A Merry Christmas"](https://www.youtube.com/watch?v=8vdXR_igALU) - From [YouTube](https://www.youtube.com/)/[Pudding TV - Nursery Rhymes](https://www.youtube.com/channel/UCjPZm-0TqBPNAzxSrs6zMHw)
+
 **© 2021 SJ Studio + GamingWithEvets Inc. All rights go to their respective owners.**
