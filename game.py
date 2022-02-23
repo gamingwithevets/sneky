@@ -1,7 +1,7 @@
 import pygame
 import os
 from menu import *
-import logger
+import logger, updater
 import random
 import time
 import sys
@@ -20,7 +20,7 @@ class Game():
 		pygame.display.set_caption("Sneky")
 		# game version
 		self.gamestatus = 'release'
-		self.gameversion = '1.2.2-dev1'
+		self.gameversion = '1.3.0-dev1'
 
 		if os.name == 'nt':
 			self.playername = os.getenv('USERNAME')
@@ -54,11 +54,19 @@ class Game():
 		# self.START_KEY, self.BACK_KEY, self.SPACE_KEY, self.CTRL_KEY = False, False, False, False
 		# self.UP_KEY, self.DOWN_KEY, self.LEFT_KEY, self.RIGHT_KEY = False, False, False, False
 
-		# display resolution
+		# screen mode
+		# 0: windowed, resolution 800x600 (RECOMMENDED/DEFAULT)
+		# 1: fullscreen, resolution 800x600, not scaled (will set current screen resolution to 800x600 temporarily)
+		# 2: windowed, current screen resolution (BUGGY)
+		# 3: fullscreen, current screen resolution (BUGGY)
+		# 1: fullscreen, resolution 800x600, scaled (MAY CAUSE SLOWDOWNS IN GAMEPLAY)
+		self.fullscreen_mode = 0
+
+		# normal game resolution
 		self.DISPLAY_W, self.DISPLAY_H = 800, 600
 		self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
 		try:
-			self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.SCALED | pygame.FULLSCREEN)
+			self.window = self.set_window_mode()
 		except:
 			pygame.quit()
 			print('Uh oh... it seems that you don\'t have a video driver!\nWithout it, how can you even run Pygame games? :))))')
@@ -71,12 +79,17 @@ class Game():
 		self.BLACK, self.WHITE = (0,0,0), (255,255,255)
 		self.holidayname = ''
 		self.holiday = ''
+		self.auto_update = True
+		self.check_prerelease = False
+		self.updatechecked = False
 		self.check_holidays()
 		self.generate_splash()
 		self.press_start = PressStart(self)
 		self.main_menu = MainMenu(self)
 		self.options = OptionsMenu(self)
 		self.volumemenu = VolumeMenu(self)
+		self.updatemenu = UpdateMenu(self)
+		self.updater = Updater(self)
 		self.controls = ControlsMenu(self)
 		self.credits = CreditsMenu(self)
 		self.mode_menu = ModeMenu(self)
@@ -85,6 +98,19 @@ class Game():
 		self.musicvol = 1
 		self.soundvol = 1
 		self.mode()
+
+	def set_window_mode(self):
+		info = pygame.display.Info()
+		if self.fullscreen_mode	== 0:
+			return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
+		elif self.fullscreen_mode == 1:
+			return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.FULLSCREEN)
+		elif self.fullscreen_mode == 2:
+			return pygame.display.set_mode((info.current_w, info.current_h))
+		elif self.fullscreen_mode == 3:
+			return pygame.display.set_mode((info.current_w, info.current_h), pygame.FULLSCREEN)
+		elif self.fullscreen_mode == 4:
+			return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.SCALED | pygame.FULLSCREEN)
 
 	def check_holidays(self):
 		# check for Christmas (Dec 21 - Jan 5)
@@ -202,7 +228,7 @@ class Game():
 		self.MOUSEMOVE, self.CLICK = False, False
 		self.MOUSESLIDERUP, self.MOUSESLIDERDOWN = False, False
 
-	def draw_text(self, text, size, x, y, anchor = 'center', color = None, font_name = None, screen = None):
+	def draw_text(self, text, size, x, y, color = None, font_name = None, screen = None, anchor = 'center'):
 		if color == None:
 			color = self.WHITE
 		if font_name == None:
@@ -1054,6 +1080,8 @@ class Game():
 		self.win = False
 
 	def game_over_old(self):
+		# UNUSED FUNCTION -- congratulations on finding this dataminers!
+		# also, hello to all that's seeing this through TCRF or the Hidden Palace!
 		self.over_font = pygame.font.Font("fonts/8_BIT_WONDER.otf", 30)
 		self.over_text = self.over_font.render("Game over! Press Space to replay - Press Escape to exit", True, self.white)
 		self.over_rect = self.over_text.get_rect()
@@ -1104,11 +1132,17 @@ class Game():
 					self.draw_text('Speed: {:.2f}%'.format(speed_percent), 25, self.DISPLAY_W - 200, 30, self.gray, self.game_font)
 
 	def show_delay(self):
+		# DEBUG FUNCTION -- congratulations on finding this dataminers!
+		# also, hello to all that's seeing this through TCRF or the Hidden Palace!
+
 		# speed percent
 		delay = self.speed
 		self.draw_text('Delay: {:.2f}'.format(delay), 25, self.DISPLAY_W / 2 - 50, 30, self.gray, self.game_font)
 
 	def run(self):
+		# EARLY GAME LOOP FUNCTION -- congratulations on finding this dataminers!
+		# also, hello to all that's seeing this through TCRF or the Hidden Palace!
+
 		#mode_playing = True
 		#while mode_playing:
 		# background
@@ -1412,7 +1446,9 @@ class Game():
 		f.write('allowmode1 = {0}\n'.format(self.allowmode1))
 		f.write('allowmode2 = {0}\n'.format(self.allowmode2))
 		f.write('allowmode3 = {0}\n'.format(self.allowmode3))
-		f.write('allowmode4 = {0}\n'.format(self.allowmode4))
+		f.write('allowmode4 = {0}\n\n'.format(self.allowmode4))
+		f.write('# update-related settings\ncheck_prerelease = {0}\n'.format(self.check_prerelease))
+		f.write('auto_update = {0}\n\n'.format(self.auto_update))
 		f.close()
 
 if __name__ == '__main__':

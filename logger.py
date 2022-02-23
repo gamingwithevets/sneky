@@ -22,14 +22,15 @@ if os.name == 'nt':
 else:
 	playername = os.getenv('USER').upper()
 
-def log(text, allowprint = None):
+def log(text, allowprint = True, allowlog = True):
 	if not os.path.exists(appdata_path):
 		os.mkdir(appdata_path)
 	f = open(appdata_path1 + logfile, 'a', encoding = 'utf8')
-	if allowprint != False:
+	if allowprint:
 		print('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
-	f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
-	f.write('\n')
+	if allowlog:
+		f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
+		f.write('\n')
 	f.close()
 
 def startuplog(gamestatus, gameversion):

@@ -8,13 +8,15 @@ import logger
 
 if os.name == 'nt':
 	appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
-else:
+elif os.name == 'posix':
 	if os.geteuid() != 0:
 		print('The application data path in Linux (/opt/) is protected by root,\nso you need to use sudo to run this port!')
 		sys.exit()
 	else:
 		print('Since you\'re probably running as root, the player name will\nalways be root, no matter what account you\'re logged into.\nAnyway, enjoy the game!')
 		appdata_path = '/opt/Sneky'
+else:
+	appdata_path = '~/Library/Application Support/Sneky/'
 
 if not os.path.exists(appdata_path):
 	os.mkdir(appdata_path)
