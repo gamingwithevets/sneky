@@ -51,17 +51,18 @@ On top of the logo is a splash that changes every time you reload the menu.
 What text it will show depends on RNG, the game theme, and the date.
 
 # Planned Features
-Here's the planned features of Sneky:
-- Ports for macOS ~~and Linux~~ **There is a Linux port for v1.2.1! Check it out [here](https://github.com/gamingwithevets/sneky/releases/tag/v1.2.1).**
-- Can be played with controller
-- Halloween theme
-- No lag
-- Refreshing
-- Checking for updates
-- Multiplayer
-- Online leaderboard
-- Less lag in gameplay
-- Fullscreen without issues
+Here's the planned features of Sneky. I'll try to complete this list in the future.
+- [ ] macOS port
+- [x] ~~Linux port~~ **There is a Linux port! Check it out [here](https://github.com/USER/PROJECT/releases/latest/download/sneky-linux).**
+- [ ] Can be played with controller
+- [ ] Halloween theme
+- [ ] No lag
+- [ ] Refreshing
+- [ ] Checking for updates
+- [ ] Multiplayer
+- [ ] Online leaderboard
+- [ ] Less lag in gameplay
+- [ ] Fullscreen without issues
 
 # Credits
 Apple Graphic: Luna4s  
