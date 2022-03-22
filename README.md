@@ -53,7 +53,7 @@ What text it will show depends on RNG, the game theme, and the date.
 # Planned Features
 Here's the planned features of Sneky. I'll try to complete this list in the future.
 - [ ] macOS binary
-- [x] ~~Linux binary~~ **There are Linux binaries now! Check out the latest Linux port [here](https://github.com/gamingwithevets/sneky/releases/latest/download/sneky-linux).**
+- [x] ~~Linux binary~~ **There are Linux binaries now! Check out the latest Linux binary [here](https://github.com/gamingwithevets/sneky/releases/latest/download/sneky-linux).**
 - [ ] Can be played with controller
 - [ ] Halloween theme
 - [ ] No lag
@@ -86,4 +86,4 @@ Santa Hat: John3 from TopPNG
 Menu Music: ["Jingle Bells\"](https://www.youtube.com/watch?v=R1gskElaLNo) - From [YouTube](https://www.youtube.com/)/[KON](https://www.youtube.com/channel/UCcmWi0LJKaovJG_DaEhGD_g)  
 Game Music: ["We Wish You A Merry Christmas"](https://www.youtube.com/watch?v=8vdXR_igALU) - From [YouTube](https://www.youtube.com/)/[Pudding TV - Nursery Rhymes](https://www.youtube.com/channel/UCjPZm-0TqBPNAzxSrs6zMHw)
 
-**© 2021 SJ Studio + GamingWithEvets Inc. All rights go to their respective owners.**
+**© 2021-2022 SJ Studio + GamingWithEvets Inc. All rights go to their respective owners.**
