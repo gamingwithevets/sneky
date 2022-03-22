@@ -52,8 +52,8 @@ What text it will show depends on RNG, the game theme, and the date.
 
 # Planned Features
 Here's the planned features of Sneky. I'll try to complete this list in the future.
-- [ ] macOS port
-- [x] ~~Linux port~~ **There are Linux ports now! Check out the latest Linux port [here](https://github.com/gamingwithevets/sneky/releases/latest/download/sneky-linux).**
+- [ ] macOS binary
+- [x] ~~Linux binary~~ **There are Linux binaries now! Check out the latest Linux port [here](https://github.com/gamingwithevets/sneky/releases/latest/download/sneky-linux).**
 - [ ] Can be played with controller
 - [ ] Halloween theme
 - [ ] No lag
