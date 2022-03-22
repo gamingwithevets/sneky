@@ -3,26 +3,29 @@ import os
 import sys
 import traceback
 import logger
-
+import platform as platforn
 
 
 if os.name == 'nt':
 	appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
 elif os.name == 'posix':
 	if os.geteuid() != 0:
-		print('The application data path in Linux (/opt/) is protected by root,\nso you need to use sudo to run this port!')
 		sys.exit()
 	else:
 		print('Since you\'re probably running as root, the player name will\nalways be root, no matter what account you\'re logged into.\nAnyway, enjoy the game!')
-		appdata_path = '/opt/Sneky'
-else:
-	appdata_path = '~/Library/Application Support/Sneky/'
+		if platform.system() != 'Darwin':
+			print('Using ~/.config/Sneky as appdata path. If it can\'t write there, please report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
+			appdata_path = '~/.config/Sneky'
+		else:
+			print('It appears you are running the game on a Mac! Keep in mind that\nthis macOS port may have problems!\nIf you found any, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
+			print('Using ~/Library/Application Support/Sneky as appdata path. If it can\'t write there, please report it via the URL above.')
+			appdata_path = '~/Library/Application Support/Sneky'
 
 if not os.path.exists(appdata_path):
 	os.mkdir(appdata_path)
 sys.path.insert(0, appdata_path)
 
-try:
+try: 
 	from game import Game
 
 	g = Game()

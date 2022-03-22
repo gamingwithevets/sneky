@@ -1,6 +1,6 @@
 import sys
 import os
-import platform
+import platform as platforn
 from datetime import datetime
 
 logfile = 'sneky.log'
@@ -10,10 +10,10 @@ if os.name == 'nt':
 	appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
 	appdata_path1 = os.getenv('LOCALAPPDATA') + '\\Sneky\\'
 else:
-	appdata_path = '/opt/Sneky'
-	appdata_path1 = '/opt/Sneky/'
+	appdata_path = os.getenv('HOME') + '/.config/Sneky'
+	appdata_path1 = os.getenv('HOME') + '/.config/Sneky/'
 
-platform = platform.system()
+platform = platforn.system()
 if platform == 'Darwin':
 	platform = 'macOS'
 

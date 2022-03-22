@@ -6,6 +6,7 @@ import logger, updater
 import shutil
 import random
 from datetime import datetime
+import webbrowser
 
 class Menu():
 	def __init__(self, game):
@@ -503,36 +504,40 @@ class Updater(Menu):
 			self.game.draw_text('Checking for updates. Please wait...', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 			if self.auto: self.game.draw_text('To disable automatic updates, please go to Settings -> Updates.', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 			self.blit_screen()
-			newupdate, error, unofficial, version, name, body = updater.check_updates(self.game.gameversion, self.game.check_prerelease)
+			self.updstat = updater.check_updates(self.game.gameversion, self.game.check_prerelease)
 			while self.run_display:
 				self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('UPDATES', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
 				self.game.check_events()
-				if error:
+				if self.updstat['error']:
 					if not self.auto:
 						if (self.game.START_KEY or self.game.BACK_KEY) or (self.game.CLICK and self.game.mousex in range(235, 560) and self.game.mousey in range(321, 340)):
 							if not self.auto: self.game.curr_menu = self.game.updatemenu
 							self.game.updatechecked = True
 							self.run_display = False
 							self.game.DRsnd_select.play()
-						self.game.draw_text('Can\'t check for updates right now! Please try again later.', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
+						if self.updstat['exceeded']:
+							self.game.draw_text('GitHub API rate limit exceeded! Please try again later.', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
+						elif self.updstat['nomodule']:
+							self.game.draw_text('Please install the "requests" module! Use "pip install requests".', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
+						else:
+							self.game.draw_text('Can\'t check for updates! Please try again later.', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 						if self.auto: self.game.draw_text('MAIN MENU', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
 						else: self.game.draw_text('BACK', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
 					else: self.run_display = False
-				elif newupdate:
+				elif self.updstat['newupdate']:
 					self.check_input()
 					self.game.draw_text('An update is available!', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
-					self.game.draw_text('INSTALL UPDATE', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
-					self.game.draw_text('WHAT\'S NEW IN THIS UPDATE?', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
+					self.game.draw_text('v.' + self.updstat['tag_name'] + ' - ' + self.updstat['title'], int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
+					self.game.draw_text('VISIT DOWNLOAD PAGE', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
 					self.game.draw_text('REMIND ME LATER', int(self.game.font_size / 2), self.opt4x, self.opt4y, font_name = self.game.menu2_font)
-				elif unofficial:
+				elif self.updstat['unofficial']:
 					self.cursor_rect.midtop = (self.opt5x + self.offset, self.opt5y)
 					if (self.game.START_KEY or self.game.BACK_KEY) or (self.game.CLICK and self.game.mousex in range(235, 560) and self.game.mousey in range(421, 440)):
 						if not self.auto: self.game.curr_menu = self.game.updatemenu
 						self.game.updatechecked = True
 						self.run_display = False
 						self.game.DRsnd_select.play()
-					self.game.draw_text('UPDATES', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
 					self.game.draw_text('This is an unofficial or development version of Sneky.', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 					self.game.draw_text('If this is a Sneky mod and you\'re the developer, please', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 					self.game.draw_text('change the "username" and "reponame" variables in updater.py to', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
@@ -546,7 +551,6 @@ class Updater(Menu):
 							self.game.updatechecked = True
 							self.run_display = False
 							self.game.DRsnd_select.play()
-						self.game.draw_text('UPDATES', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size / 2)
 						self.game.draw_text('You are already running the latest version of Sneky!', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 						self.game.draw_text('BACK', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
 					else: self.run_display = False
@@ -554,37 +558,19 @@ class Updater(Menu):
 				self.blit_screen()
 
 	def move_cursor(self):
-		if self.game.DOWN_KEY:
-			if self.state == 'install':
-				self.state = 'whatsnew'
-				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
-			elif self.state == 'whatsnew':
-				self.state = 'remind'
-				self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
-			elif self.state == 'remind':
-				self.state = 'install'
-				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
-			self.game.DRsnd_menumove.play()
-		elif self.game.UP_KEY:
+		if self.game.DOWN_KEY or self.game.UP_KEY:
 			if self.state == 'install':
 				self.state = 'remind'
 				self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
 			elif self.state == 'remind':
-				self.state = 'whatsnew'
-				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
-			elif self.state == 'whatsnew':
 				self.state = 'install'
-				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
+				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
 			self.game.DRsnd_menumove.play()
 
 		if self.game.MOUSEMOVE and self.game.mousex in range(235, 560):
-			if self.game.mousey in range(361, 380) and self.state != 'install':
-				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
-				self.state = 'install'
-				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(381, 400) and self.state != 'whatsnew':
+			if self.game.mousey in range(381, 400) and self.state != 'install':
 				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
-				self.state = 'whatsnew'
+				self.state = 'install'
 				self.game.DRsnd_menumove.play()
 			elif self.game.mousey in range(401, 420) and self.state != 'remind':
 				self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
@@ -602,8 +588,6 @@ class Updater(Menu):
 			self.game.DRsnd_select.play()
 			if self.state == 'install':
 				self.download()
-			elif self.state == 'whatsnew':
-				self.whatsnew()
 			elif self.state == 'remind':
 				self.game.updatechecked = True
 				if not self.auto:
@@ -611,12 +595,9 @@ class Updater(Menu):
 				self.run_display = False
 
 		if self.game.CLICK and self.game.mousex in range(235, 560):
-			if self.game.mousey in range(361, 380):
+			if self.game.mousey in range(381, 400):
 				self.game.DRsnd_select.play()
 				self.download()
-			elif self.game.mousey in range(381, 400):
-				self.game.DRsnd_select.play()
-				self.whatsnew()
 			elif self.game.mousey in range(401, 420):
 				self.game.DRsnd_select.play()
 				self.game.updatechecked = True
@@ -625,12 +606,7 @@ class Updater(Menu):
 				self.run_display = False
 
 	def download(self):
-		# download the latest version of sneky
-		pass
-
-	def whatsnew(self):
-		# get the update release notes and print them on the terminal
-		pass
+		webbrowser.open_new_tab('https://github.com/gamingwithevets/sneky/releases/tag/v' + self.updstat['tag_name'])
 
 class VolumeMenu(Menu):
 	def __init__(self,game):

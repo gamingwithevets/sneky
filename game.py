@@ -20,7 +20,7 @@ class Game():
 		pygame.display.set_caption("Sneky")
 		# game version
 		self.gamestatus = 'release'
-		self.gameversion = '1.3.0-dev1'
+		self.gameversion = '1.3.0-dev2'
 
 		if os.name == 'nt':
 			self.playername = os.getenv('USERNAME')
