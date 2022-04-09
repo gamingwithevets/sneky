@@ -50,10 +50,10 @@ You can't change the game theme from within the game, though. What you can do to
 On top of the logo is a splash that changes every time you reload the menu.  
 What text it will show depends on RNG, the game theme, and the date.
 
-# Planned Features
-Here's the planned features of Sneky. I'll try to complete this list in the future.
+# Planned New Features
+Here's the planned new features of Sneky. I'll try to complete this list in the future.
 - [ ] macOS binary
-- [x] ~~Linux binary~~ **There are Linux binaries now! Check out the latest Linux binary [here](https://github.com/gamingwithevets/sneky/releases/latest/download/sneky-linux).**
+- [x] ~~Linux binary~~ **There are Linux binaries now!** You can check them out in the [latest Sneky version](https://github.com/gamingwithevets/sneky/).
 - [ ] Can be played with controller
 - [ ] Halloween theme
 - [ ] No lag
