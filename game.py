@@ -1,10 +1,17 @@
 import pygame
+import logger
+
+logger.log('Initializing Pygame, please be patient if it takes long.\n', allowlog = False)
+pygame.init()
+logger.log('Pygame initialized, loading Sneky.', allowlog = False)
+pygame.display.set_caption('Sneky')
+
+import sys
 import os
 from menu import *
-import logger, updater
+import updater
 import random
 import time
-import sys
 from decimal import *
 from pygame import mixer
 from datetime import datetime
@@ -15,12 +22,10 @@ class Game():
 			self.temp_path = os.path.join(sys._MEIPASS) + '/'
 		except Exception:
 			self.temp_path = ''
-
-		pygame.init()
-		pygame.display.set_caption("Sneky")
+		
 		# game version
 		self.gamestatus = 'release'
-		self.gameversion = '1.3.0-dev2'
+		self.gameversion = '1.2.2'
 
 		if os.name == 'nt':
 			self.playername = os.getenv('USERNAME')
@@ -69,7 +74,7 @@ class Game():
 			self.window = self.set_window_mode()
 		except:
 			pygame.quit()
-			print('Uh oh... it seems that you don\'t have a video driver!\nWithout it, how can you even run Pygame games? :))))')
+			print('\nUh oh... it seems that you... don\'t have a video driver?\nThis tells me that you\'re probably running Sneky in a dump terminal.\nLike WSL.')
 			sys.exit()
 		self.arrow_font = self.temp_path + 'fonts/MinecraftRegular.ttf'
 		self.menu2_font = self.temp_path + 'fonts/Minecraftia.ttf'
@@ -97,7 +102,17 @@ class Game():
 		self.volume = 1
 		self.musicvol = 1
 		self.soundvol = 1
+		self.showfps = True
+		self.limitedfps = False
 		self.mode()
+
+	def update_fps(self):
+		if self.showfps:
+			if self.limitedfps: self.clock.tick(self.FPS)
+			else: self.clock.tick()
+			fps = self.clock.get_fps()
+			self.draw_text(str(int(fps * 10)), int(self.font_size / 3), 0, 0, anchor = 'topleft', color = self.black, font_name = self.menu2_font)
+		pygame.display.update()
 
 	def set_window_mode(self):
 		info = pygame.display.Info()
@@ -131,7 +146,7 @@ class Game():
 		self.global_splashes = [
 		'The snake can die by touching the border in the angry mode!',
 		'May the Queen be with you.',
-		'Press {0} for the Queen\'s help :p'.format(pygame.key.name(self.X_BIND).upper()),
+		'DELTARUNE IS VERY GOOD GAME! I VERY RECOMMEND IT.',
 		'Oh hello!',
 		'This version of Snake is special!',
 		'Please don\'t copyright us :(',
@@ -340,6 +355,8 @@ class Game():
 
 			while self.g_over:
 
+				self.update_fps()
+
 				# check input
 				self.check_events()
 				if self.BACK_KEY or self.MENU_KEY:
@@ -371,6 +388,8 @@ class Game():
 			pygame.display.update()
 
 			while self.paused:
+
+				self.update_fps()
 
 				# check input
 				self.check_events()
@@ -429,6 +448,8 @@ class Game():
 
 			while self.show_instructions:
 
+				self.update_fps()
+
 				# check input
 				self.check_events()
 				if self.BACK_KEY or self.MENU_KEY:
@@ -467,6 +488,8 @@ class Game():
 
 			while self.newmode:
 
+				self.update_fps()
+
 				# check input
 				self.check_events()
 				if self.BACK_KEY or self.MENU_KEY:
@@ -493,6 +516,9 @@ class Game():
 
 		# speed
 		if not self.turbo:
+			#if self.delta_type == 1:
+				#self.clock.tick(self.FPS)
+				#self.update_fps()
 			pygame.time.delay(int(self.speed))
 			# delay
 			#self.show_delay()
@@ -506,6 +532,8 @@ class Game():
 					self.draw_text('YOU AND THE SNAKE SLOWED DOWN!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
 				else:
 					self.draw_text('YOU AND THE SNAKE SPED UP!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
+
+		self.update_fps()
 
 		#score
 		self.show_score()
@@ -1012,12 +1040,11 @@ class Game():
 		# PERCENTAGE of the alpha layer
 		self.alpha_percentage = 20
 
-		# 0: unhook snake speed from framerate
-		# 1: tie snake speed to framerate (uses a set FPS)
-		self.delta_type = 0
+		self.delta_type = 1
 
-		# FPS for delta type 1
+		# FPS (for limited FPS)
 		self.FPS = 100
+
 		self.clock = pygame.time.Clock()
 
 		# color
@@ -1079,30 +1106,6 @@ class Game():
 		self.g_over = False
 		self.win = False
 
-	def game_over_old(self):
-		# UNUSED FUNCTION -- congratulations on finding this dataminers!
-		# also, hello to all that's seeing this through TCRF or the Hidden Palace!
-		self.over_font = pygame.font.Font("fonts/8_BIT_WONDER.otf", 30)
-		self.over_text = self.over_font.render("Game over! Press Space to replay - Press Escape to exit", True, self.white)
-		self.over_rect = self.over_text.get_rect()
-		self.over_rect.midtop = (Game().DISPLAY_W//2 , Game().DISPLAY_H//2)
-
-		self.display2 = pygame.Surface((Game().DISPLAY_W - self.border_x - 20, Game().DISPLAY_H - self.border_y - 20))
-		self.display2.set_alpha(int(255 / 100 * self.alpha_percentage))
-		self.display2.fill(self.black)
-		self.display.blit(self.display2, (self.border_x, self.border_y))
-		self.display.blit(self.over_text, self.over_rect)
-		pygame.display.flip()
-
-		while True:
-			pygame.event.get()
-			key_pressed = pygame.key.get_pressed()
-			if key_pressed[pygame.K_ESCAPE]:
-				pygame.quit()
-				sys.exit()
-			elif key_pressed[pygame.K_SPACE]:
-				self.game_loop()
-
 	def show_score(self):
 		self.draw_text('Score: {0}'.format(self.score), 25, 100, 30, self.gray, self.game_font)
 
@@ -1130,161 +1133,6 @@ class Game():
 					self.draw_text('MAX!'.format(29 / 30 * 100), 13, self.DISPLAY_W - 200, 50, self.red, self.game_font)
 				else:
 					self.draw_text('Speed: {:.2f}%'.format(speed_percent), 25, self.DISPLAY_W - 200, 30, self.gray, self.game_font)
-
-	def show_delay(self):
-		# DEBUG FUNCTION -- congratulations on finding this dataminers!
-		# also, hello to all that's seeing this through TCRF or the Hidden Palace!
-
-		# speed percent
-		delay = self.speed
-		self.draw_text('Delay: {:.2f}'.format(delay), 25, self.DISPLAY_W / 2 - 50, 30, self.gray, self.game_font)
-
-	def run(self):
-		# EARLY GAME LOOP FUNCTION -- congratulations on finding this dataminers!
-		# also, hello to all that's seeing this through TCRF or the Hidden Palace!
-
-		#mode_playing = True
-		#while mode_playing:
-		# background
-		self.display.fill(self.white)
-		for x in range(self.border_x, self.DISPLAY_W - 20, 40):
-			for y in range(self.border_y, self.DISPLAY_H - 20, 40):
-				pygame.draw.rect(self.display,(170, 215, 81),(x,y,self.cell_size,self.cell_size))
-				pygame.draw.rect(self.display,(162, 209, 72),(x + 20,y,self.cell_size,self.cell_size))
-			for y in range(self.border_y + 20, self.DISPLAY_H - 20, 40):
-				pygame.draw.rect(self.display,(170, 215, 81),(x + 20,y,self.cell_size,self.cell_size))
-				pygame.draw.rect(self.display,(162, 209, 72),(x,y,self.cell_size,self.cell_size))
-
-		# speed
-		if self.delta_type == 0:
-			pygame.time.delay(int(self.speed))
-		else:
-			self.clock.tick(self.FPS)
-
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				pygame.quit()
-				sys.exit()
-		key_pressed = pygame.key.get_pressed()
-		if key_pressed[pygame.K_UP]:
-			self.direction = 'UP'
-		if key_pressed[pygame.K_DOWN]:
-			self.direction = 'DOWN'
-		if key_pressed[pygame.K_RIGHT]:
-			self.direction = 'RIGHT'
-		if key_pressed[pygame.K_LEFT]:
-			self.direction = 'LEFT'
-		if key_pressed[pygame.K_ESCAPE]:
-			pygame.quit()
-			sys.exit()
-
-		if self.direction == 'RIGHT':
-			self.snake_head[0] += self.cell_size
-		if self.direction == 'LEFT':
-			self.snake_head[0] -= self.cell_size
-		if self.direction == 'UP':
-			self.snake_head[1] -= self.cell_size
-		if self.direction == 'DOWN':
-			self.snake_head[1] += self.cell_size
-
-
-		# snake moving
-		self.snake.insert(0, list(self.snake_head))
-
-		if self.apple_bag == 0:
-			if self.snake_head == self.apple:
-				self.score += 1
-
-				if int(self.speed) > 0:
-					self.speed *= 0.97
-				else:
-					self.speed -= 0.5
-				while True:
-					apple_x = random.randrange(self.border_x,Game().DISPLAY_W-self.border_x,20)
-					apple_y = random.randrange(self.border_y,Game().DISPLAY_H-self.border_y,20)
-					self.apple = [apple_x, apple_y]
-					if self.apple not in self.snake:
-						break
-				# draw apple color
-			else:
-				self.snake.pop()
-
-		else:
-			if self.snake_head in self.apple_List:
-				self.apple_List.remove(self.snake_head)
-				# plus score
-				self.score += 1
-				# move faster
-				if int(self.speed) > 0:
-					self.speed *= 0.97
-				else:
-					self.speed -= 0.5
-				for i in range(self.score):
-					apple_x = random.randrange(self.border_x,Game().DISPLAY_W-20,20)
-					apple_y = random.randrange(self.border_y,Game().DISPLAY_H-20,20)
-					apple = [apple_x, apple_y]
-					if apple not in self.apple_List and apple not in self.snake:
-						self.apple_List.insert(-1,apple)
-			else:
-				self.snake.pop()
-
-		# draw snake color
-		for s in self.snake:
-			pygame.draw.rect(self.display,self.green,(s[0],s[1],self.cell_size,self.cell_size))
-		# draw snake head
-		if self.direction == 'RIGHT':
-			self.display.blit(self.imgHead_r,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
-		if self.direction == 'LEFT':
-			self.display.blit(self.imgHead_l,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
-		if self.direction == 'UP':
-			self.display.blit(self.imgHead_u,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
-		if self.direction == 'DOWN':
-			self.display.blit(self.imgHead_d,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
-
-		# draw apple
-		if self.apple_bag == 0:
-			pygame.draw.rect(self.display, self.red, (self.apple[0], self.apple[1], self.cell_size, self.cell_size))
-		else:
-			for a in self.apple_List:
-				pygame.draw.rect(self.display, self.red, (a[0], a[1], self.cell_size, self.cell_size))
-
-
-		#border
-		pygame.draw.rect(self.display,self.gray,(self.border_x,self.border_y,Game().DISPLAY_W - self.border_x - 20,Game().DISPLAY_H - self.border_y - 20),10)
-
-
-		#score
-		self.show_score()
-
-		# delay
-		self.show_delay()
-
-		# hit border
-		if (self.snake_head[0] >= Game().DISPLAY_W - 20
-		or self.snake_head[0] <= self.border_x - 10
-		or self.snake_head[1] >= Game().DISPLAY_H - 20
-		or self.snake_head[1] <= self.border_y - 10):
-			if self.curled_up == 1:
-				self.display.blit(self.imgHead_die,pygame.Rect(self.snake_head[0],self.snake_head[1],self.cell_size,self.cell_size))
-				self.playing = False
-				self.g_over = True
-				#self.game_over()
-			else:
-
-				#score = score + (len(snake))
-
-				if self.snake_head[0] <= self.border_x - 15:
-					self.snake_head[0] = Game().DISPLAY_W - 2 * self.cell_size
-				elif self.snake_head[0] >= Game().DISPLAY_W - self.cell_size:
-					self.snake_head [0] = self.border_x
-				elif self.snake_head[1] >= Game().DISPLAY_H - self.cell_size:
-					self.snake_head[1] = self.border_y
-				elif self.snake_head[1] <= self.border_y - 15:
-					self.snake_head[1] = Game().DISPLAY_H - 2 * self.cell_size
-
-
-			#update
-			pygame.display.flip()
 
 	def change_volume(self):
 			# set volume (MUST SET FOR ALL SOUNDS)
@@ -1315,6 +1163,8 @@ class Game():
 		self.gamemus = pygame.mixer.Sound(self.temp_path + 'audio/' + self.holiday + 'bg_music_1.mp3')
 
 	def logo_screen(self):
+		logger.startuplog(self.gamestatus, self.gameversion)
+
 		#self.draw_text('Loading...', self.font_size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.menu2_font)
 		#self.window.blit(self.display, (0,0))
 		#pygame.display.update()

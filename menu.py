@@ -20,6 +20,7 @@ class Menu():
 		self.game.draw_text('→', size, self.cursor_rect.x, self.cursor_rect.y, font_name = self.game.arrow_font)
 
 	def blit_screen(self):
+		self.game.update_fps()
 		self.game.window.blit(self.game.display, (0,0))
 		pygame.display.update()
 		self.game.reset_keys()
@@ -348,9 +349,8 @@ class OptionsMenu(Menu):
 		self.blit_screen()
 		pygame.display.set_caption(' ')
 		pygame.time.delay(1000)
-		logger.log('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] All session logs and saved settings cleared.\nRestarting Sneky.', allowlog = False)
-		logger.log('Sneky session restarted after clearing save data and session logs.', False)
-		self.game.__init__()
+		print('All session logs and saved settings cleared. Sneky session closed.')
+		sys.exit()
 
 class CreditsMenu(Menu):
 	def __init__(self,game):
@@ -520,6 +520,8 @@ class Updater(Menu):
 							self.game.draw_text('GitHub API rate limit exceeded! Please try again later.', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 						elif self.updstat['nomodule']:
 							self.game.draw_text('Please install the "requests" module! Use "pip install requests".', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
+						elif self.updstat['nowifi']:
+							self.game.draw_text('No internet, no updates. Aaaaand you don\'t have it.', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 						else:
 							self.game.draw_text('Can\'t check for updates! Please try again later.', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 						if self.auto: self.game.draw_text('MAIN MENU', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
@@ -1130,7 +1132,6 @@ class PressStart(Menu):
 
 		self.game.change_volume()
 		self.game.NAPSR.play(-1)
-		logger.startuplog(self.game.gamestatus, self.game.gameversion)
 
 		while self.run_display:
 			for event in pygame.event.get():
@@ -1167,7 +1168,7 @@ class PressStart(Menu):
 class ModeMenu(Menu):
 	def __init__(self,game):
 		Menu.__init__(self,game)
-		self.allState = ['CLASSIC', 'APPLE BAG', 'PORTAL BORDER', 'ULTIMATE SNAKE', 'ANGRY APPLE', 'DE SNAKE MODE']
+		self.allState = ['CLASSIC', 'Apple Bag', 'PORTAL BORDER', 'ULTIMATE SNAKE', 'Angry Apple', 'DE SNAKE MODE']
 		if self.game.holiday:
 			if self.game.holiday == 'christmas_exclusive/':
 				self.allState[1], self.allState[4] = 'Treat Bag', 'Angry Treat'
@@ -1365,22 +1366,6 @@ class ModeMenu(Menu):
 				else:
 					self.cursor_rect.midtop = (self.cursor_rect.midtop[0], self.cursor_rect.midtop[1] - self.game.font_size * (len(self.allState) - (self.stateIndex + 1)))
 			self.game.DRsnd_menumove.play()
-
-	def work_in_progress(self):
-		# UNUSED FUNCTION -- congratulations on finding this dataminers!
-		# also, hello to all that's seeing this through TCRF or the Hidden Palace!
-
-		self.run_display = True
-		while self.run_display:
-			self.blit_screen()
-			self.game.check_events()
-			if self.game.START_KEY or self.game.BACK_KEY :
-				self.game.curr_menu = self.game.mode_menu
-				self.run_display = False
-				self.game.DRsnd_select.play()
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
-			self.game.display.blit(self.game.imgMenu, (0, 0))
-			self.game.draw_text('TO BE AVAILABLE', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2)
 
 if __name__ == '__main__':
 	print('Please run main.py to start the game!')

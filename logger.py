@@ -10,8 +10,12 @@ if os.name == 'nt':
 	appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
 	appdata_path1 = os.getenv('LOCALAPPDATA') + '\\Sneky\\'
 else:
-	appdata_path = os.getenv('HOME') + '/.config/Sneky'
-	appdata_path1 = os.getenv('HOME') + '/.config/Sneky/'
+	if platforn.system() == 'Darwin':
+		appdata_path = os.path.expanduser('~/Library/Application Support/Sneky')
+		appdata_path1 = os.path.expanduser('~/Library/Application Support/Sneky/')
+	else:
+		appdata_path = os.path.expanduser('~/.config/Sneky')
+		appdata_path1 = os.path.expanduser('~/.config/Sneky/')
 
 platform = platforn.system()
 if platform == 'Darwin':
@@ -24,38 +28,32 @@ else:
 
 def log(text, allowprint = True, allowlog = True):
 	if not os.path.exists(appdata_path):
-		os.mkdir(appdata_path)
-	f = open(appdata_path1 + logfile, 'a', encoding = 'utf8')
+		os.makedirs(appdata_path)
 	if allowprint:
 		print('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
 	if allowlog:
+		f = open(appdata_path1 + logfile, 'a', encoding = 'utf8')
 		f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
 		f.write('\n')
-	f.close()
+		f.close()
 
 def startuplog(gamestatus, gameversion):
 	global startuplogged
 	if not startuplogged:
 		if not os.path.exists(appdata_path):
-			os.mkdir(appdata_path)
+			os.makedirs(appdata_path)
 		f = open(appdata_path1 + logfile, 'a', encoding = 'utf8')
-		if (gamestatus or gamestatus != None) and gamestatus != 'release':
-			print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (' + gamestatus + ' ' + gameversion, end = '')
-			f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (' + gamestatus + ' ' + gameversion)
-		else:
-			print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (v.' + gameversion, end = '')
-			f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. (v.' + gameversion)
+		print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized.', end = '')
+		f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized.')
 		if platform != 'Windows':
-			print(' [' + platform + ' port])')
-			f.write(' [' + platform + ' port])')
+			print(' (' + platform + ' port)\nBegin logging for this session.')
+			f.write(' (' + platform + ' port)\nBegin logging for this session.')
 		else:
-			print(')')
-			f.write(')')
-		print('Begin logging for this session.')
-		f.write('\nBegin logging for this session.')
-		print('Player: ' + playername)
+			print(' Begin logging for this session.')
+			f.write(' Begin logging for this session.')
+		print('Player: ' + playername, end = '')
 		f.write('\nPlayer: ' + playername)
-		print('Log file: ' + appdata_path1 + logfile)
+		print(' - Log file: ' + appdata_path1 + logfile)
 		f.write('\n')
 		f.close()
 		startuplogged = True

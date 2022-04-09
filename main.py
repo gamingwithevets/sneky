@@ -1,28 +1,48 @@
-import pygame
-import os
 import sys
+
+# python + pygame version requirements
+python_requirement = '3.5.0'
+pygame_requirement = '2.0.0'
+
+import platform as platforn
+if platforn.python_version() < python_requirement:
+	if platforn.python_version() < '3.10.0':
+		print('Oops! Your Python version is too old.\n')
+		print('Requirement: Python ' + python_requirement + '+\nYou have   : Python ' + platforn.python_version())
+		print('\nGet a newer version!')
+		sys.exit()
+
+try:
+	import pygame
+except:
+	print('You don\'t have Pygame! How can you run Pygame games WITHOUT Pygame????')
+	print('Did you forget to "pip install pygame"?\nIf this happened on a binary YOU compiled, you probably didn\'t do it before compiling.\nSo do it and recompile! ;)')
+	sys.exit()
+
+if pygame.version.ver < pygame_requirement:
+	print('Oops! Your Python version is too old.\n')
+	print('Requirement: Pygame ' + pygame_requirement + '+\nYou have   : Pygame ' + pygame.version.ver)
+	print('\nGet a newer version!')
+	sys.exit()
+
+import os
 import traceback
 import logger
-import platform as platforn
 
 
 if os.name == 'nt':
 	appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
 elif os.name == 'posix':
-	if os.geteuid() != 0:
-		sys.exit()
+	if platforn.system() != 'Darwin':
+		print('Using ~/.config/Sneky as appdata path. If it can\'t write there, please report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
+		appdata_path = os.path.expanduser('~/.config/Sneky')
 	else:
-		print('Since you\'re probably running as root, the player name will\nalways be root, no matter what account you\'re logged into.\nAnyway, enjoy the game!')
-		if platform.system() != 'Darwin':
-			print('Using ~/.config/Sneky as appdata path. If it can\'t write there, please report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
-			appdata_path = '~/.config/Sneky'
-		else:
-			print('It appears you are running the game on a Mac! Keep in mind that\nthis macOS port may have problems!\nIf you found any, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
-			print('Using ~/Library/Application Support/Sneky as appdata path. If it can\'t write there, please report it via the URL above.')
-			appdata_path = '~/Library/Application Support/Sneky'
+		print('It appears you are running the game on a Mac! Keep in mind that\nthis macOS port may have problems!\nIf you found any, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
+		print('Using ~/Library/Application Support/Sneky as appdata path. If it can\'t write there, please report it via the URL above.')
+		appdata_path = os.path.expanduser('~/Library/Application Support/Sneky')
 
 if not os.path.exists(appdata_path):
-	os.mkdir(appdata_path)
+	os.makedirs(appdata_path)
 sys.path.insert(0, appdata_path)
 
 try: 
