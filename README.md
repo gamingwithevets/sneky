@@ -53,7 +53,7 @@ What text it will show depends on RNG, the game theme, and the date.
 # Planned New Features
 Here's the planned new features of Sneky. I'll try to complete this list in the future.
 - [ ] macOS binary
-- [x] ~~Linux binary~~ **There are Linux binaries now!** You can check them out in the [latest Sneky version](https://github.com/gamingwithevets/sneky/).
+- [x] ~~Linux binary~~ **There are Linux binaries now!** You can check them out in the [latest Sneky version](https://github.com/gamingwithevets/sneky/releases/latest).
 - [ ] Can be played with controller
 - [ ] Halloween theme
 - [ ] No lag
