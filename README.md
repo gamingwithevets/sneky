@@ -25,7 +25,7 @@ To win in a mode (except for Angry Apple), you must somehow fill the entire scre
 
 # Game Features
 ## Mode Unlocking
-To unlock the next mode, you have to reach 20 points in the previous mode. To unlock De Snake Mode, you must play the Ultimate Snake mode until Sneky changes color to Ultra Instinct White (see below).  
+To unlock the next mode, you have to reach 20 points in the previous mode. To unlock De Snake Mode, you must play the Ultimate Snake mode until Sneky changes color to **Ultra Instinct White** (see below).  
 After unlocking De Snake Mode, you gain access to 2 debugging features: Turbo Mode and the AI Snake.
 ## Debugging Features
 To unlock these features, you must unlock De Snake Mode first.
@@ -42,7 +42,7 @@ Sneky has different colors, and that represents different powers.
 - **Super Yellow**: Makes more apples spawn.
 - **God Red**: Allows Sneky to turn around and go past himself.
 - **Light Blue**: Makes the borders act as portals to the other side of the playfield.
-- **Ultra Instinct White**: You become so fast that the border completely breaks, allowing you to go outside of the playfield. Be careful, because you can lose track of the snake. Ultimate Mode only.
+- **Ultra Instinct White**: Sneky becomes so fast that the border completely breaks, allowing him to go outside of the playfield. You can easily lose track of Sneky if he goes off-screen. Ultimate Mode only.
 ## Miscellaneous
 ### Key Rebinding
 Yup, that's right!!! You didn't expect this, right? You wouldn't think a game coming from GitHub wouldn't have key rebinding, right?  
