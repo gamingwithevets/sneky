@@ -5,36 +5,42 @@ Snake, now made in Pygame!
 Click [here](https://github.com/gamingwithevets/sneky/wiki/Getting-Started) to know how to get started with running Sneky!
 
 # Gameplay
+You play as Sneky! He's hungry and wants apples. You as Sneky, have to help him.  
 Currently, the game has 6 modes.
 ## Classic
-It's just... Snake. You will die if you bump into yourself or hit the border.
+It's just... Snake. Sneky will die if he bumps into himself or hit the border.
 ## Apple Bag
-Multiple apples are spawning! Will the snake eat them or be hungry?
+Multiple apples are spawning! Will Sneky eat them or be hungry?
 ## Portal Border
 The border turns into a portal to go to the other side of the playfield!
 ## Ultimate Mode
-The snake switches color and power every time you collect **a certain amount of apples**. Let's use the snake's powers to win!
+Sneky switches color and power every time you collect **a certain amount of apples**. Let's use Sneky's powers to win!
 ## Angry Apple
-**You** are the apple! You're tired of the snake eating all of your mates, so you try to escape the snake by running out of the playfield!  
-If you escape the snake, you get 1 point and be spawned somewhere else, but the snake will recieve power. If the snake eats you, you die. If it dies, you win!
+**You** are an angry apple! You're tired of Sneky eating all of your apple friends, so you try to escape him by running out of the playfield!  
+If you escape Sneky, you get 1 point and be spawned somewhere else, but Sneky will recieve power. If he eats you, you die and lose. If he dies, you win!
 ## De Snake Mode
-The *Debug* Mode of Sneky. Like cheating? This is for you! You can walk through yourself, turn around, and walk through the portal borders!
+The *Debug* Mode of Sneky. Like cheating? This is for you! Sneky can now walk through himself, turn around, and walk through the portal borders!
 ## How to win
 To win in a mode (except for Angry Apple), you must somehow fill the entire screen with yourself so that **no apples remain on-screen**!
 
 # Game Features
-## Turbo Mode
-The snake's speed is 0% at first, which is VERY slow. Normally, eating an apple makes the snake speed up by *a little bit*.  
-But that's slow, right? Hold down the Turbo key (default: LCTRL) to speed the snake up to max speed until you lift the key!  
-In Angry Apple mode, this slows down the snake to a little over 0%, making escaping the snake easier.
-## AI Snake
-Serial Number **Q**5**U**4**E**X7YY2**E**9**N**, a.k.a. Queen from *Deltarune*, comes to help you! Press the AI Snake key (default: X) to receive help from her and let her play instead. Press the AI Snake key again to regain control of the snake.  
-Keep in mind: The Queen will not help you in Angry Apple mode, since she's controlling the snake!
+## Mode Unlocking
+To unlock the next mode, you have to reach 20 points in the previous mode. To unlock De Snake Mode, you must play the Ultimate Snake mode until Sneky changes color to Ultra Instinct White (see below).  
+After unlocking De Snake Mode, you gain access to 2 debugging features: Turbo Mode and the AI Snake.
+## Debugging Features
+To unlock these features, you must unlock De Snake Mode first.
+### Turbo Mode
+Sneky's speed is 0% at first, which is VERY slow. Normally, eating an apple makes him speed up by *a little bit*.  
+But that's slow, right? Hold down the Turbo key (default: LCTRL) to speed Sneky up to max speed until you lift the key!  
+In Angry Apple mode, this slows down the apple and Sneky to about 33%, making escaping Sneky easier.
+### AI Snake
+Press the AI Snake key (default: X) to turn on AI Snake mode. In this mode, Sneky will control himself. He's not that good, but he gets the job done. A red square will also appear above the apple Sneky is targeting. Press the AI Snake key again to regain control of Sneky.  
+Keep in mind: As you play as an apple in Angry Apple mode, you can't gain control of Sneky!
 ## The Snake's Colors
-The snake has different colors, and that represents different powers.
+Sneky has different colors, and that represents different powers.
 - **Green**: The plain 'ol snake that dies when bumping into borders or itself.
 - **Super Yellow**: Makes more apples spawn.
-- **God Red**: Allows you to turn around and go past yourself.
+- **God Red**: Allows Sneky to turn around and go past himself.
 - **Light Blue**: Makes the borders act as portals to the other side of the playfield.
 - **Ultra Instinct White**: You become so fast that the border completely breaks, allowing you to go outside of the playfield. Be careful, because you can lose track of the snake. Ultimate Mode only.
 ## Miscellaneous
@@ -47,7 +53,7 @@ Just go to Settings > Controls, and you can rebind any key you want. This can al
 Every time you load up Sneky, it checks the date to load the theme. For example, on December 24th, Sneky loads the Christmas theme!  
 You can't change the game theme from within the game, though. What you can do to change the game theme is to change the date on your computer or modify the code!
 ### Splashes
-On top of the logo is a splash that changes every time you reload the menu.  
+On top of the logo is a splash that changes almost every time you start Sneky.  
 What text it will show depends on RNG, the game theme, and the date.
 
 # Planned New Features
