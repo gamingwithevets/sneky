@@ -1,11 +1,12 @@
 import pygame
 import logger
 
-logger.log('Initializing Pygame, please be patient if it takes long.\n', allowlog = False)
+logger.log('Initializing Pygame...\n', allowlog = False)
 pygame.init()
 logger.log('Pygame initialized, loading Sneky.', allowlog = False)
 pygame.display.set_caption('Sneky')
 
+import platform
 import sys
 import os
 from menu import *
@@ -15,7 +16,6 @@ import time
 from decimal import *
 from pygame import mixer
 from datetime import datetime
-import ctypes
 
 class Game():
 	def __init__(self):
@@ -26,7 +26,7 @@ class Game():
 		
 		# game version
 		self.gamestatus = 'release'
-		self.gameversion = '1.2.3-dev'
+		self.gameversion = '1.2.3-dev2'
 
 		if os.name == 'nt':
 			self.playername = os.getenv('USERNAME')
@@ -109,9 +109,22 @@ class Game():
 		# set this to the highest number in the screen mode value list above!
 		self.highest_fullscreen_mode = 4
 
-		user32 = ctypes.windll.user32
-		user32.SetProcessDPIAware()
-		self.current_w, self.current_h = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+		if os.name == 'nt':
+			import ctypes
+			user32 = ctypes.windll.user32
+			user32.SetProcessDPIAware()
+			self.current_w, self.current_h = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+		else:
+			try:
+				import pyautogui
+			except ImportError:
+				print('You using a non-Windows OS, yeah?\nI need a module named "pyautogui".\nCan you install it for me?\nOh, and please install Tkinter too.\n(sudo apt-get install python3-tk python3-dev)\nThanks.')
+				sys.exit()
+			except:
+				print('Uh oh! I need Tkinter! You need to sudo apt-get install python3-tk python3-dev')
+				sys.exit()
+			size = pyautogui.size()
+			self.current_w, self.current_h = size[0], size[1]
 
 		# Sneky preset resolution
 		self.preset_w, self.preset_h = 800, 600
@@ -614,15 +627,16 @@ class Game():
 			# delay
 			#self.show_delay()
 		else:
-			if self.angry_apple == 0:
-				pygame.time.delay(0)
-				self.draw_text('TURBO MODE IS ON', 25, self.DISPLAY_W / 2, 30, self.red, self.game_font)
-			else:
-				pygame.time.delay(100)
-				if self.speed < 100:
-					self.draw_text('YOU AND THE SNAKE SLOWED DOWN!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
+			if self.allow_speed_up:
+				if self.angry_apple == 0:
+					pygame.time.delay(0)
+					self.draw_text('TURBO MODE IS ON', 25, self.DISPLAY_W / 2, 30, self.red, self.game_font)
 				else:
-					self.draw_text('YOU AND THE SNAKE SPED UP!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
+					pygame.time.delay(100)
+					if self.speed < 100:
+						self.draw_text('YOU AND THE SNAKE SLOWED DOWN!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
+					else:
+						self.draw_text('YOU AND THE SNAKE SPED UP!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
 
 		self.update_fps()
 
@@ -925,28 +939,24 @@ class Game():
 		# check direction
 		if self.direction == 'UP':
 			if self.allowmovesound:
-				print('move up play')
 				self.GSmove_u.play()
 				self.allowmovesound = False
 				self.UP_KEY = False
 			self.snake_head[1] -= self.cell_size
 		elif self.direction == 'DOWN':
 			if self.allowmovesound:
-				print('move down play')
 				self.GSmove_d.play()
 				self.allowmovesound = False
 				self.DOWN_KEY = False
 			self.snake_head[1] += self.cell_size
 		elif self.direction == 'RIGHT':
 			if self.allowmovesound:
-				print('move right play')
 				self.GSmove_r.play()
 				self.allowmovesound = False
 				self.RIGHT_KEY = False
 			self.snake_head[0] += self.cell_size
 		elif self.direction == 'LEFT':
 			if self.allowmovesound:
-				print('move left play')
 				self.GSmove_l.play()
 				self.allowmovesound = False
 				self.LEFT_KEY = False
@@ -998,7 +1008,6 @@ class Game():
 		
 		# eat apple
 		if self.snake_head in self.apple_List:
-			print('eat play')
 			self.GSeatapple.play()
 			self.apple_List.remove(self.snake_head)
 			if self.angry_apple == 0:

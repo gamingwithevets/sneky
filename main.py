@@ -36,7 +36,6 @@ if os.name == 'nt':
 	appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
 elif os.name == 'posix':
 	if platform.system() != 'Darwin':
-		print('Using ~/.config/Sneky as appdata path. If it can\'t write there, please report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
 		appdata_path = os.path.expanduser('~/.config/Sneky')
 	else:
 		print('It appears you are running the game on a Mac! Keep in mind that\nthis macOS port may have problems!\nIf you found any, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues')

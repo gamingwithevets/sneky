@@ -686,7 +686,9 @@ class Updater(Menu):
 							self.game.draw_text('Can\'t check for updates! Please try again later.', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 						if self.auto: self.game.draw_text('MAIN MENU', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
 						else: self.game.draw_text('BACK', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
-					else: self.run_display = False
+					else:
+						self.game.updatechecked = True
+						rself.run_display = False
 				elif self.updstat['newupdate']:
 					self.check_input()
 					self.game.draw_text('An update is available!', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
@@ -715,7 +717,9 @@ class Updater(Menu):
 							self.game.DRsnd_select.play()
 						self.game.draw_text('You are already running the latest version of Sneky!', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 						self.game.draw_text('BACK', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
-					else: self.run_display = False
+					else:
+						self.game.updatechecked = True
+						self.run_display = False
 				self.draw_cursor(int(self.game.font_size / 2))
 				self.blit_screen()
 
@@ -1287,24 +1291,23 @@ class PressStart(Menu):
 
 		while self.run_display:
 			self.game.check_events()
-			for event in pygame.event.get():
-				if self.CLICK or self.START_KEY:
-					self.game.curr_menu = self.game.main_menu
-					self.run_display = False
-					self.game.DRsnd_select.play()
-					if self.game.auto_update:
-						self.game.updater.display_menu(True)
-				elif self.BACK_KEY:
-					self.game.running = False
-					self.run_display = False
-					logger.log('Sneky session closed.\n')
-					pygame.quit()
-					sys.exit()	
+			if self.game.CLICK or self.game.START_KEY:
+				self.game.curr_menu = self.game.main_menu
+				self.run_display = False
+				self.game.DRsnd_select.play()
+				if self.game.auto_update:
+					self.game.updater.display_menu(True)
+			elif self.game.BACK_KEY:
+				self.game.running = False
+				self.run_display = False
+				logger.log('Sneky session closed.\n')
+				pygame.quit()
+				sys.exit()	
 
 			self.game.display.blit(self.game.imgMenu, (0,0))
 			self.game.draw_text(('v.' + self.game.gameversion), self.game.font_size / 2, 20, self.game.DISPLAY_H - 50, anchor = 'topleft', font_name = self.game.menu2_font)
 			self.game.draw_text(self.game.curr_splash, self.game.font_size / 2, int(self.game.DISPLAY_W/2), 20, color = self.game.red_god, font_name = self.game.menu2_font)
-			self.game.draw_text('PRESS START', self.game.font_size, int(self.game.DISPLAY_W/2), int(self.game.DISPLAY_H/2 + 170))
+			self.game.draw_text('PRESS START', self.game.font_size, int(self.game.DISPLAY_W/2), int(self.game.DISPLAY_H - 130))
 			self.blit_screen()
 
 class ModeMenu(Menu):
