@@ -56,12 +56,11 @@ Here's the planned new features of Sneky. I'll try to complete this list in the 
 - [x] ~~Linux binary~~ **There are Linux binaries now!** You can check them out in the [latest Sneky version](https://github.com/gamingwithevets/sneky/releases/latest).
 - [ ] Can be played with controller
 - [ ] Halloween theme
-- [x] ~~No lag~~ **Fixed!** From v1.2.3-dev, this bug was fixed.
 - [ ] Refreshing
-- [ ] Checking for updates
+- [x] ~~Checking for updates~~ **OK!** From v1.3.0-dev1, Sneky now has an updater... which is terribly broken. v.1.2.3-dev and beyond fixed it.
 - [ ] Multiplayer
 - [ ] Online leaderboard
-- [ ] Less lag in gameplay
+- [x] ~~Less lag in gameplay~~ **Fixed!** From v1.2.3-dev, the lagging bug was fixed.
 - [x] ~~Fullscreen without issues~~ **OK!** From v1.2.3-dev, Sneky in fullscreen is 100% fine. You can even turn on fullscreen in the Video menu.
 
 # Credits
