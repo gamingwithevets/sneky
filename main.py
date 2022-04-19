@@ -4,11 +4,11 @@ import sys
 python_requirement = '3.5.0'
 pygame_requirement = '2.0.0'
 
-import platform as platforn
-if platforn.python_version() < python_requirement:
-	if platforn.python_version() < '3.10.0':
+import platform
+if platform.python_version() < python_requirement:
+	if platform.python_version() < '3.10.0':
 		print('Oops! Your Python version is too old.\n')
-		print('Requirement: Python ' + python_requirement + '+\nYou have   : Python ' + platforn.python_version())
+		print('Requirement: Python ' + python_requirement + '+\nYou have   : Python ' + platform.python_version())
 		print('\nGet a newer version!')
 		sys.exit()
 
@@ -16,7 +16,9 @@ try:
 	import pygame
 except:
 	print('You don\'t have Pygame! How can you run Pygame games WITHOUT Pygame????')
-	print('Did you forget to "pip install pygame"?\nIf this happened on a binary YOU compiled, you probably didn\'t do it before compiling.\nSo do it and recompile! ;)')
+	print('Did you forget to "pip install pygame"?')
+	print('\nIf this happened on a binary YOU compiled, you probably didn\'t do it before compiling.\nSo do it and recompile! ;)')
+	print('\nIf that didn\'t work, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
 	sys.exit()
 
 if pygame.version.ver < pygame_requirement:
@@ -33,7 +35,7 @@ import logger
 if os.name == 'nt':
 	appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
 elif os.name == 'posix':
-	if platforn.system() != 'Darwin':
+	if platform.system() != 'Darwin':
 		print('Using ~/.config/Sneky as appdata path. If it can\'t write there, please report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
 		appdata_path = os.path.expanduser('~/.config/Sneky')
 	else:

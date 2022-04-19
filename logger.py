@@ -43,17 +43,11 @@ def startuplog(gamestatus, gameversion):
 		if not os.path.exists(appdata_path):
 			os.makedirs(appdata_path)
 		f = open(appdata_path1 + logfile, 'a', encoding = 'utf8')
-		print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized.', end = '')
-		f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized.')
-		if platform != 'Windows':
-			print(' (' + platform + ' port)\nBegin logging for this session.')
-			f.write(' (' + platform + ' port)\nBegin logging for this session.')
-		else:
-			print(' Begin logging for this session.')
-			f.write(' Begin logging for this session.')
-		print('Player: ' + playername, end = '')
+		print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. Begin logging for this session.')
+		f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. Begin logging for this session.')
+		print('Player: ' + playername)
 		f.write('\nPlayer: ' + playername)
-		print(' - Log file: ' + appdata_path1 + logfile)
+		print('Log file: ' + appdata_path1 + logfile)
 		f.write('\n')
 		f.close()
 		startuplogged = True

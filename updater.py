@@ -1,29 +1,37 @@
 import logger
 logger.log('[UPDATER] Initializing Sneky updater...', allowlog = False)
 import traceback
+from datetime import datetime
 
 global username, reponame, nomodule
 username, reponame = 'gamingwithevets', 'sneky'
 
-def check_internet():
+def check_internet(log = True):
+	url = 'https://google.com'
+	logger.log('[UPDATER] Attempting Internet connection test.')
 	try:
-		requests.get('https://google.com')
+		logger.log('[UPDATER] Connecting to URL: {0}'.format(url))
+		requests.get(url)
+		logger.log('[UPDATER] Successfully connected to URL: ' + url + '\nConnection test succeeded!')
 		return True
 	except:
-		logger.log('Cannot continue checking for Sneky updates because there is no Internet connection.')
+		if log: logger.log('[UPDATER] Cannot connect to URL: ' + url + '\nEither the Internet connection is slow, or there is no Internet connection.\nAborting update process.')
 		return False
 
-def check_updates(currver, prerelease = False, showupdate = False):
+def check_updates(currver, prerelease):
+	if prerelease: prerelease_str = 'on'
+	else: prerelease_str = 'off'
+	logger.log('[UPDATER] Received call to check updates.\nSetting "Check Prerelease Versions" is {0}.'.format(prerelease_str))
 	if nomodule:
-		logger.log('[UPDATER] Cannot check for Sneky updates because the \'requests\'\nmodule was not installed.')
+		logger.log('[UPDATER] Cannot check for Sneky updates because the \'requests\'\nmodule was not installed.\nAborting update process.')
 		return {
 		'newupdate': False,
 		'error': True,
 		'exceeded': False,
 		'nomodule': True
 		}
-	if not check_internet():
-		logger.log('Cannot check for Sneky updates because there is no Internet connection.')
+	if not check_internet(False):
+		logger.log('[UPDATER] Cannot check for Sneky updates because there is no Internet connection.\nAborting update process.')
 		return {
 		'newupdate': False,
 		'error': True,
@@ -33,20 +41,39 @@ def check_updates(currver, prerelease = False, showupdate = False):
 		}
 	try:
 		logger.log('[UPDATER] Begin checking for Sneky updates.')
+		totalrequests = 0
 		versions = []
+		if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
+		logger.log('[UPDATER] Getting releases from repository: {0}/{1}'.format(username, reponame))
 		try:
-			i = 0
+			response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases')
+			totalrequests += 1
+			logger.log('[UPDATER] Successfully connected.')
+		except:
+			logger.log('[UPDATER] Can\'t connect! Performing emergency Internet connection test.')
+			if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
+
+		i = 0
+		logger.log('[UPDATER] Getting release tags from repository: {0}/{1}'.format(username, reponame))
+		try:
 			while True:
-				if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
-				response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases')
 				versions.append(response.json()[i]['tag_name'])
 				i += 1
 		except:
+			logger.log('[UPDATER] Finished getting release tags.')
 			pass
+
 		if 'v' + currver not in versions:
+			logger.log('[UPDATER] Tag v{0} not in tag list! Checking more data.'.format(currver))
 			try:
-				if response.json()['message'] == 'API rate limit exceeded for ' + requests.get('https://api.ipify.org').content.decode('utf8') + '. (But here\'s the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)':
-					logger.log('[UPDATER] GitHub API rate limit exceeded!\nSkipping update process.')
+				testvar = response.json()['message']
+				if 'API rate limit exceeded for' in testvar:
+					logger.log('[UPDATER] GitHub API rate limit exceeded!\nAborting update process.')
+					try:
+						response = requests.get('https://api.github.com/rate_limit')
+						logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+					except:
+						logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 					return {
 					'newupdate': False,
 					'error': True,
@@ -54,6 +81,11 @@ def check_updates(currver, prerelease = False, showupdate = False):
 					}
 				else:
 					logger.log('[UPDATER] Unofficial/development version of Sneky (v.' + currver + ') has been detected.')
+					try:
+						response = requests.get('https://api.github.com/rate_limit')
+						logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+					except:
+						logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 					return {
 					'newupdate': False,
 					'error': False,
@@ -61,16 +93,34 @@ def check_updates(currver, prerelease = False, showupdate = False):
 					}
 			except:
 				logger.log('[UPDATER] Unofficial/development version of Sneky (v.' + currver + ') has been detected.')
+				try:
+					response = requests.get('https://api.github.com/rate_limit')
+					logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+				except:
+					logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 				return {
 				'newupdate': False,
 				'error': False,
 				'unofficial': True
 				}
 		if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
-		response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases/tags/v' + currver)
+		logger.log('[UPDATER] Getting data for release v{0} from repository: {1}/{2}'.format(currver, username, reponame))
 		try:
-			if response.json()['message'] == 'API rate limit exceeded for ' + requests.get('https://api.ipify.org').content.decode('utf8') + '. (But here\'s the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)':
-				logger.log('[UPDATER] GitHub API rate limit exceeded!\nSkipping update process.')
+			response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases/tags/v' + currver)
+			totalrequests += 1
+			logger.log('[UPDATER] Successfully connected.')
+		except:
+			logger.log('[UPDATER] Can\'t connect! Performing emergency Internet connection test.')
+			if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
+		try:
+			testvar = response.json()['message']
+			if 'API rate limit exceeded for' in testvar:
+				logger.log('[UPDATER] GitHub API rate limit exceeded!\nAborting update process.')
+				try:
+					response = requests.get('https://api.github.com/rate_limit')
+					logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+				except:
+					logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 				return {
 				'newupdate': False,
 				'error': True,
@@ -78,6 +128,11 @@ def check_updates(currver, prerelease = False, showupdate = False):
 				}
 			else:
 				logger.log('[UPDATER] Unofficial/development version of Sneky (v.' + currver + ') has been detected.')
+				try:
+					response = requests.get('https://api.github.com/rate_limit')
+					logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+				except:
+					logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 				return {
 				'newupdate': False,
 				'error': False,
@@ -88,10 +143,23 @@ def check_updates(currver, prerelease = False, showupdate = False):
 		currvertime = response.json()['published_at']
 		if not prerelease:
 			if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
-			response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases/latest')
+			logger.log('[UPDATER] Getting latest release from repository: {0}/{1}'.format(username, reponame))
 			try:
-				if response.json()['message'] == 'API rate limit exceeded for ' + requests.get('https://api.ipify.org').content.decode('utf8') + '. (But here\'s the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)':
-					logger.log('[UPDATER] GitHub API rate limit exceeded!\nSkipping update process.')
+				response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases/latest')
+				totalrequests += 1
+				logger.log('[UPDATER] Successfully connected.')
+			except:
+				logger.log('[UPDATER] Can\'t connect! Performing emergency Internet connection test.')
+				if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
+			try:
+				testvar = response.json()['message']
+				if 'API rate limit exceeded for' in testvar:
+					logger.log('[UPDATER] GitHub API rate limit exceeded!\nAborting update process.')
+					try:
+						response = requests.get('https://api.github.com/rate_limit')
+						logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+					except:
+						logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 					return {
 					'newupdate': False,
 					'error': True,
@@ -99,6 +167,11 @@ def check_updates(currver, prerelease = False, showupdate = False):
 					}
 				else:
 					logger.log('[UPDATER] Unofficial/development version of Sneky (v.' + currver + ') has been detected.')
+					try:
+						response = requests.get('https://api.github.com/rate_limit')
+						logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+					except:
+						logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 					return {
 					'newupdate': False,
 					'error': False,
@@ -107,26 +180,51 @@ def check_updates(currver, prerelease = False, showupdate = False):
 			except:
 				pass
 			if response.json()['tag_name'] != 'v' + currver and response.json()['published_at'] > currvertime:
-				logger.log('[UPDATER] Updates available. User has been asked to update.', allowprint = False)
+				logger.log('[UPDATER] Updates available. User has been asked to update.')
+				tag_name, title = response.json()['tag_name'][1:], response.json()['name']
+				try:
+					response = requests.get('https://api.github.com/rate_limit')
+					logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+				except:
+					logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 				return {
 				'newupdate': True,
 				'error': False,
-				'tag_name': response.json()['tag_name'][1:],
-				'title': response.json()['name']
+				'tag_name': tag_name,
+				'title': title
 				}
 			else:
 				logger.log('[UPDATER] Sneky is up to date.')
+				try:
+					response = requests.get('https://api.github.com/rate_limit')
+					logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+				except:
+					logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 				return {
 				'newupdate': False,
+				'unofficial': False,
 				'error': False
 				}
 		else:
 			for version in versions:
 				if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
-				response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases/tags/' + version)
+				logger.log('[UPDATER] Getting data for release {0} from repository: {1}/{2}'.format(version, username, reponame))
 				try:
-					if response.json()['message'] == 'API rate limit exceeded for ' + requests.get('https://api.ipify.org').content.decode('utf8') + '. (But here\'s the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)':
-						logger.log('[UPDATER] GitHub API rate limit exceeded!\nSkipping update process.')
+					response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases/tags/' + version)
+					totalrequests += 1
+					logger.log('[UPDATER] Successfully connected.')
+				except:
+					logger.log('[UPDATER] Can\'t connect! Performing emergency Internet connection test.')
+					if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
+				try:
+					testvar = response.json()['message']
+					if 'API rate limit exceeded for' in testvar:
+						logger.log('[UPDATER] GitHub API rate limit exceeded!\nAborting update process.')
+						try:
+							response = requests.get('https://api.github.com/rate_limit')
+							logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+						except:
+							logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 						return {
 						'newupdate': False,
 						'error': True,
@@ -134,6 +232,11 @@ def check_updates(currver, prerelease = False, showupdate = False):
 						}
 					else:
 						logger.log('[UPDATER] Unofficial/development version of Sneky (v.' + currver + ') has been detected.')
+						try:
+							response = requests.get('https://api.github.com/rate_limit')
+							logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+						except:
+							logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 						return {
 						'newupdate': False,
 						'error': False,
@@ -143,20 +246,37 @@ def check_updates(currver, prerelease = False, showupdate = False):
 					pass
 				if currvertime < response.json()['published_at']:
 					logger.log('[UPDATER] Updates available. User has been asked to update.', allowprint = False)
+					tag_name, title = response.json()['tag_name'][1:], response.json()['name']
+					try:
+						response = requests.get('https://api.github.com/rate_limit')
+						logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+					except:
+						logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 					return {
 					'newupdate': True,
 					'error': False,
-					'tag_name': response.json()['tag_name'][1:],
-					'title': response.json()['name']
+					'tag_name': tag_name,
+					'title': title
 					}
 				else:
 					logger.log('[UPDATER] Sneky is up to date.')
+					try:
+						response = requests.get('https://api.github.com/rate_limit')
+						logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+					except:
+						logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 					return {
 					'newupdate': False,
+					'unofficial': False,
 					'error': False
 					}
 	except:
-		logger.log('[UPDATER] An error occurred while checking for updates!\n' + traceback.format_exc() + '\nSkipping update process.')
+		logger.log('[UPDATER] An error occurred while checking for updates!\n' + traceback.format_exc() + '\nAborting update process.')
+		try:
+			response = requests.get('https://api.github.com/rate_limit')
+			logger.log('[UPDATER] Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
+		except:
+			logger.log('[UPDATER] Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
 		return {
 		'newupdate': False,
 		'error': True,
@@ -164,7 +284,6 @@ def check_updates(currver, prerelease = False, showupdate = False):
 		'nomodule': False,
 		'nowifi': False
 		}
-
 try:
 	import requests
 	nomodule = False
