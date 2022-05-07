@@ -72,7 +72,7 @@ Here's the planned new features of Sneky. I'll try to complete this list in the 
 # Credits
 Apple Graphic: Luna4s  
 Title Screen & Snake Graphics: GamingWithEvets (GWE Inc.)  
-Menu Music: "Nintendo Anti-Piracy Self-Reporter" - Joey Perleoni  
+Menu Music: Wii Menu Music - Nintendo
 Game Music: "Nothing to Say" - Md Abdul Kader Zilani  
 Sounds from DELTARUNE, Google Snake Game, Super Mario Bros. 2 USA, Brain Age  
 
