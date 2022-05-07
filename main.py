@@ -10,14 +10,14 @@ if platform.python_version() < python_requirement:
 		print('Oops! Your Python version is too old.\n')
 		print('Requirement: Python ' + python_requirement + '+\nYou have   : Python ' + platform.python_version())
 		print('\nGet a newer version!')
-		sys.exit()
+		sys.exit() 
 
 try:
 	import pygame
 except:
 	print('You don\'t have Pygame! How can you run Pygame games WITHOUT Pygame????')
 	print('Did you forget to "pip install pygame"?')
-	print('\nIf this happened on a binary YOU compiled, you probably didn\'t do it before compiling.\nSo do it and recompile! ;)')
+	print('\nIf this happened on a binary YOU compiled, you probably didn\'t do it before\ncompiling. So do it and recompile! ;)')
 	print('\nIf that didn\'t work, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
 	sys.exit()
 
@@ -39,9 +39,9 @@ elif os.name == 'posix':
 		appdata_path = os.path.expanduser('~/.config/Sneky')
 	else:
 		print('It appears you are running the game on a Mac! Keep in mind that\nthis macOS port may have problems!\nIf you found any, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
-		print('Using ~/Library/Application Support/Sneky as appdata path. If it can\'t write there, please report it via the URL above.')
+		print('Using ~/Library/Application Support/Sneky as appdata path.\nIf it can\'t write there, please report it via the URL above.')
 		appdata_path = os.path.expanduser('~/Library/Application Support/Sneky')
-
+ 
 if not os.path.exists(appdata_path):
 	os.makedirs(appdata_path)
 sys.path.insert(0, appdata_path)

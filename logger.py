@@ -1,3 +1,7 @@
+if __name__ == '__main__':
+	print('Please run main.py to start Sneky.')
+	sys.exit()
+
 import sys
 import os
 import platform as platforn
@@ -26,6 +30,17 @@ if os.name == 'nt':
 else:
 	playername = os.getenv('USER').upper()
 
+if not os.path.exists(appdata_path):
+	os.makedirs(appdata_path)
+f = open(appdata_path1 + logfile, 'a', encoding = 'utf8')
+print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. Begin logging for this session.')
+f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. Begin logging for this session.')
+print('Player: ' + playername)
+f.write('\nPlayer: ' + playername)
+print('Log file: ' + appdata_path1 + logfile)
+f.write('\n')
+f.close()
+
 def log(text, allowprint = True, allowlog = True):
 	if not os.path.exists(appdata_path):
 		os.makedirs(appdata_path)
@@ -37,20 +52,3 @@ def log(text, allowprint = True, allowlog = True):
 		f.write('\n')
 		f.close()
 
-def startuplog(gamestatus, gameversion):
-	global startuplogged
-	if not startuplogged:
-		if not os.path.exists(appdata_path):
-			os.makedirs(appdata_path)
-		f = open(appdata_path1 + logfile, 'a', encoding = 'utf8')
-		print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. Begin logging for this session.')
-		f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. Begin logging for this session.')
-		print('Player: ' + playername)
-		f.write('\nPlayer: ' + playername)
-		print('Log file: ' + appdata_path1 + logfile)
-		f.write('\n')
-		f.close()
-		startuplogged = True
-
-if __name__ == '__main__':
-	print('This logger is designed for Sneky.')

@@ -1,3 +1,7 @@
+if __name__ == '__main__':
+	print('Please run main.py to start Sneky.')
+	sys.exit()
+
 import pygame
 import logger
 
@@ -26,7 +30,7 @@ class Game():
 		
 		# game version
 		self.gamestatus = 'release'
-		self.gameversion = '1.2.3-dev2'
+		self.gameversion = '1.2.3-dev3'
 
 		if os.name == 'nt':
 			self.playername = os.getenv('USERNAME')
@@ -48,11 +52,25 @@ class Game():
 		self.X_BIND = pygame.K_x
 
 		# allows modes to be playable or not
-		self.allowmode0 = False # apple bag
-		self.allowmode1 = False # portal border
-		self.allowmode2 = False # ultimate mode
-		self.allowmode3 = False # angry apple
-		self.allowmode4 = False # de snake mode
+		self.allowmode0 = False      # apple bag
+		self.allowmode1 = False      # portal border
+		self.allowmode2 = False      # ultimate mode
+		self.allowmode3 = False      # angry apple
+		self.allowmode4 = False      # de snake mode
+		self.allowsecretmode = False # unknown
+
+		self.never_entered_unknown = True
+
+		# high scores!!!!1
+		self.high_scores = {
+		'Classic': 0,
+		'Apple Bag': 0,
+		'Portal Border': 0,
+		'Angry Apple': 0,
+		'Ultimate Snake': 0
+		}
+
+		self.save_high_score = False
 
 		# allows debug features
 		self.allow_ai_snake = False
@@ -78,11 +96,16 @@ class Game():
 		'allowmode2',
 		'allowmode3',
 		'allowmode4',
+		'allowsecretmode',
 		'auto_update',
 		'check_prerelease',
-		'fullscreen_mode',
+		'fullscreen',
+		'scaled',
+		'native_res',
 		'allow_ai_snake',
-		'allow_speed_up'
+		'allow_speed_up',
+		'never_entered_unknown',
+		'high_scores'
 		]
 
 		if os.name == 'nt': self.appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky\\'
@@ -97,17 +120,21 @@ class Game():
 		# self.START_KEY, self.BACK_KEY, self.SPACE_KEY, self.CTRL_KEY = False, False, False, False
 		# self.UP_KEY, self.DOWN_KEY, self.LEFT_KEY, self.RIGHT_KEY = False, False, False, False
 
-		# screen mode
-		# 0: fullscreen, Sneky preset resolution, scaled (RECOMMENDED/DEFAULT)
-		# 1: windowed, Sneky preset resolution
-		# 2: fullscreen, Sneky preset resolution (will set current screen resolution to 800x600 temporarily)
-		# 3: windowed, current screen resolution (BUGGY)
-		# 4: fullscreen, current screen resolution (BUGGY)
-		self.fullscreen_mode = 0
-		self.import_settings('fullscreen_mode')
+		self.fullscreen = True
+		self.native_res = False
+		self.scaled = True
 
-		# set this to the highest number in the screen mode value list above!
-		self.highest_fullscreen_mode = 4
+		try:
+			self.import_settings('fullscreen', catch = True)
+			self.import_settings('scaled', catch = True)
+			self.import_settings('native_res', catch = True)
+			self.oldsave = False
+		except:
+			try:
+				self.import_settings('fullscreen_mode')
+				self.oldsave = True
+			except:
+				self.oldsave = False
 
 		if os.name == 'nt':
 			import ctypes
@@ -138,6 +165,7 @@ class Game():
 			print('\nIf that didn\'t work, or you didn\'t compile the binary with WSL,\nor it happened on my own binaries, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
 			sys.exit()
 
+		self.pygame_font = 'default'
 		self.arrow_font = self.temp_path + 'fonts/MinecraftRegular.ttf'
 		self.menu2_font = self.temp_path + 'fonts/Minecraftia.ttf'
 		self.menu_font = self.temp_path + 'fonts/8_BIT_WONDER.TTF'
@@ -178,35 +206,44 @@ class Game():
 			if self.limitedfps: self.clock.tick(self.FPS)
 			else: self.clock.tick()
 			fps = self.clock.get_fps()
-			self.draw_text(str(int(fps * 10)), int(self.font_size / 3), 0, 0, anchor = 'topleft', color = self.black, font_name = self.menu2_font)
+			self.draw_text(str(int(fps * 10)), int(self.font_size / 3), 0, self.DISPLAY_H, anchor = 'bottomleft', color = self.black, font_name = self.menu2_font)
 		pygame.display.update()
 
 	def set_window_mode(self):
-		if self.fullscreen_mode == 0:
-			self.DISPLAY_W, self.DISPLAY_H = self.preset_w, self.preset_h
-			self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-			self.allow_widescreen = False
-			return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.SCALED | pygame.FULLSCREEN)
-		elif self.fullscreen_mode == 1:
-			self.DISPLAY_W, self.DISPLAY_H = self.preset_w, self.preset_h
-			self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-			self.allow_widescreen = False
-			return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
-		elif self.fullscreen_mode == 2:
-			self.DISPLAY_W, self.DISPLAY_H = self.preset_w, self.preset_h
-			self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-			self.allow_widescreen = False
-			return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.FULLSCREEN)
-		elif self.fullscreen_mode == 3:
-			self.DISPLAY_W, self.DISPLAY_H = self.current_w, self.current_h
-			self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-			self.allow_widescreen = True
-			return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
-		elif self.fullscreen_mode == 4:
-			self.DISPLAY_W, self.DISPLAY_H = self.current_w, self.current_h
-			self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-			self.allow_widescreen = True
-			return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.FULLSCREEN)
+		if self.fullscreen:
+			if self.native_res:
+				if self.scaled:
+					self.DISPLAY_W, self.DISPLAY_H = self.preset_w, self.preset_h
+					self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
+					self.allow_widescreen = False
+					return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.SCALED | pygame.FULLSCREEN)
+				else:
+					self.DISPLAY_W, self.DISPLAY_H = self.current_w, self.current_h
+					self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
+					self.allow_widescreen = True
+					return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.FULLSCREEN)
+			else: 
+				if self.scaled:
+					self.DISPLAY_W, self.DISPLAY_H = self.preset_w, self.preset_h
+					self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
+					self.allow_widescreen = False
+					return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.SCALED | pygame.FULLSCREEN)
+				else:
+					self.DISPLAY_W, self.DISPLAY_H = self.preset_w, self.preset_h
+					self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
+					self.allow_widescreen = False
+					return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.FULLSCREEN)
+		else:
+			if self.native_res:
+				self.DISPLAY_W, self.DISPLAY_H = self.current_w, self.current_h
+				self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
+				self.allow_widescreen = True
+				return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
+			else: 
+				self.DISPLAY_W, self.DISPLAY_H = self.preset_w, self.preset_h
+				self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
+				self.allow_widescreen = False
+				return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
 
 	def check_holidays(self):
 		# check for Christmas (Dec 21 - Jan 5)
@@ -319,12 +356,10 @@ class Game():
 		self.MOUSESLIDERUP, self.MOUSESLIDERDOWN = False, False
 
 	def draw_text(self, text, size, x, y, color = None, font_name = None, screen = None, anchor = 'center'):
-		if color == None:
-			color = self.WHITE
-		if font_name == None:
-			font_name = self.menu_font
-		if screen == None:
-			screen = self.display
+		if color == None: color = self.WHITE
+		if font_name == self.pygame_font: font_name = None
+		elif font_name == None: font_name = self.menu_font
+		if screen == None: screen = self.display
 		font = pygame.font.Font(font_name, int(size))
 		text_surface = font.render(text, True, color)
 		text_rect = text_surface.get_rect()
@@ -334,10 +369,10 @@ class Game():
 
 	def game_loop(self):
 		self.new_game()
-		self.game_over()
+		self.trans_scr()
 		while self.playing:
 			self.check_events()
-			self.test()
+			self.run()
 			self.reset_keys()
 			if self.g_over:
 				self.draw_game_screen()
@@ -345,11 +380,11 @@ class Game():
 			self.window.blit(self.display, (0,0))
 
 			if self.paused or self.newmode:
-				self.game_over()
+				self.trans_scr()
 
 			pygame.display.update()
 		
-		self.game_over()
+		self.trans_scr()
 
 	def init_intros(self):
 		self.snake_instinct_intro = 'certain amount of apples. Let\'s use Sneky\'s powers to win!'
@@ -388,7 +423,7 @@ class Game():
 				]
 
 
-	def game_over(self):
+	def trans_scr(self):
 		
 		if self.g_over:
 			self.draw_game_screen()
@@ -398,6 +433,20 @@ class Game():
 			self.fadeBg.set_alpha(int(255 / 100 * self.alpha_percentage))
 			self.fadeBg.fill(self.black)
 			self.window.blit(self.fadeBg, (self.border_x, self.border_y))
+
+			# save scores
+			if self.save_high_score:
+				if self.angry_apple == 1:
+					if self.score > self.high_scores['Angry Apple']: self.high_scores['Angry Apple'] = self.score
+				if self.ai_snake == 0:
+					if self.snake_instinct == 1:
+						if self.score > self.high_scores['Ultimate Snake']: self.high_scores['Ultimate Snake'] = self.score
+					elif self.apple_bag == 1:
+						if self.score > self.high_scores['Apple Bag']: self.high_scores['Apple Bag'] = self.score
+					elif self.portal_border == 1:
+						if self.score > self.high_scores['Portal Border']: self.high_scores['Portal Border'] = self.score
+					else:
+						if self.score > self.high_scores['Classic']: self.high_scores['Classic'] = self.score
 
 			# gameover text
 			self.gamemus.stop()
@@ -409,7 +458,7 @@ class Game():
 				else:
 					if self.angry_apple == 0:
 						self.draw_text('CHEATER...', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
-						logger.log('My my! What a cheater you are!')
+						logger.log('My my! What a cheater you are!\nYour score will not be saved.')
 					else:
 						self.draw_text('YOU WIN!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 						logger.log('Sneky died!')
@@ -425,12 +474,11 @@ class Game():
 				else:
 					if self.angry_apple == 0:
 						self.draw_text('JUST LIKE THEY ALWAYS SAY, CHEATERS NEVER WIN.', int(self.font_size / 1.25), self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
-						logger.log('Cheaters never win. And you cheated and lost.')
+						logger.log('Cheaters never win. And you cheated and lost.\nYour score will not be saved.')
 						self.GSdie.play()
 					else:
 						self.draw_text('YOU DIED!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
-						logger.log('The Angry Apple died!')
-						logger.log('Mmm, yum yum.')
+						logger.log('Sneky ate the Angry Apple!')
 						self.SMB2down.play()
 			self.draw_text('{0}: New Game'.format(pygame.key.name(self.SPACE_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
 			self.draw_text('{0}/{1}: Quit'.format(pygame.key.name(self.BACK_BIND).upper(), pygame.key.name(self.MENU_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.game_font, screen = self.window)
@@ -460,6 +508,19 @@ class Game():
 			self.fadeBg.set_alpha(int(255 / 100 * self.alpha_percentage))
 			self.fadeBg.fill(self.black)
 			self.window.blit(self.fadeBg, (self.border_x, self.border_y))
+
+			# save scores
+			if self.save_high_score:
+				if self.snake_instinct == 1:
+					if self.score > self.high_scores['Ultimate Snake']: self.high_scores['Ultimate Snake'] = self.score
+				elif self.apple_bag == 1:
+					if self.score > self.high_scores['Apple Bag']: self.high_scores['Apple Bag'] = self.score
+				elif self.portal_border == 1:
+					if self.score > self.high_scores['Portal Border']: self.high_scores['Portal Border'] = self.score
+				elif self.angry_apple == 1:
+					if self.score > self.high_scores['Angry Apple']: self.high_scores['Angry Apple'] = self.score
+				else:
+					if self.score > self.high_scores['Classic']: self.high_scores['Classic'] = self.score
 
 			# gameover text
 			self.draw_text('GAME PAUSED', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
@@ -507,6 +568,7 @@ class Game():
 				self.draw_text('The Debug Mode of Sneky. Like cheating? This is for you!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
 				self.draw_text('Sneky can now walk through himself, turn around, and even', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
 				self.draw_text('walk through the portal borders!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('NOTE: No high scores will be saved in this mode.', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 5, font_name = self.menu2_font, screen = self.window)
 			elif self.snake_instinct == 1:
 				self.draw_text(self.mode_menu.allState[4], self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 				self.draw_text('Sneky switches color and power every time you collect a', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
@@ -563,10 +625,29 @@ class Game():
 			self.fadeBg.fill(self.black)
 			self.window.blit(self.fadeBg, (self.border_x, self.border_y))
 
+			# save scores
+			if self.save_high_score:
+				if self.snake_instinct == 1:
+					if self.score > self.high_scores['Ultimate Snake']: self.high_scores['Ultimate Snake'] = self.score
+				elif self.apple_bag == 1:
+					if self.score > self.high_scores['Apple Bag']: self.high_scores['Apple Bag'] = self.score
+				elif self.portal_border == 1:
+					if self.score > self.high_scores['Portal Border']: self.high_scores['Portal Border'] = self.score
+				elif self.angry_apple == 1:
+					if self.score > self.high_scores['Angry Apple']: self.high_scores['Angry Apple'] = self.score
+				else:
+					if self.score > self.high_scores['Classic']: self.high_scores['Classic'] = self.score
+
 			# new mode message
-			if self.allow_ai_snake and self.allow_speed_up:
+			if self.allowsecretmode:
+				self.draw_text('...!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
+				self.draw_text('You suddenly hear a secret door opening...', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('maybe you should go check?', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('{0}: Yeah, sure'.format(pygame.key.name(self.BACK_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 4, font_name = self.game_font, screen = self.window)
+				self.draw_text('{0}: Nah, later'.format(pygame.key.name(self.SPACE_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 5, font_name = self.game_font, screen = self.window)
+			elif self.allow_ai_snake and self.allow_speed_up:
 				self.draw_text('CONGRATS...', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
-				self.draw_text('You have reached the HARDEST part of Ultimate Snake Mode.' + self.thenewmode, self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size, font_name = self.menu2_font, screen = self.window)
+				self.draw_text('You have reached the HARDEST part of Ultimate Snake Mode.', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size, font_name = self.menu2_font, screen = self.window)
 				self.draw_text('Now Sneky can go right through the border, but doesn\'t', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 1.5, font_name = self.menu2_font, screen = self.window)
 				self.draw_text('teleport to the other side of the playfield anymore.', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
 				self.draw_text('Good luck trying not to lose track of Sneky while he\'s', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2.5, font_name = self.menu2_font, screen = self.window)
@@ -612,7 +693,15 @@ class Game():
 			self.show_instructions = False
 			self.inmenu = True
 			self.gamemus.stop()
-			self.NAPSR.play(-1)
+			self.WIIstart.play()
+			self.menumus.play(-1)
+
+	def show_turbo(self):
+		if self.turbo:
+			if self.angry_apple == 0:
+				self.draw_text('TURBO MODE IS ON', 25, self.DISPLAY_W / 2, 30, self.red, self.game_font)
+			else:
+				self.draw_text('YOU AND SNEKY SPED UP!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
 
 	def draw_game_screen(self):
 		# white BG
@@ -620,23 +709,15 @@ class Game():
 
 		# speed
 		if not self.turbo:
-			#if self.delta_type == 1:
-				#self.clock.tick(self.FPS)
-				#self.update_fps()
 			pygame.time.delay(int(self.speed))
-			# delay
-			#self.show_delay()
 		else:
 			if self.allow_speed_up:
 				if self.angry_apple == 0:
 					pygame.time.delay(0)
-					self.draw_text('TURBO MODE IS ON', 25, self.DISPLAY_W / 2, 30, self.red, self.game_font)
 				else:
 					pygame.time.delay(100)
-					if self.speed < 100:
-						self.draw_text('YOU AND THE SNAKE SLOWED DOWN!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
-					else:
-						self.draw_text('YOU AND THE SNAKE SPED UP!', 15, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
+					
+		self.show_turbo()
 
 		self.update_fps()
 
@@ -767,15 +848,6 @@ class Game():
 		elif key_pressed[self.LEFT_BIND]:
 			self.apple_List[0][0] -= self.cell_size
 
-		# if self.UP_KEY:
-		# 	self.apple_List[0][1] -= self.cell_size
-		# elif self.DOWN_KEY:
-		# 	self.apple_List[0][1] += self.cell_size
-		# elif self.RIGHT_KEY:
-		# 	self.apple_List[0][0] += self.cell_size
-		# elif self.LEFT_KEY:
-		# 	self.apple_List[0][0] -= self.cell_size
-
 		if (self.apple_List[0][0] >= self.DISPLAY_W - 20
 		or self.apple_List[0][0] <= self.border_x - 10
 		or self.apple_List[0][1] >= self.DISPLAY_H - 20
@@ -788,6 +860,11 @@ class Game():
 				self.speed *= 0.97
 			else:
 				self.speed -= 0.5
+			
+			self.spawn_apple()
+
+	def spawn_apple(self):
+		if self.angry_apple == 1:
 			while True:
 				# generate 1 apple
 				apple_x = random.randrange(self.border_x,self.DISPLAY_W-self.border_x,20)
@@ -796,8 +873,37 @@ class Game():
 				if self.apple not in self.snake:
 					self.apple_List.insert(-1,self.apple)
 					break
+		else:
+			if self.apple_bag == 0:
+				if self.snake_instinct == 0:
+					while True:
+						# generate 1 apple
+						apple_x = random.randrange(self.border_x,self.DISPLAY_W-self.border_x,20)
+						apple_y = random.randrange(self.border_y,self.DISPLAY_H-self.border_y,20)
+						self.apple = [apple_x, apple_y]
+						if self.apple not in self.snake:
+							self.apple_List.insert(-1,self.apple)
+							break
+				else:
+					# generate apple = score divide by 10
+					if len(self.apple_List) <= 10:
+						for i in range(int(self.score // 10)):
+							apple_x = random.randrange(self.border_x,self.DISPLAY_W - 20,20)
+							apple_y = random.randrange(self.border_y,self.DISPLAY_H - 20,20)
+							self.apple = [apple_x, apple_y]
+							if self.apple not in self.apple_List and self.apple not in self.snake:
+								self.apple_List.insert(-1,self.apple)
+								break
+			else:
+				# generate apple bag = score
+				for i in range(self.score):
+					apple_x = random.randrange(self.border_x,self.DISPLAY_W - 20,20)
+					apple_y = random.randrange(self.border_y,self.DISPLAY_H - 20,20)
+					self.apple = [apple_x, apple_y]
+					if self.apple not in self.apple_List and self.apple not in self.snake:
+						self.apple_List.insert(-1,self.apple)
 
-	def test(self):
+	def run(self):
 
 		self.turbo = False
 		# check function input
@@ -821,7 +927,10 @@ class Game():
 
 
 		if key_pressed[self.CTRL_BIND]:
-			self.turbo = True
+			if self.angry_apple == 0:
+				if self.speed > 0: self.turbo = True
+			else:
+				if self.speed > 100: self.turbo = True
 
 		self.draw_game_screen()
 		
@@ -1025,35 +1134,7 @@ class Game():
 				self.speed -= 0.5
 
 			# generate apple
-			if self.apple_bag == 0:
-				if self.snake_instinct == 0:
-					while True:
-						# generate 1 apple
-						apple_x = random.randrange(self.border_x,self.DISPLAY_W-self.border_x,20)
-						apple_y = random.randrange(self.border_y,self.DISPLAY_H-self.border_y,20)
-						self.apple = [apple_x, apple_y]
-						if self.apple not in self.snake:
-							self.apple_List.insert(-1,self.apple)
-							break
-				else:
-					# generate apple = score divide by 10
-					if len(self.apple_List) <= 10:
-						for i in range(int(self.score // 10)):
-							apple_x = random.randrange(self.border_x,self.DISPLAY_W - 20,20)
-							apple_y = random.randrange(self.border_y,self.DISPLAY_H - 20,20)
-							self.apple = [apple_x, apple_y]
-							if self.apple not in self.apple_List and self.apple not in self.snake:
-								self.apple_List.insert(-1,self.apple)
-								break
-			else:
-				# generate apple bag = score
-				for i in range(self.score):
-					apple_x = random.randrange(self.border_x,self.DISPLAY_W - 20,20)
-					apple_y = random.randrange(self.border_y,self.DISPLAY_H - 20,20)
-					self.apple = [apple_x, apple_y]
-					if self.apple not in self.apple_List and self.apple not in self.snake:
-						self.apple_List.insert(-1,self.apple)
-
+			self.spawn_apple()			
 				
 		else:
 			if not self.disallowpopping:
@@ -1075,16 +1156,18 @@ class Game():
 			self.newmode = True
 			self.allowmode2 = True
 			self.thenewmode = 'Angry Apple'
-		elif self.score == 20 and self.angry_apple == 1 and not self.allowmode4 and not self.newmoded:
+		elif self.score == 20 and self.angry_apple == 1 and not self.allowmode3 and not self.newmoded:
 			self.newmode = True
 			self.allowmode3 = True
 			self.thenewmode = 'Ultimate Snake'
-		elif self.score == 90 and self.snake_instinct == 1 and not self.allowmode3 and not self.newmoded:
+		elif self.score == 90 and self.snake_instinct == 1 and not self.allowmode4 and not self.newmoded:
 			self.newmode = True
 			self.allowmode4 = True
 			self.allow_ai_snake = True
 			self.allow_speed_up = True
-			self.thenewmode = 'De Snake Mode'
+		elif self.score == 3000 and self.portal_border == 1 and self.curled_up == 1 and self.apple_bag == 1 and not self.allowsecretmode and not self.newmoded:
+			self.newmode = True
+			self.allowsecretmode = True
 			
 
 		# if no more apples are left, auto win
@@ -1154,6 +1237,8 @@ class Game():
 			self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/apple.png'),(self.cell_size - 3, self.cell_size))
 
 		# Load audio
+		self.WIIstart = pygame.mixer.Sound(self.temp_path + 'audio/wii.start.mp3')
+		
 		self.DRsnd_menumove = pygame.mixer.Sound(self.temp_path + 'audio/dr.snd_menumove.wav')
 		self.DRsnd_select = pygame.mixer.Sound(self.temp_path + 'audio/dr.snd_select.wav')
 		self.DRsnd_cantselect = pygame.mixer.Sound(self.temp_path + 'audio/dr.snd_cantselect.wav')
@@ -1214,13 +1299,11 @@ class Game():
 		self.snake_head = [100,100]
 		self.snake = [[100,100],[80,100],[60,100]]
 
-		# apple
-		self.apple = [300,300]
 
-		# list apple
-		#if self.apple_bag == 1:
-		self.apple_List = []
-		self.apple_List.insert(-1,self.apple)
+		# apple
+		if self.playing:
+			self.apple_List = []
+			self.spawn_apple()
 
 		# self.direction
 		self.direction = 'RIGHT'
@@ -1244,6 +1327,22 @@ class Game():
 
 	def show_score(self):
 		self.draw_text('Score: {0}'.format(self.score), 25, 100, 30, self.gray, self.game_font)
+		if self.save_high_score:
+			if self.snake_instinct == 1:
+				self.draw_text('HIGH SCORE: {0}'.format(self.high_scores['Ultimate Snake']), 15, 100, 10, self.gray, self.game_font)
+				if self.score > self.high_scores['Ultimate Snake']: self.draw_text('HIGH SCORE!', 15, 100, 50, self.red, self.game_font)
+			elif self.apple_bag == 1:
+				self.draw_text('HIGH SCORE: {0}'.format(self.high_scores['Apple Bag']), 15, 100, 10, self.gray, self.game_font)
+				if self.score > self.high_scores['Apple Bag']: self.draw_text('HIGH SCORE!', 15, 100, 50, self.red, self.game_font)
+			elif self.portal_border == 1:
+				self.draw_text('HIGH SCORE: {0}'.format(self.high_scores['Portal Border']), 15, 100, 10, self.gray, self.game_font)
+				if self.score > self.high_scores['Portal Border']: self.draw_text('HIGH SCORE!', 15, 100, 50, self.red, self.game_font)
+			elif self.angry_apple == 1:
+				self.draw_text('HIGH SCORE: {0}'.format(self.high_scores['Angry Apple']), 15, 100, 10, self.gray, self.game_font)
+				if self.score > self.high_scores['Angry Apple']: self.draw_text('HIGH SCORE!', 15, 100, 50, self.red, self.game_font)
+			else:
+				self.draw_text('HIGH SCORE: {0}'.format(self.high_scores['Classic']), 15, 100, 10, self.gray, self.game_font)
+				if self.score > self.high_scores['Classic']: self.draw_text('HIGH SCORE!', 15, 100, 50, self.red, self.game_font)
 
 	def show_speed(self):
 		# speed percent
@@ -1272,8 +1371,10 @@ class Game():
 
 	def change_volume(self):
 			# set volume (MUST SET FOR ALL SOUNDS)
-			self.NAPSR.set_volume(self.musicvol * self.volume)
+			self.menumus.set_volume(self.musicvol * self.volume)
 			self.gamemus.set_volume(self.musicvol * self.volume)
+
+			self.WIIstart.set_volume(self.musicvol * self.volume)
 
 			self.DRsnd_menumove.set_volume(self.soundvol * self.volume)
 			self.DRsnd_select.set_volume(self.soundvol * self.volume)
@@ -1295,15 +1396,79 @@ class Game():
 			self.BAcorrect.set_volume(self.soundvol * self.volume)
 
 	def load_music(self):
-		self.NAPSR = pygame.mixer.Sound(self.temp_path + 'audio/' + self.holiday + 'napsr.mp3')
+		self.menumus = pygame.mixer.Sound(self.temp_path + 'audio/' + self.holiday + 'wii.menu.mp3')
 		self.gamemus = pygame.mixer.Sound(self.temp_path + 'audio/' + self.holiday + 'bg_music_1.mp3')
 
-	def logo_screen(self):
-		logger.startuplog(self.gamestatus, self.gameversion)
+	def print_loading(self, text):
+		self.display.fill(self.black)
+		self.draw_text('LOADING', self.font_size, self.DISPLAY_W/2, self.DISPLAY_H/2)
+		self.draw_text(text, self.font_size / 2, self.DISPLAY_W/2, self.DISPLAY_H/2 + 30, font_name = self.menu2_font)
+		self.window.blit(self.display, (0,0))
+		pygame.display.update()
 
-		#self.draw_text('Loading...', self.font_size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.menu2_font)
-		#self.window.blit(self.display, (0,0))
-		#pygame.display.update()
+	def logo_screen(self):
+		logger.log('Loading music...')
+		self.print_loading('Loading music')
+		self.load_music()
+
+		if self.oldsave:
+			self.print_loading('Detected pre-1.2.3 save')
+			if self.fullscreen_mode == 0:
+				self.fullscreen = True; self.scaled = True; self.native_res = False
+				logger.log('Importing video settings from pre-1.2.3 save data: success')
+			elif self.fullscreen_mode == 1:
+				self.fullscreen = False; self.scaled = False; self.native_res = False
+				logger.log('Importing video settings from pre-1.2.3 save data: success')
+			elif self.fullscreen_mode == 2:
+				self.fullscreen = True; self.scaled = False; self.native_res = False
+				logger.log('Importing video settings from pre-1.2.3 save data: success')
+			elif self.fullscreen_mode == 3:
+				self.fullscreen = False; self.scaled = False; self.native_res = True
+				logger.log('Importing video settings from pre-1.2.3 save data: success')
+			elif self.fullscreen_mode == 4:
+				self.fullscreen = True; self.scaled = False; self.native_res = True
+				logger.log('Importing video settings from pre-1.2.3 save data: success')
+			else:
+				logger.log('Importing video settings from pre-1.2.3 save data: error')
+
+		for item in self.items_to_import:
+			try:
+				if item != 'fullscreen' or item != 'scaled' or 'item' != 'native_res':
+					self.print_loading('Loading setting "' + item + '"')
+					self.import_settings(item)
+					logger.log('Loading setting "' + item + '": success')
+			except:
+				logger.log('Loading setting "' + item + '": error')
+				pass
+
+
+		self.print_loading('Checking saved settings')
+		if self.allowmode4:
+			if not self.allow_ai_snake:
+				logger.log('Enabling AI Snake mode because De Snake Mode is unlocked and it hasn\'t been unlocked yet.')
+				self.allow_ai_snake = True
+			if not self.allow_speed_up:
+				logger.log('Enabling Turbo mode because De Snake Mode is unlocked and it hasn\'t been unlocked yet.')
+				self.allow_speed_up = True
+		elif not self.allowmode4:
+			if self.allow_ai_snake:
+				logger.log('Disabling AI Snake mode because it is unlocked before unlocking De Snake Mode.')
+				self.allow_ai_snake = False
+			if self.allow_speed_up:
+				logger.log('Disabling Turbo mode because it is unlocked before unlocking De Snake Mode.')
+				self.allow_speed_up = False
+
+		for score in self.high_scores:
+			if self.high_scores[score] < 0:
+				logger.log('Invalid ' + score + ' score: ' + str(self.high_scores[score]) + '\nResetting score to 0.')
+				self.high_scores[score] = 0
+
+		self.print_loading('Getting splash text')
+		self.generate_splash()
+		self.print_loading('Adjusting volume')
+		self.change_volume()
+
+		self.save_settings()
 		
 		self.fadeBg = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
 		self.fadeBg.set_alpha(255)
@@ -1419,12 +1584,13 @@ class Game():
 			exec('f.write(\'{0} = {{0}}\\n\'.format(self.{0}))'.format(item))
 		f.close()
 
-	def import_settings(self, var):
-		try:
+	def import_settings(self, var, catch = False):
+		if catch:
 			exec('from settings import ' + var)
 			exec('self.{0} = {0}'.format(var))
-		except Exception:
-			pass
-
-if __name__ == '__main__':
-	print('Please run main.py to start the game!')
+		else:
+			try:
+				exec('from settings import ' + var)
+				exec('self.{0} = {0}'.format(var))
+			except Exception:
+				pass

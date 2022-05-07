@@ -1,3 +1,7 @@
+if __name__ == '__main__':
+	print('Please run main.py to start Sneky.')
+	sys.exit()
+
 import pygame
 import sys
 import os
@@ -282,30 +286,99 @@ class OptionsMenu(Menu):
 class ClearData(Menu):
 	def __init__(self,game):
 		Menu.__init__(self,game)
-		self.state = 'mode'
+		self.state = 'saved'
 		self.opt1x, self.opt1y = self.mid_w, self.mid_h + 10
 		self.opt2x, self.opt2y = self.mid_w, self.mid_h + 40
 		self.opt3x, self.opt3y = self.mid_w, self.mid_h + 70
 		self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
 
+		self.menumousex = (int(self.mid_w - 165), int(self.mid_w + 160))
+		self.opt1mousey = (int(self.mid_h), int(self.mid_h + 20))
+		self.opt2mousey = (int(self.mid_h + 30), int(self.mid_h + 50))
+		self.opt3mousey = (int(self.mid_h + 60), int(self.mid_h + 80))
+
 	def display_menu(self):
 		self.run_display = True
 		while self.run_display:
-			self.game.reset_keys()
 			self.game.check_events()
-			if self.game.BACK_KEY:
-				self.run_display = False
-				self.game.DRsnd_select.play()
-			elif self.game.START_KEY:
-				self.run_display = False
-				self.game.DRsnd_select.play()
-				self.clear_data2()
+			self.check_input()
 			self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('CLEAR DATA', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			self.game.draw_text('CLEAR SAVED SETTINGS', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 			self.game.draw_text('CLEAR SESSION LOGS', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
-			self.game.draw_text('CLEAR BOTH!', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
+			self.game.draw_text('CLEAR EVERYTHING', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
+			self.draw_cursor(int(self.game.font_size / 2))
 			self.blit_screen()
+
+	def move_cursor(self):
+		if self.game.DOWN_KEY:
+			if self.state == 'saved':
+				self.state = 'logs'
+				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
+			elif self.state == 'logs':
+				self.state = 'all'
+				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+			elif self.state == 'all':
+				self.state = 'saved'
+				self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
+			self.game.DRsnd_menumove.play()
+		elif self.game.UP_KEY:
+			if self.state == 'saved':
+				self.state = 'all'
+				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+			elif self.state == 'all':
+				self.state = 'logs'
+				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
+			elif self.state == 'logs':
+				self.state = 'saved'
+				self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
+			self.game.DRsnd_menumove.play()
+
+		if self.game.MOUSEMOVE and self.game.mousex in range(*self.menumousex):
+			if self.game.mousey in range(*self.opt1mousey) and self.state != 'saved':
+				self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
+				self.state = 'saved'
+				self.game.DRsnd_menumove.play()
+			elif self.game.mousey in range(*self.opt2mousey) and self.state != 'logs':
+				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
+				self.state = 'logs'
+				self.game.DRsnd_menumove.play()
+			elif self.game.mousey in range(*self.opt3mousey) and self.state != 'all':
+				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+				self.state = 'all'
+				self.game.DRsnd_menumove.play()
+
+	def check_input(self):
+		self.move_cursor()
+		if self.game.BACK_KEY:
+			self.game.curr_menu = self.game.options
+			self.run_display = False
+			self.game.DRsnd_select.play()
+		elif self.game.START_KEY:
+			self.game.DRsnd_select.play()
+			if self.state == 'saved':
+				self.run_display = False
+				self.clear_data2()
+			elif self.state == 'logs':
+				self.run_display = False
+				self.clear_data2(False, True)
+			elif self.state == 'all':
+				self.run_display = False
+				self.clear_data2(True, True)
+
+		if self.game.CLICK and self.game.mousex in range(*self.menumousex):
+			if self.game.mousey in range(*self.opt1mousey):
+				self.game.DRsnd_select.play()
+				self.run_display = False
+				self.clear_data2()
+			elif self.game.mousey in range(*self.opt2mousey):
+				self.game.DRsnd_select.play()
+				self.run_display = False
+				self.clear_data2(False, True)
+			elif self.game.mousey in range(*self.opt3mousey):
+				self.game.DRsnd_select.play()
+				self.run_display = False
+				self.clear_data2(True, True)
 
 	def clear_data2(self, cleardata = True, clearlogs = False):
 		self.clear2_run_display = True
@@ -319,7 +392,8 @@ class ClearData(Menu):
 			elif self.game.START_KEY:
 				self.clear2_run_display = False
 				self.game.DRsnd_select.play()
-				self.clear_data3()
+				self.clear_data3(cleardata, clearlogs)
+				break
 			self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('CLEAR DATA', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			if cleardata:
@@ -327,15 +401,20 @@ class ClearData(Menu):
 				if clearlogs:
 					self.game.draw_text('You\'re also clearing all your session logs.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, color = self.game.red, font_name = self.game.menu2_font)
 					self.game.draw_text('This cannot be undone!', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 50, color = self.game.red, font_name = self.game.menu2_font)
-				else: self.game.draw_text('This cannot be undone!', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, color = self.game.red, font_name = self.game.menu2_font)
+					self.game.draw_text('{0}: CLEAR EVERYTHING'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
+					self.game.draw_text('{0}: CANCEL'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.menu2_font)
+				else:
+					self.game.draw_text('This cannot be undone!', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, color = self.game.red, font_name = self.game.menu2_font)
+					self.game.draw_text('{0}: CLEAR ALL SAVED DATA'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 70, font_name = self.game.menu2_font)
+					self.game.draw_text('{0}: CANCEL'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
 			elif clearlogs:
-				self.game.draw_text('WARNING! You are about to clear all your session logs.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, color = self.game.red, font_name = self.game.menu2_font)
+				self.game.draw_text('WARNING! You are about to clear all your session logs.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
 				self.game.draw_text('This cannot be undone!', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, color = self.game.red, font_name = self.game.menu2_font)
-			self.game.draw_text('{0}: CLEAR ALL SAVED DATA'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.arrow_font)
-			self.game.draw_text('{0}: CANCEL'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.arrow_font)
+				self.game.draw_text('{0}: CLEAR ALL SESSION LOGS'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 70, font_name = self.game.menu2_font)
+				self.game.draw_text('{0}: CANCEL'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
 			self.blit_screen()
 
-	def clear_data3(self):
+	def clear_data3(self, cleardata = True, clearlogs = False):
 		self.clear3_run_display = True
 		while self.clear3_run_display:
 			self.game.reset_keys()
@@ -347,28 +426,53 @@ class ClearData(Menu):
 			elif self.game.START_KEY:
 				self.clear3_run_display = False
 				self.game.DRsnd_select.play()
-				self.clear_data_finale()
+				self.clear_data(cleardata, clearlogs)
+				break
 			self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('CLEAR DATA', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
-			self.game.draw_text('Are you REALLY sure you wanna clear your data?', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, font_name = self.game.menu2_font)
+			if cleardata:
+				if clearlogs:
+					self.game.draw_text('Are you REALLY sure you wanna clear EVERYTHING?', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
+					self.game.draw_text('{0}: CLEAR EVERYTHING'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
+					self.game.draw_text('{0}: CANCEL'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.menu2_font)
+				else:
+					self.game.draw_text('Are you REALLY sure you wanna clear your data?', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
+					self.game.draw_text('{0}: CLEAR ALL SAVED DATA'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 70, font_name = self.game.menu2_font)
+					self.game.draw_text('{0}: CANCEL'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
+			elif clearlogs:
+				self.game.draw_text('Are you REALLY sure you wanna clear all session logs?', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
+				self.game.draw_text('{0}: CLEAR ALL SESSION LOGS'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 70, font_name = self.game.menu2_font)
+				self.game.draw_text('{0}: CANCEL'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
 			self.game.draw_text('THIS IS YOUR LAST WARNING!', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, color = self.game.red, font_name = self.game.menu2_font)
-			self.game.draw_text('{0}: CLEAR ALL SAVED DATA'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.arrow_font)
-			self.game.draw_text('{0}: CANCEL'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.arrow_font)
 			self.blit_screen()
 
-	def clear_data(self, clearlogs = False, cleardata = True):
+	def clear_data(self, cleardata = True, clearlogs = False):
 		if os.path.exists(self.game.appdata_path):
 			if os.path.exists(self.game.appdata_path + self.game.settings_fn):
 				if cleardata: os.remove(self.game.appdata_path + self.game.settings_fn)
 			if os.path.exists(self.game.appdata_path + logger.logfile):
 				if clearlogs: os.remove(self.game.appdata_path + logger.logfile)
-		self.game.NAPSR.stop()
 		print('The following has been cleared:')
 		if cleardata: print('- Saved settings and data')
-		if clearlogs: print('- All session logs')
-		print('Sneky session closed.')
-		pygame.quit()
-		sys.exit()
+		if clearlogs: print('- Session logs')
+		if cleardata:
+			print('Sneky session closed.')
+			pygame.quit()
+			sys.exit()
+		else:
+			self.clear4_run_display = True
+			while self.clear4_run_display:
+				self.game.reset_keys()
+				self.game.check_events()
+				if self.game.BACK_KEY:
+					self.clear4_run_display = False
+					self.game.DRsnd_select.play()
+					self.run_display = True
+				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_text('CLEAR DATA', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
+				self.game.draw_text('All session logs have been cleared.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
+				self.game.draw_text('{0}: BACK'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 50, font_name = self.game.menu2_font)
+				self.blit_screen()
 
 class CreditsMenu(Menu):
 	def __init__(self,game):
@@ -378,7 +482,7 @@ class CreditsMenu(Menu):
 		self.run_display = True
 		while self.run_display:
 			self.game.check_events()
-			if self.game.START_KEY or self.game.BACK_KEY:
+			if self.game.BACK_KEY:
 				self.game.curr_menu = self.game.main_menu
 				self.run_display = False
 				self.game.DRsnd_select.play()
@@ -400,7 +504,7 @@ class CreditsMenu(Menu):
 					self.game.draw_text('Made with: Pygame', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 250, font_name = self.game.menu2_font)
 			else:
 				self.game.draw_text('Apple Image: Luna4s', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
-				self.game.draw_text('\"Nintendo Anti-Piracy Self-Reporter\" - Joey Perleoni', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 170, font_name = self.game.menu2_font)
+				self.game.draw_text('Wii Menu Music - Nintendo', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 170, font_name = self.game.menu2_font)
 				self.game.draw_text('\"Nothing to Say\" - Md Abdul Kader Zilani', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 190, font_name = self.game.menu2_font)
 				self.game.draw_text('Made with: Pygame', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 230, font_name = self.game.menu2_font)
 			self.blit_screen()
@@ -408,7 +512,7 @@ class CreditsMenu(Menu):
 class VideoMenu(Menu):
 	def __init__(self,game):
 		Menu.__init__(self,game)
-		self.state = 'mode'
+		self.state = 'fullscreen'
 		self.set_values()
 		self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
 
@@ -416,63 +520,129 @@ class VideoMenu(Menu):
 		self.opt1x, self.opt1y = self.mid_w, self.mid_h + 10
 		self.opt2x, self.opt2y = self.mid_w, self.mid_h + 40
 		self.opt3x, self.opt3y = self.mid_w, self.mid_h + 70
+		self.opt4x, self.opt4y = self.mid_w, self.mid_h + 100
+		self.opt5x, self.opt5y = self.mid_w, self.mid_h + 130
 
 		self.menumousex = (int(self.mid_w - 165), int(self.mid_w + 160))
 		self.opt1mousey = (int(self.mid_h), int(self.mid_h + 20))
 		self.opt2mousey = (int(self.mid_h + 30), int(self.mid_h + 50))
 		self.opt3mousey = (int(self.mid_h + 60), int(self.mid_h + 80))
+		self.opt4mousey = (int(self.mid_h + 90), int(self.mid_h + 110))
+		self.opt5mousey = (int(self.mid_h + 120), int(self.mid_h + 140))
 
 	def display_menu(self):
 		self.run_display = True
-		self.curr_fullscreen_mode = self.game.fullscreen_mode
+		self.fullscreen = self.game.fullscreen
+		self.scaled = self.game.scaled
+		self.native_res = self.game.native_res
+
 		while self.run_display:
+			if self.fullscreen: self.fullscreen_str = 'ON'
+			else: self.fullscreen_str = 'OFF'
+			if self.scaled: self.scaled_str = 'ON'
+			else: self.scaled_str = 'OFF'
+			if self.native_res: self.native_res_str = 'ON'
+			else: self.native_res_str = 'OFF'
+			if self.game.fullscreen:
+				if self.game.scaled: self.curr_setting = 'Fullscreen, Scaled'
+				else:
+					if self.game.native_res: self.curr_setting = 'Fullscreen, Native Resolution'
+					else: self.curr_setting = 'Fullscreen'
+			else: 
+				if self.game.native_res: self.curr_setting = 'Windowed, Native Resolution'
+				else: self.curr_setting = 'Windowed'
 			self.game.check_events()
 			self.check_input()
 			self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('VIDEO', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
-			self.game.draw_text('WINDOW MODE: MODE {0}'.format(self.curr_fullscreen_mode), int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
-			self.game.draw_text('APPLY WINDOW MODE', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
-			self.game.draw_text('RESET TO DEFAULTS', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
-			self.game.draw_text('Current window mode: Mode {0}'.format(self.game.fullscreen_mode), int(self.game.font_size / 2), self.opt3x, self.opt3y + 70, font_name = self.game.menu2_font)
+			self.game.draw_text('Fullscreen: {0}'.format(self.fullscreen_str), int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
+			if not self.fullscreen:
+				self.game.draw_text('Scaled Mode: {0}'.format(self.scaled_str), int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font, color = self.game.gray)
+			else:
+				self.game.draw_text('Scaled Mode: {0}'.format(self.scaled_str), int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
+			if self.scaled and self.fullscreen:
+				self.game.draw_text('Native Resolution ({0}x{1}): {2}'.format(self.game.current_w, self.game.current_h, self.native_res_str), int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font, color = self.game.gray)
+			else:
+				self.game.draw_text('Native Resolution ({0}x{1}): {2}'.format(self.game.current_w, self.game.current_h, self.native_res_str), int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
+			self.game.draw_text('APPLY SETTINGS', int(self.game.font_size / 2), self.opt4x, self.opt4y, font_name = self.game.menu2_font)
+			self.game.draw_text('RESET TO DEFAULTS', int(self.game.font_size / 2), self.opt5x, self.opt5y, font_name = self.game.menu2_font)
+			self.game.draw_text('Current window setting: {0}'.format(self.curr_setting), int(self.game.font_size / 2), self.opt4x, self.opt4y + 70, font_name = self.game.menu2_font)
 			self.game.save_settings()
 			self.draw_cursor(int(self.game.font_size / 2))
 			self.blit_screen()
 
+
 	def move_cursor(self):
 		if self.game.DOWN_KEY:
-			if self.state == 'mode':
+			if self.state == 'fullscreen':
+				if not self.fullscreen:
+					self.state = 'native'
+					self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+				else:
+					self.state = 'scaled'
+					self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
+			elif self.state == 'scaled':
+				if self.scaled and self.fullscreen:
+					self.state = 'apply'
+					self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
+				else:
+					self.state = 'native'
+					self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+			elif self.state == 'native':
 				self.state = 'apply'
-				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
+				self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
 			elif self.state == 'apply':
 				self.state = 'reset'
-				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+				self.cursor_rect.midtop = (self.opt5x + self.offset, self.opt5y)
 			elif self.state == 'reset':
-				self.state = 'mode'
+				self.state = 'fullscreen'
 				self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
 			self.game.DRsnd_menumove.play()
 		elif self.game.UP_KEY:
-			if self.state == 'mode':
+			if self.state == 'fullscreen':
 				self.state = 'reset'
-				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+				self.cursor_rect.midtop = (self.opt5x + self.offset, self.opt5y)
 			elif self.state == 'reset':
 				self.state = 'apply'
-				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
+				self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
 			elif self.state == 'apply':
-				self.state = 'mode'
+				if self.scaled and self.fullscreen:
+					self.state = 'scaled'
+					self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
+				else:
+					self.state = 'native'
+					self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+			elif self.state == 'native':
+				if not self.fullscreen:
+					self.state = 'fullscreen'
+					self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
+				else:
+					self.state = 'scaled'
+					self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
+			elif self.state == 'scaled':
+				self.state = 'fullscreen'
 				self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
 			self.game.DRsnd_menumove.play()
 
 		if self.game.MOUSEMOVE and self.game.mousex in range(*self.menumousex):
-			if self.game.mousey in range(*self.opt1mousey) and self.state != 'mode':
+			if self.game.mousey in range(*self.opt1mousey) and self.state != 'fullscreen':
 				self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
-				self.state = 'mode'
+				self.state = 'fullscreen'
 				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(*self.opt2mousey) and self.state != 'apply':
+			elif self.game.mousey in range(*self.opt2mousey) and self.state != 'scaled' and self.fullscreen:
 				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
+				self.state = 'scaled'
+				self.game.DRsnd_menumove.play()
+			elif self.game.mousey in range(*self.opt3mousey) and self.state != 'native' and (not self.scaled or not self.fullscreen):
+				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+				self.state = 'native'
+				self.game.DRsnd_menumove.play()
+			elif self.game.mousey in range(*self.opt4mousey) and self.state != 'apply':
+				self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
 				self.state = 'apply'
 				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(*self.opt3mousey) and self.state != 'reset':
-				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+			elif self.game.mousey in range(*self.opt5mousey) and self.state != 'reset':
+				self.cursor_rect.midtop = (self.opt5x + self.offset, self.opt5y)
 				self.state = 'reset'
 				self.game.DRsnd_menumove.play()
 
@@ -484,62 +654,145 @@ class VideoMenu(Menu):
 			self.game.DRsnd_select.play()
 		elif self.game.START_KEY:
 			self.game.DRsnd_select.play()
-			if self.state == 'mode':
-				self.curr_fullscreen_mode += 1
-				if self.curr_fullscreen_mode > self.game.highest_fullscreen_mode:
-					self.curr_fullscreen_mode = 0
+			if self.state == 'fullscreen':
+				self.fullscreen = not self.fullscreen
+			elif self.state == 'scaled' and self.fullscreen:
+				self.scaled = not self.scaled
+			elif self.state == 'native' and (not self.scaled or (self.scaled and not self.fullscreen)):
+				self.native_res = not self.native_res
 			elif self.state == 'apply':
-				self.game.fullscreen_mode = self.curr_fullscreen_mode
-				self.window = self.game.set_window_mode()
-				self.game.init_menus()
-				self.game.mode()
-				Menu.__init__(self, self.game)
-				self.set_values()
-				self.set_cursor_pos()
-				self.game.change_volume()
+				if self.fullscreen == self.game.fullscreen and self.scaled == self.game.scaled and self.native_res == self.game.native_res:
+					should_continue = False
+				else: should_continue = True
+				if self.fullscreen and not self.scaled and not self.native_res:
+					should_continue = self.noscale_warning()
+				elif (not self.fullscreen and self.game.fullscreen) or (self.native_res and not self.game.native_res):
+					should_continue = self.native_warning()
+				if should_continue:
+					self.game.fullscreen = self.fullscreen
+					self.game.scaled = self.scaled
+					self.game.native_res = self.native_res
+					self.game.window = self.game.set_window_mode()
+					self.game.init_menus()
+					self.game.mode()
+					Menu.__init__(self, self.game)
+					self.set_values()
+					self.set_cursor_pos()
+					self.game.change_volume()
 			elif self.state == 'reset':
-				self.game.fullscreen_mode = 0
-				self.curr_fullscreen_mode = self.game.fullscreen_mode
-				self.window = self.game.set_window_mode()
-				self.game.init_menus()
-				self.game.mode()
-				Menu.__init__(self, self.game)
-				self.set_values()
-				self.set_cursor_pos()
-				self.game.change_volume()
+				if self.game.fullscreen == True and self.game.scaled == True and self.game.native_res == True:
+					should_continue = False
+				else: should_continue = True
+				if should_continue:
+					self.game.fullscreen = True
+					self.game.scaled = True
+					self.game.native_res = True
+					self.fullscreen = self.game.fullscreen
+					self.scaled = self.game.scaled
+					self.native_res = self.game.native_res
+					self.game.window = self.game.set_window_mode()
+					self.game.init_menus()
+					self.game.mode()
+					Menu.__init__(self, self.game)
+					self.set_values()
+					self.set_cursor_pos()
+					self.game.change_volume()
 
 		if self.game.CLICK and self.game.mousex in range(*self.menumousex):
 			if self.game.mousey in range(*self.opt1mousey):
 				self.game.DRsnd_select.play()
-				self.curr_fullscreen_mode += 1
-				if self.curr_fullscreen_mode > self.game.highest_fullscreen_mode:
-					self.curr_fullscreen_mode = 0
-			elif self.game.mousey in range(*self.opt2mousey):
+				self.fullscreen = not self.fullscreen
+			elif self.game.mousey in range(*self.opt2mousey) and self.fullscreen:
 				self.game.DRsnd_select.play()
-				self.game.fullscreen_mode = self.curr_fullscreen_mode
-				self.window = self.game.set_window_mode()
-				self.game.init_menus()
-				self.game.mode()
-				Menu.__init__(self, self.game)
-				self.set_values()
-				self.set_cursor_pos()
-				self.game.change_volume()
-			elif self.game.mousey in range(*self.opt3mousey):
+				self.scaled = not self.scaled
+			elif self.game.mousey in range(*self.opt3mousey) and (not self.scaled or not self.fullscreen):
 				self.game.DRsnd_select.play()
-				self.game.fullscreen_mode = 0
-				self.curr_fullscreen_mode = self.game.fullscreen_mode
-				self.window = self.game.set_window_mode()
-				self.game.init_menus()
-				self.game.mode()
-				Menu.__init__(self, self.game)
-				self.set_values()
-				self.set_cursor_pos()
-				self.game.change_volume()
+				self.native_res = not self.native_res
+			elif self.game.mousey in range(*self.opt4mousey):
+				self.game.DRsnd_select.play()
+				if self.fullscreen == self.game.fullscreen and self.scaled == self.game.scaled and self.native_res == self.game.native_res:
+					should_continue = False
+				else: should_continue = True
+				if self.fullscreen and not self.scaled and not self.native_res:
+					should_continue = self.noscale_warning()
+				elif (not self.fullscreen and self.game.fullscreen) or (self.native_res and not self.game.native_res):
+					should_continue = self.native_warning()
+				if should_continue:
+					self.game.fullscreen = self.fullscreen
+					self.game.scaled = self.scaled
+					self.game.native_res = self.native_res
+					self.game.window = self.game.set_window_mode()
+					self.game.init_menus()
+					self.game.mode()
+					Menu.__init__(self, self.game)
+					self.set_values()
+					self.set_cursor_pos()
+					self.game.change_volume()
+			elif self.game.mousey in range(*self.opt5mousey):
+				self.game.DRsnd_select.play()
+				if self.game.fullscreen == True and self.game.scaled == True and self.game.native_res == True:
+					should_continue = False
+				else: should_continue = True
+				if should_continue:
+					self.game.DRsnd_select.play()
+					self.game.fullscreen = True
+					self.game.scaled = True
+					self.game.native_res = True
+					self.game.window = self.game.set_window_mode()
+					self.game.init_menus()
+					self.game.mode()
+					Menu.__init__(self, self.game)
+					self.set_values()
+					self.set_cursor_pos()
+					self.game.change_volume()
 
 	def set_cursor_pos(self):
-		if self.state == 'mode': self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
-		elif self.state == 'apply': self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
-		elif self.state == 'reset': self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+		if self.state == 'apply': self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
+		elif self.state == 'reset': self.cursor_rect.midtop = (self.opt5x + self.offset, self.opt5y)
+
+	def noscale_warning(self):
+		self.noscale_run_display = True
+		while self.noscale_run_display:
+			self.game.reset_keys()
+			self.game.check_events()
+			if self.game.BACK_KEY:
+				self.noscale_run_display = False
+				self.game.DRsnd_select.play()
+				return False
+			elif self.game.START_KEY:
+				self.noscale_run_display = False
+				self.game.DRsnd_select.play()
+				return True
+			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_text('VIDEO', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
+			self.game.draw_text('WARNING! Fullscreen without scaled mode and native', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, font_name = self.game.menu2_font)
+			self.game.draw_text('resolution may cause screen issues!', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, font_name = self.game.menu2_font)
+			self.game.draw_text('Are you sure you want to continue?', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 50, font_name = self.game.menu2_font)
+			self.game.draw_text('{0}: YES'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
+			self.game.draw_text('{0}: NO'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.menu2_font)
+			self.blit_screen()
+
+	def native_warning(self):
+		self.native_run_display = True
+		while self.native_run_display:
+			self.game.reset_keys()
+			self.game.check_events()
+			if self.game.BACK_KEY:
+				self.native_run_display = False
+				self.game.DRsnd_select.play()
+				return False
+			elif self.game.START_KEY:
+				self.native_run_display = False
+				self.game.DRsnd_select.play()
+				return True
+			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_text('VIDEO', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
+			self.game.draw_text('NOTE: If you see that the text/screen is too small, you', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, font_name = self.game.menu2_font)
+			self.game.draw_text('probably should switch to fullscreen with scaled mode.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, font_name = self.game.menu2_font)
+			self.game.draw_text('Do you want to apply this setting?', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 50, font_name = self.game.menu2_font)
+			self.game.draw_text('{0}: YES'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
+			self.game.draw_text('{0}: NO'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.menu2_font)
+			self.blit_screen()
 
 class UpdateMenu(Menu):
 	def __init__(self,game):
@@ -1270,23 +1523,11 @@ class PressStart(Menu):
 	def display_menu(self):
 		self.run_display = True
 		if not self.game.inited:
-			self.game.logo_screen()
-			self.game.load_music()
-
-			# try importing settings from settings.py, in sneky's appdata or current dir
-			for item in self.game.items_to_import:
-				if item != 'fullscreen_mode':
-					self.game.import_settings(item)
-
-			if self.game.allowmode4:
-				if not self.game.allow_ai_snake: self.game.allow_ai_snake = True
-				if not self.game.allow_speed_up: self.game.allow_speed_up = True
-
 			self.game.window = self.game.set_window_mode()
-			self.game.generate_splash()
-			self.game.change_volume()
-			self.game.NAPSR.play(-1)
+			self.game.logo_screen()
 
+			self.game.WIIstart.play()
+			self.game.menumus.play(-1)
 			self.game.inited = True
 
 		while self.run_display:
@@ -1313,7 +1554,7 @@ class PressStart(Menu):
 class ModeMenu(Menu):
 	def __init__(self,game):
 		Menu.__init__(self,game)
-		self.allState = ['Classic', 'Apple Bag', 'Portal Border', 'Angry Apple', 'Ultimate Snake', 'De Snake Mode']
+		self.allState = ['Classic', 'Apple Bag', 'Portal Border', 'Angry Apple', 'Ultimate Snake', 'De Snake Mode', 'Unknown']
 		if self.game.holiday:
 			if self.game.holiday == 'christmas_exclusive/':
 				self.allState[1], self.allState[3] = 'Treat Bag', 'Angry Treat'
@@ -1322,9 +1563,10 @@ class ModeMenu(Menu):
 		self.classicx, self.classicy = self.mid_w, self.mid_h + self.game.font_size
 		self.appleBagx, self.appleBagy = self.mid_w, self.mid_h + self.game.font_size * 2
 		self.portalx, self.portaly = self.mid_w, self.mid_h + self.game.font_size * 3
-		self.ultimatex, self.ultimatey = self.mid_w, self.mid_h + self.game.font_size * 4
-		self.angryApplex, self.angryAppley = self.mid_w, self.mid_h + self.game.font_size * 5
+		self.angryApplex, self.angryAppley = self.mid_w, self.mid_h + self.game.font_size * 4
+		self.ultimatex, self.ultimatey = self.mid_w, self.mid_h + self.game.font_size * 5
 		self.deSnakex, self.deSnakey = self.mid_w, self.mid_h + self.game.font_size * 6
+		self.debugx, self.debugy = self.mid_w, self.mid_h + self.game.font_size * 7
 		self.cursor_rect.midtop = (self.classicx + self.offset, self.classicy)
 
 		self.menumousex = (int(self.mid_w - 165), int(self.mid_w + 160))
@@ -1336,7 +1578,11 @@ class ModeMenu(Menu):
 		self.game.newmoded = False
 		self.game.save_settings()
 		self.run_display = True
+		self.start_game = False
+		self.start_game_debug = False
+		self.save_high_score = False
 		while self.run_display:
+			self.game.save_settings()
 			self.game.check_events()
 			self.check_input()
 			self.game.display.blit(self.game.imgMenuBG, (0,0))
@@ -1347,12 +1593,20 @@ class ModeMenu(Menu):
 			if self.game.allowmode1:
 				self.game.draw_text(self.allState[2], self.game.font_size * 3/4, self.portalx, self.portaly)
 			if self.game.allowmode2:
-				self.game.draw_text(self.allState[3], self.game.font_size * 3/4, self.ultimatex, self.ultimatey)
+				self.game.draw_text(self.allState[3], self.game.font_size * 3/4, self.angryApplex, self.angryAppley)
 			if self.game.allowmode3:
-				self.game.draw_text(self.allState[4], self.game.font_size * 3/4, self.angryApplex, self.angryAppley)
+				self.game.draw_text(self.allState[4], self.game.font_size * 3/4, self.ultimatex, self.ultimatey)
 			if self.game.allowmode4:
 				self.game.draw_text(self.allState[5], self.game.font_size * 3/4, self.deSnakex, self.deSnakey)
-			self.game.draw_text(self.state, self.game.font_size * 3/4, self.mid_w, 100)
+			if self.game.allowsecretmode:
+				self.game.draw_text(self.allState[6], self.game.font_size * 3/4, self.debugx, self.debugy)
+			if self.stateIndex < 5:
+				if self.state == self.allState[1]:
+					self.game.draw_text('HIGH SCORE: ' + str(self.game.high_scores['Apple Bag']), self.game.font_size * 3/4, self.mid_w, 100, font_name = self.game.menu2_font)
+				elif self.state == self.allState[3]:
+					self.game.draw_text('HIGH SCORE: ' + str(self.game.high_scores['Angry Apple']), self.game.font_size * 3/4, self.mid_w, 100, font_name = self.game.menu2_font)
+				else:
+					self.game.draw_text('HIGH SCORE: ' + str(self.game.high_scores[self.state]), self.game.font_size * 3/4, self.mid_w, 100, font_name = self.game.menu2_font)
 			self.draw_cursor()
 			self.blit_screen()
 
@@ -1365,64 +1619,92 @@ class ModeMenu(Menu):
 		elif self.game.START_KEY:
 			for state in self.allState:
 				if self.state == state:
+					self.start_game = True
 					if state == 'De Snake Mode':
 						logger.log(state + ' loaded.')
-					else: logger.log(state + ' Mode loaded.')
+					elif state == 'Unknown':
+						self.start_game = False
+						logger.log('You stepped into the Unknown...')
+					else:
+						self.save_high_score = True
+						logger.log(state + ' Mode loaded.')
 					
 					if self.state == 'Classic': self.game.mode(); break
 					elif self.state == self.allState[1]: self.game.mode(apple_bag = 1); break
 					elif self.state == 'Portal Border': self.game.mode(portal_border = 1); break
 					elif self.state == self.allState[3]: self.game.mode(angry_apple = 1); break
 					elif self.state == 'Ultimate Snake': self.game.mode(snake_instinct = 1); break
+					elif self.state == 'Unknown':
+						self.game.WIIstart.stop()
+						self.debug_mode()
+						if not self.start_game_debug: logger.log('You exited the Unknown...')
+						break
 					else: self.game.mode(1,1,1); break
 
+		elif self.game.CLICK and self.game.mousex in range(*self.menumousex):
+			if self.game.mousey in range(320, 345):
+				self.start_game = True
+				self.save_high_score = True
+				self.game.mode()
+				logger.log('Classic Mode loaded.')
+				self.game.DRsnd_select.play()
+
+			elif self.game.mousey in range(345, 380) and self.game.allowmode0:
+				self.start_game = True
+				self.save_high_score = True
+				logger.log(self.allState[1] + ' Mode loaded.')
+				self.game.mode(apple_bag = 1)
+				self.game.DRsnd_select.play()
+
+			elif self.game.mousey in range(380, 415) and self.game.allowmode1:
+				self.start_game = True
+				self.save_high_score = True
+				logger.log('Portal Border Mode loaded.')
+				self.game.mode(portal_border = 1)
+				self.game.DRsnd_select.play()
+
+			elif self.game.mousey in range(415, 445) and self.game.allowmode3:
+				self.start_game = True
+				self.save_high_score = True
+				logger.log(self.allState[3] + ' Mode loaded.')
+				self.game.mode(angry_apple = 1)
+				self.game.DRsnd_select.play()
+
+			elif self.game.mousey in range(445, 475) and self.game.allowmode2:
+				self.start_game = True
+				self.save_high_score = True
+				logger.log('Ultimate Snake Mode loaded.')
+				self.game.mode(snake_instinct = 1)
+				self.game.DRsnd_select.play()
+
+			elif self.game.mousey in range(475, 505) and self.game.allowmode4:
+				self.start_game = True
+				logger.log('De Snake Mode loaded.')
+				self.game.mode(1,1,1)
+				self.game.DRsnd_select.play()
+
+			elif self.game.mousey in range(505, 535) and self.game.allowmode4:
+				logger.log('You stepped into the Unknown...')
+				self.game.WIIstart.stop()
+				self.debug_mode()
+				if not self.start_game_debug: logger.log('You exited the Unknown...')
+
+		if self.start_game:
 			self.game.playing = True
 			self.game.inmenu = False
 			self.run_display = False
 			self.game.DRsnd_select.play()
 			self.game.change_volume()
-			self.game.NAPSR.stop()
+			self.game.menumus.stop()
 			self.game.show_instructions = True
-
-		elif self.game.CLICK and self.game.mousex in range(*self.menumousex):
-			if self.game.mousey in range(320, 345):
-				self.game.mode()
-				logger.log('Classic Mode loaded.')
-				self.game.DRsnd_select.play()
-
-			elif self.game.mousey in range(346, 380) and self.game.allowmode0:
-				logger.log(self.allState[1] + ' Mode loaded.')
-				self.game.mode(apple_bag = 1)
-				self.game.DRsnd_select.play()
-
-			elif self.game.mousey in range(381, 415) and self.game.allowmode1:
-				logger.log('Portal Border Mode loaded.')
-				self.game.mode(portal_border = 1)
-				self.game.DRsnd_select.play()
-
-			elif self.game.mousey in range(446, 475) and self.game.allowmode3:
-				logger.log(self.allState[3] + ' Mode loaded.')
-				self.game.mode(angry_apple = 1)
-				self.game.DRsnd_select.play()
-
-			elif self.game.mousey in range(416, 445) and self.game.allowmode2:
-				logger.log('Ultimate Snake Mode loaded.')
-				self.game.mode(snake_instinct = 1)
-				self.game.DRsnd_select.play()
-
-
-			elif self.game.mousey in range(476, 505) and self.game.allowmode4:
-				logger.log('De Snake Mode loaded.')
-				self.game.mode(1,1,1)
-				self.game.DRsnd_select.play()
-
+			self.game.save_high_score = self.save_high_score
+		elif self.start_game_debug:
+			logger.log('SNEKY DEBUG MODE: loaded custom mode. settings:\n portal_border: {0}\n curled_up: {1}\n apple_bag: {2}\n break_border: {3}\n snake_instinct: {4}\n angry_apple: {5}'.format(self.portal_border, self.curled_up, self.apple_bag, self.break_border, self.snake_instinct, self.angry_apple))
 			self.game.playing = True
 			self.game.inmenu = False
 			self.run_display = False
 			self.game.change_volume()
-			self.game.NAPSR.stop()
 			self.game.gamemus.play(-1)
-			self.game.show_instructions = True
 
 	def move_cursor(self):
 		if  self.game.BACK_KEY:
@@ -1441,7 +1723,8 @@ class ModeMenu(Menu):
 			or (self.stateIndex == 2 and not self.game.allowmode1)
 			or (self.stateIndex == 3 and not self.game.allowmode2)
 			or (self.stateIndex == 4 and not self.game.allowmode3)
-			or (self.stateIndex == 5 and not self.game.allowmode4)):
+			or (self.stateIndex == 5 and not self.game.allowmode4)
+			or (self.stateIndex == 6 and not self.game.allowsecretmode)):
 				self.cursor_rect.midtop = (self.classicx + self.offset, self.classicy)
 				self.stateIndex = 0
 				self.state = self.allState[0]
@@ -1453,29 +1736,34 @@ class ModeMenu(Menu):
 				self.stateIndex = 0
 				self.state = self.allState[self.stateIndex]
 				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(346, 380) and self.stateIndex != 1 and self.game.allowmode0:
+			elif self.game.mousey in range(345, 380) and self.stateIndex != 1 and self.game.allowmode0:
 				self.cursor_rect.midtop = (self.appleBagx + self.offset, self.appleBagy)
 				self.stateIndex = 1
 				self.state = self.allState[self.stateIndex]
 				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(381, 415) and self.stateIndex != 2 and self.game.allowmode1:
+			elif self.game.mousey in range(380, 415) and self.stateIndex != 2 and self.game.allowmode1:
 				self.cursor_rect.midtop = (self.portalx + self.offset, self.portaly)
 				self.stateIndex = 2
 				self.state = self.allState[self.stateIndex]
 				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(416, 445) and self.stateIndex != 3 and self.game.allowmode2:
-				self.cursor_rect.midtop = (self.ultimatex + self.offset, self.ultimatey)
+			elif self.game.mousey in range(415, 445) and self.stateIndex != 3 and self.game.allowmode2:
+				self.cursor_rect.midtop = (self.angryApplex + self.offset, self.angryAppley)
 				self.stateIndex = 3
 				self.state = self.allState[self.stateIndex]
 				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(446, 475) and self.stateIndex != 4 and self.game.allowmode3:
-				self.cursor_rect.midtop = (self.angryApplex + self.offset, self.angryAppley)
+			elif self.game.mousey in range(445, 475) and self.stateIndex != 4 and self.game.allowmode3:
+				self.cursor_rect.midtop = (self.ultimatex + self.offset, self.ultimatey)
 				self.stateIndex = 4
 				self.state = self.allState[self.stateIndex]
 				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(476, 505) and self.stateIndex != 5 and self.game.allowmode4:
+			elif self.game.mousey in range(475, 505) and self.stateIndex != 5 and self.game.allowmode4:
 				self.cursor_rect.midtop = (self.deSnakex + self.offset, self.deSnakey)
 				self.stateIndex = 5
+				self.state = self.allState[self.stateIndex]
+				self.game.DRsnd_menumove.play()
+			elif self.game.mousey in range(505, 535) and self.stateIndex != 6 and self.game.allowsecretmode:
+				self.cursor_rect.midtop = (self.debugx + self.offset, self.debugy)
+				self.stateIndex = 6
 				self.state = self.allState[self.stateIndex]
 				self.game.DRsnd_menumove.play()
 
@@ -1489,8 +1777,10 @@ class ModeMenu(Menu):
 				self.cursor_rect.midtop = (self.cursor_rect.midtop[0], self.cursor_rect.midtop[1] + self.game.font_size * (len(self.allState) - 1))
 				self.stateIndex += (len(self.allState) - 1)
 				self.state = self.allState[self.stateIndex]
-			if (self.stateIndex == 5 and not self.game.allowmode4):
-				self.stateIndex = 4
+			if (self.stateIndex == 6 and not self.game.allowsecretmode):
+				self.stateIndex = 5
+				if (self.stateIndex == 5 and not self.game.allowmode4):
+					self.stateIndex = 4
 				if (self.stateIndex == 4 and not self.game.allowmode3):
 					self.stateIndex = 3
 				if (self.stateIndex == 3 and not self.game.allowmode2):
@@ -1506,6 +1796,79 @@ class ModeMenu(Menu):
 					self.cursor_rect.midtop = (self.cursor_rect.midtop[0], self.cursor_rect.midtop[1] - self.game.font_size * (len(self.allState) - (self.stateIndex + 1)))
 			self.game.DRsnd_menumove.play()
 
-if __name__ == '__main__':
-	print('Please run main.py to start the game!')
-			
+	def debug_mode(self):
+		self.game.menumus.stop()
+		self.debug_run_display = True
+
+		if self.game.never_entered_unknown:
+			while self.game.never_entered_unknown:
+				self.game.check_events()
+				for event in pygame.event.get():
+					if event.type == pygame.QUIT:
+						logger.log('Sneky session closed.\n')
+						pygame.quit()
+						sys.exit()
+					elif event.type == pygame.KEYDOWN:
+						if event.key == pygame.K_RETURN:
+							self.game.never_entered_unknown = False
+							self.game.save_settings()
+				self.game.display.fill(self.game.BLACK)
+				self.game.draw_text('Congratulations.', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2, font_name = self.game.pygame_font)
+				self.game.draw_text('You finally did it. You have finally unlocked', self.game.font_size, self.mid_w, self.mid_h + self.game.font_size, font_name = self.game.pygame_font)
+				self.game.draw_text('the true debug mode of Sneky.', self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 2, font_name = self.game.pygame_font)
+				self.game.draw_text('Please press ENTER to step forward.', self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 4, font_name = self.game.pygame_font)
+				self.blit_screen()
+
+		self.portal_border = 0
+		self.curled_up = 0
+		self.apple_bag = 0
+		self.break_border = 0
+		self.snake_instinct = 0
+		self.angry_apple = 0
+
+		while self.debug_run_display:
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					logger.log('Sneky session closed.\n')
+					pygame.quit()
+					sys.exit()
+				elif event.type == pygame.KEYDOWN:
+					if event.key == pygame.K_1 or event.key == pygame.K_KP1:
+						self.portal_border += 1
+						if self.portal_border == 2: self.portal_border = 0
+					elif event.key == pygame.K_2 or event.key == pygame.K_KP2:
+						self.curled_up += 1
+						if self.curled_up == 2: self.curled_up = 0
+					elif event.key == pygame.K_3 or event.key == pygame.K_KP3:
+						self.apple_bag += 1
+						if self.apple_bag == 2: self.apple_bag = 0
+					elif event.key == pygame.K_4 or event.key == pygame.K_KP4:
+						self.break_border += 1
+						if self.break_border == 2: self.break_border = 0
+					elif event.key == pygame.K_5 or event.key == pygame.K_KP5:
+						self.snake_instinct += 1
+						if self.snake_instinct == 2: self.snake_instinct = 0
+					elif event.key == pygame.K_6 or event.key == pygame.K_KP6:
+						self.angry_apple += 1
+						if self.angry_apple == 2: self.angry_apple = 0
+					elif event.key == pygame.K_RETURN:
+						self.game.mode(self.portal_border, self.curled_up, self.apple_bag, self.break_border, self.snake_instinct, self.angry_apple)
+						self.start_game_debug = True
+						self.debug_run_display = False
+					elif event.key == pygame.K_ESCAPE:
+						self.game.WIIstart.play()
+						self.game.menumus.play(-1)
+						self.debug_run_display = False
+
+			self.game.display.fill(self.game.BLACK)
+			self.game.draw_text('SNEKY DEBUG MODE', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2, font_name = self.game.pygame_font)
+			self.game.draw_text('NOTE: High scores are NOT saved in this mode.', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 0.5, font_name = self.game.pygame_font)
+			self.game.draw_text('portal_border: ' + str(self.portal_border), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size, font_name = self.game.pygame_font)
+			self.game.draw_text('curled_up: ' + str(self.curled_up), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 2, font_name = self.game.pygame_font)
+			self.game.draw_text('apple_bag: ' + str(self.apple_bag), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 3, font_name = self.game.pygame_font)
+			self.game.draw_text('break_border: ' + str(self.break_border), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 4, font_name = self.game.pygame_font)
+			self.game.draw_text('snake_instinct: ' + str(self.snake_instinct), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 5, font_name = self.game.pygame_font)
+			self.game.draw_text('angry_apple: ' + str(self.angry_apple), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 6, font_name = self.game.pygame_font)
+			self.game.draw_text('Use number keys 1-6 to toggle between 0 & 1', self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 8, font_name = self.game.pygame_font)
+			self.game.draw_text('ENTER: Start - ESC: Return', self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 9, font_name = self.game.pygame_font)
+			self.blit_screen()
