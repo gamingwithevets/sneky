@@ -30,7 +30,7 @@ class Game():
 		
 		# game version
 		self.gamestatus = 'release'
-		self.gameversion = '1.2.3-dev3'
+		self.gameversion = '1.2.3-dev4'
 
 		if os.name == 'nt':
 			self.playername = os.getenv('USERNAME')
@@ -131,10 +131,30 @@ class Game():
 			self.oldsave = False
 		except:
 			try:
-				self.import_settings('fullscreen_mode')
+				self.import_settings('fullscreen_mode', catch = True)
 				self.oldsave = True
 			except:
 				self.oldsave = False
+
+		if self.oldsave:
+			logger.log('Detected pre-1.2.3 save')
+			if self.fullscreen_mode == 0:
+				self.fullscreen = True; self.scaled = True; self.native_res = False
+				logger.log('Importing video settings from pre-1.2.3 save data: success')
+			elif self.fullscreen_mode == 1:
+				self.fullscreen = False; self.scaled = False; self.native_res = False
+				logger.log('Importing video settings from pre-1.2.3 save data: success')
+			elif self.fullscreen_mode == 2:
+				self.fullscreen = True; self.scaled = False; self.native_res = False
+				logger.log('Importing video settings from pre-1.2.3 save data: success')
+			elif self.fullscreen_mode == 3:
+				self.fullscreen = False; self.scaled = False; self.native_res = True
+				logger.log('Importing video settings from pre-1.2.3 save data: success')
+			elif self.fullscreen_mode == 4:
+				self.fullscreen = True; self.scaled = False; self.native_res = True
+				logger.log('Importing video settings from pre-1.2.3 save data: success')
+			else:
+				logger.log('Importing video settings from pre-1.2.3 save data: error')
 
 		if os.name == 'nt':
 			import ctypes
@@ -1407,29 +1427,9 @@ class Game():
 		pygame.display.update()
 
 	def logo_screen(self):
-		logger.log('Loading music...')
+		logger.log('Loading music')
 		self.print_loading('Loading music')
 		self.load_music()
-
-		if self.oldsave:
-			self.print_loading('Detected pre-1.2.3 save')
-			if self.fullscreen_mode == 0:
-				self.fullscreen = True; self.scaled = True; self.native_res = False
-				logger.log('Importing video settings from pre-1.2.3 save data: success')
-			elif self.fullscreen_mode == 1:
-				self.fullscreen = False; self.scaled = False; self.native_res = False
-				logger.log('Importing video settings from pre-1.2.3 save data: success')
-			elif self.fullscreen_mode == 2:
-				self.fullscreen = True; self.scaled = False; self.native_res = False
-				logger.log('Importing video settings from pre-1.2.3 save data: success')
-			elif self.fullscreen_mode == 3:
-				self.fullscreen = False; self.scaled = False; self.native_res = True
-				logger.log('Importing video settings from pre-1.2.3 save data: success')
-			elif self.fullscreen_mode == 4:
-				self.fullscreen = True; self.scaled = False; self.native_res = True
-				logger.log('Importing video settings from pre-1.2.3 save data: success')
-			else:
-				logger.log('Importing video settings from pre-1.2.3 save data: error')
 
 		for item in self.items_to_import:
 			try:
