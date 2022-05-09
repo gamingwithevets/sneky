@@ -36,7 +36,7 @@ In Angry Apple mode, this slows down the apple and Sneky to about 33%, making es
 ### AI Snake
 Press the AI Snake key (default: X) to turn on AI Snake mode. In this mode, Sneky will control himself. He's not that good, but he gets the job done. A red square will also appear above the apple Sneky is targeting. Press the AI Snake key again to regain control of Sneky.  
 Keep in mind: As you play as an apple in Angry Apple mode, you can't gain control of Sneky!
-## The Snake's Colors
+## Sneky's Colors
 Sneky has different colors, and that represents different powers.
 - **Green**: The plain 'ol snake that dies when bumping into borders or itself.
 - **Super Yellow**: Makes more apples spawn.
