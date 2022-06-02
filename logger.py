@@ -33,22 +33,22 @@ else:
 if not os.path.exists(appdata_path):
 	os.makedirs(appdata_path)
 f = open(appdata_path1 + logfile, 'a', encoding = 'utf8')
-print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. Begin logging for this session.')
-f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + 'Sneky logger initialized. Begin logging for this session.')
+print('\n[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] [LOGGER] Sneky logger initialized. Begin logging for this session.')
+f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] [LOGGER] Sneky logger initialized. Begin logging for this session.')
 print('Player: ' + playername)
 f.write('\nPlayer: ' + playername)
 print('Log file: ' + appdata_path1 + logfile)
 f.write('\n')
 f.close()
 
-def log(text, allowprint = True, allowlog = True):
+def log(text, allowprint = True, allowlog = True, tag = 'MAIN'):
 	if not os.path.exists(appdata_path):
 		os.makedirs(appdata_path)
 	if allowprint:
-		print('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
+		print('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] [' + tag + '] ' + text)
 	if allowlog:
 		f = open(appdata_path1 + logfile, 'a', encoding = 'utf8')
-		f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] ' + text)
+		f.write('[' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '] [' + tag + '] ' + text)
 		f.write('\n')
 		f.close()
 

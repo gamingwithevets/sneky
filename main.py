@@ -1,7 +1,7 @@
 import sys
 
 # python + pygame version requirements
-python_requirement = '3.5.0'
+python_requirement = '3.8.0'
 pygame_requirement = '2.0.0'
 
 import platform
@@ -10,7 +10,7 @@ if platform.python_version() < python_requirement:
 		print('Oops! Your Python version is too old.\n')
 		print('Requirement: Python ' + python_requirement + '+\nYou have   : Python ' + platform.python_version())
 		print('\nGet a newer version!')
-		sys.exit() 
+		sys.exit()
 
 try:
 	import pygame
@@ -30,7 +30,6 @@ if pygame.version.ver < pygame_requirement:
 import os
 import traceback
 import logger
-
 
 if os.name == 'nt':
 	appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
