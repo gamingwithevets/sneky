@@ -71,13 +71,13 @@ Here's the planned new features of Sneky. I'll try to complete this list in the 
 
 # Credits
 Apple Graphic: Luna4s  
-Title Screen & Snake Graphics: GamingWithEvets (GWE Inc.)  
+Title Screen & Snake Graphics: GamingWithEvets
 Menu Music: Wii Menu Music - Nintendo
 Game Music: "Nothing to Say" - Md Abdul Kader Zilani  
 Sounds from DELTARUNE, Google Snake Game, Super Mario Bros. 2 USA, Brain Age  
 
 Menu Template: ChristianD37  
-Mode Menu: SeverusFate (SJ Studio)  
+Mode Menu: SeverusFate 
 Other Menu Code: GamingWithEvets  
 Game Code & Graphics Injection: SeverusFate & GamingWithEvets  
 Music & SFX Injection: GamingWithEvets  
