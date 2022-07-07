@@ -1,8 +1,18 @@
-# Basic info
-Snake, now made in Pygame!  
+<h1 align="center">
+  <br>
+  <img src="./icon.ico" alt="Sneky" width="35" align="top">
+  <b>Sneky</b>
+  </br>
+</h1>
+<h4 align="center">Snake, remade in Pygame with new modes!</h4>
 
-# Requirements
-Click [here](https://github.com/gamingwithevets/sneky/wiki/Getting-Started) to know how to get started with running Sneky!
+<p align="center">
+  <a href=/releases/tag/v1.2.3-dev5>Download Latest Prerelease (RECOMMENDED)</a> •
+  <a href=/releases/latest>Download Latest Version</a> •
+  <a href=/wiki>Wiki</a>
+</p>
+
+(Style taken from [here](https://github.com/itsmattkc/LEGOIslandRebuilder/blob/master/README.md) :/ )
 
 # Gameplay
 You play as Sneky! He's hungry and wants apples. You as Sneky, have to help him.  
@@ -55,19 +65,6 @@ You can't change the game theme from within the game, though. What you can do to
 ### Splashes
 On top of the logo is a splash that changes almost every time you start Sneky.  
 What text it will show depends on RNG, the game theme, and the date.
-
-# Planned New Features
-Here's the planned new features of Sneky. I'll try to complete this list in the future.
-- [ ] macOS binary
-- [x] ~~Linux binary~~ **There are Linux binaries now!** You can check them out in the [latest Sneky version](https://github.com/gamingwithevets/sneky/releases/latest).
-- [ ] Can be played with controller
-- [ ] Halloween theme
-- [ ] Refreshing
-- [x] ~~Checking for updates~~ **OK!** From v1.3.0-dev1, Sneky now has an updater... which is terribly broken. v.1.2.3-dev and beyond fixed it.
-- [ ] Multiplayer
-- [ ] Online leaderboard
-- [x] ~~Less lag in gameplay~~ **Fixed!** From v1.2.3-dev, the lagging bug was fixed.
-- [x] ~~Fullscreen without issues~~ **OK!** From v1.2.3-dev, Sneky in fullscreen is 100% fine. You can even turn on fullscreen in the Video menu.
 
 # Credits
 Apple Graphic: Luna4s  
