@@ -9,7 +9,7 @@
 <p align="center">
   <a href=/releases/tag/v1.2.3-dev5>Download Latest Prerelease (RECOMMENDED)</a> •
   <a href=/releases/latest>Download Latest Version</a> •
-  <a href=/wiki>Wiki</a>
+  <a href=/../../wiki>Wiki</a>
 </p>
 
 (Style taken from [here](https://github.com/itsmattkc/LEGOIslandRebuilder/blob/master/README.md) :/ )
