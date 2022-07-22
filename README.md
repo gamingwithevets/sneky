@@ -14,25 +14,6 @@
 
 (Style taken from [here](https://github.com/itsmattkc/LEGOIslandRebuilder/blob/master/README.md) :/ )
 
-# Gameplay
-You play as Sneky! He's hungry and wants apples. You as Sneky, have to help him.  
-Currently, the game has 6 modes.
-## Classic
-It's just... Snake. Sneky will die if he bumps into himself or hit the border.
-## Apple Bag
-Multiple apples are spawning! Will Sneky eat them or be hungry?
-## Portal Border
-The border turns into a portal to go to the other side of the playfield!
-## Ultimate Mode
-Sneky switches color and power every time you collect **a certain amount of apples**. Let's use Sneky's powers to win!
-## Angry Apple
-**You** are an angry apple! You're tired of Sneky eating all of your apple friends, so you try to escape him by running out of the playfield!  
-If you escape Sneky, you get 1 point and be spawned somewhere else, but Sneky will recieve power. If he eats you, you die and lose. If he dies, you win!
-## De Snake Mode
-The *Debug* Mode of Sneky. Like cheating? This is for you! Sneky can now walk through himself, turn around, and walk through the portal borders!
-## How to win
-To win in a mode (except for Angry Apple), you must somehow fill the entire screen with yourself so that **no apples remain on-screen**!
-
 # Game Features
 ## Mode Unlocking
 To unlock the next mode, you have to reach 20 points in the previous mode. To unlock De Snake Mode, you must play the Ultimate Snake mode until Sneky changes color to **Ultra Instinct White** (see below).  
