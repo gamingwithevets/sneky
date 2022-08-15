@@ -30,7 +30,7 @@ class Game():
 		
 		# game version
 		self.gamestatus = 'release'
-		self.gameversion = '1.2.3-dev5'
+		self.gameversion = '1.2.3'
 
 		if os.name == 'nt':
 			self.playername = os.getenv('USERNAME')
@@ -115,7 +115,7 @@ class Game():
 
 		self.settings_fn = 'settings.py'
 
-		self.running, self.playing, self.inmenu, self.show_instructions, self.newmode, self.newmoded = True, False, True, False, False, False
+		self.running, self.playing, self.inmenu, self.show_instructions, self.newmode, self.newmoded, self.demo = True, False, True, False, False, False, False
 		self.reset_keys()
 		# self.START_KEY, self.BACK_KEY, self.SPACE_KEY, self.CTRL_KEY = False, False, False, False
 		# self.UP_KEY, self.DOWN_KEY, self.LEFT_KEY, self.RIGHT_KEY = False, False, False, False
@@ -123,6 +123,9 @@ class Game():
 		self.fullscreen = True
 		self.native_res = False
 		self.scaled = True
+
+		# native resolution option toggle
+		self.enable_native = True
 
 		try:
 			self.import_settings('fullscreen', catch = True)
@@ -155,23 +158,22 @@ class Game():
 				logger.log('Importing video settings from pre-1.2.3 save data: success')
 			else:
 				logger.log('Importing video settings from pre-1.2.3 save data: error')
-
-		if os.name == 'nt':
-			import ctypes
-			user32 = ctypes.windll.user32
-			user32.SetProcessDPIAware()
-			self.current_w, self.current_h = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
-		else:
+		
+		if self.enable_native:
 			try:
-				import pyautogui
-			except ImportError:
-				print('You using a non-Windows OS, yeah?\nI need a module named "pyautogui".\nCan you install it for me?\nOh, and please install Tkinter too.\n(sudo apt-get install python3-tk python3-dev)\nThanks.')
-				sys.exit()
+				from tkinter import Tk
+				tk = Tk()
+				tk.withdraw()
+				self.current_w, self.current_h = tk.winfo_screenwidth(), tk.winfo_screenheight()
 			except:
-				print('Uh oh! I need Tkinter! You need to sudo apt-get install python3-tk python3-dev')
-				sys.exit()
-			size = pyautogui.size()
-			self.current_w, self.current_h = size[0], size[1]
+				logger.log('Cannot get screen resolution, disabling native resolution mode.')
+				self.enable_native = False
+				self.native_res = False
+				if self.fullscreen and not self.scaled: self.scaled = True
+		else:
+			logger.log('Disabling native resolution mode.')
+			self.native_res = False
+			if self.fullscreen and not self.scaled: self.scaled = True
 
 		# Sneky preset resolution
 		self.preset_w, self.preset_h = 800, 600
@@ -181,8 +183,9 @@ class Game():
 		except:
 			pygame.quit()
 			print('\nUh oh... it seems that you... don\'t have a video driver?\nThis tells me that you\'re probably running Sneky in a dump terminal.\nLike WSL.')
-			print('\nIf this happened on a binary YOU compiled, maybe you compiled the binary with WSL?\nAs Pygame doesn\'t really work is WSL, some modules for creating the Pygame window might not exist,\ncausing this error. So try recompiling using a REAL Linux machine!')
-			print('\nIf that didn\'t work, or you didn\'t compile the binary with WSL,\nor it happened on my own binaries, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
+			print('\nIf this happened on my provided binaries, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
+			import traceback
+			print('\n' + traceback.format_exc())
 			sys.exit()
 
 		self.pygame_font = 'default'
@@ -228,7 +231,7 @@ class Game():
 			else: self.clock.tick()
 			self.curr_fps = self.clock.get_fps()
 			if font == 'pygame':
-				self.draw_text(str(int(self.curr_fps * 10)), int(self.font_size / 2), 0, self.DISPLAY_H, anchor = 'bottomleft', color = self.white, font_name = self.pygame_font)
+				self.draw_text(str(int(self.curr_fps * 10)), int(self.font_size / 2), 0, self.DISPLAY_H, anchor = 'bottomleft', font_name = self.pygame_font)
 			else:
 				self.draw_text(str(int(self.curr_fps * 10)), int(self.font_size / 3), 0, self.DISPLAY_H, anchor = 'bottomleft', color = self.black, font_name = self.menu2_font)
 		pygame.display.update()
@@ -243,7 +246,8 @@ class Game():
 					self.allow_widescreen = False
 					return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.SCALED | pygame.FULLSCREEN)
 				else:
-					self.DISPLAY_W, self.DISPLAY_H = self.current_w, self.current_h
+					if self.enable_native: self.DISPLAY_W, self.DISPLAY_H = self.current_w, self.current_h
+					else: self.DISPLAY_W, self.DISPLAY_H = self.preset_w, self.preset_h
 					self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
 					self.allow_widescreen = True
 					return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.FULLSCREEN)
@@ -260,7 +264,8 @@ class Game():
 					return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.FULLSCREEN)
 		else:
 			if self.native_res:
-				self.DISPLAY_W, self.DISPLAY_H = self.current_w, self.current_h
+				if self.enable_native: self.DISPLAY_W, self.DISPLAY_H = self.current_w, self.current_h
+				else: self.DISPLAY_W, self.DISPLAY_H = self.preset_w, self.preset_h
 				self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
 				self.allow_widescreen = True
 				return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
@@ -275,7 +280,7 @@ class Game():
 		if (datetime.now().month == 12 and datetime.now().day >= 21) or \
 			(datetime.now().month == 1 and datetime.now().day <= 5):
 			self.holidayname = 'christmas'
-			self.holiday = 'christmas_exclusive/'
+			self.holiday = 'christmas_exclusive/' 
 		# check for devs' bday (Jan 19/Sep 28)
 		elif datetime.now().month == 1 and datetime.now().day == 19:
 				self.holidayname = 'bday_gwe'
@@ -288,46 +293,45 @@ class Game():
 	def generate_splash(self):
 		self.global_splashes = [
 		'Welcome to Sneky!',
-		'The snake can die by touching the border in the angry mode!',
 		'Avoiding copyright claims is our motto!',
 		'Oh hello!',
 		'This version of Snake is special!',
-		'Please don\'t copyright us :(',
-		'Don\'t underestimate Ultra Instinct Sneky\'s power!',
-		'Now merged with all holiday Sneky versions!'
+		'I hate copyright claims BTW :(',
+		'Hello hello hello!'
+		'h'
 		]
 		if self.holidayname:
 			if self.holidayname == 'christmas':
 				self.splashes = [
 				'Merry Christmas!',
 				'Now with candy cones!',
-				'SANTA IS FAKE',
+				'Santa is actually fake, you kiddos!',
 				'Why is there no Christmas tree in Sneky?',
 				'This is your Christmas present :)'
 				]
 			elif self.holidayname == 'bday_gwe':
 				self.splashes = [
 				'Happy birthday, GamingWithEvets!',
-				'Today is GWE\'s birthday! PLEASE celebrate!!!',
-				'Today is the birthday of GWE, one of the game devs!'
+				'Today is GWE\'s birthday! PLEASE celebrate!',
+				'Today is the birthday of GWE, the current developer of Sneky!'
 				]
 			elif self.holidayname == 'bday_sj':
 				self.splashes = [
 				'Happy birthday, SeverusFate!',
 				'Happy birthday, Severus Jake!',
-				'Today is Severus\'s birthday! PLEASE celebrate!!!',
-				'Today is the birthday of Severus, one of the game devs!'
+				'Today is Severus\'s birthday! PLEASE celebrate!',
+				'Today is the birthday of Severus, the OG developer of Sneky!'
 				]
 			elif self.holidayname == 'bday_sneky':
 				self.splashes = [
 				'Today is the day the first public release of Sneky was released!',
 				'Happy birthday, Sneky!',
-				'',
+				'Wait, you changed the date? How p a t h e t i c .',
 				'Today\'s the day the first public Sneky release, beta 1.0.4, was uploaded!'
 				]
 				if datetime.now().year - 2021 == 1:
 					self.splashes[2] = 'Today, Sneky is turning 1 year old!'
-				else:
+				elif datetime.now().year - 2021 > 1:
 					self.splashes[2] = 'Today, Sneky is turning {0} years old!'.format(datetime.now().year - 2021)
 		else:
 			self.splashes = ['8 ERROR.']
@@ -399,11 +403,8 @@ class Game():
 			self.check_events()
 			self.run()
 			self.reset_keys()
-			if self.g_over:
-				self.draw_game_screen()
-			
+			if self.g_over: self.draw_game_screen()
 			self.window.blit(self.display, (0,0))
-
 			if self.paused or self.newmode:
 				self.trans_scr()
 
@@ -688,14 +689,6 @@ class Game():
 				self.draw_text('Can you take on the challenge or do you wanna quit?', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 5, font_name = self.menu2_font, screen = self.window)
 				self.draw_text('{0}/{1}: I\'ll quit'.format(pygame.key.name(self.BACK_BIND).upper(), pygame.key.name(self.MENU_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 6, font_name = self.game_font, screen = self.window)
 				self.draw_text('{0}: I\'ll try my best to win'.format(pygame.key.name(self.SPACE_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 7, font_name = self.game_font, screen = self.window)
-			elif self.score == 2147483647:
-				self.draw_text('IMPOSSIBLE!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
-				self.draw_text('You really got over 2 BILLION POINTS? That\'s insane!', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('I can\'t even reach that high! But unfortunately, if', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 1.5, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('you get another point then your score\'s gonna go', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('negative. That means you have to stop playing here,', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2.5, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('or the game will break.', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('Press {0} or {1} when you\'re ready to quit.'.format(pygame.key.name(self.BACK_BIND).upper(), pygame.key.name(self.MENU_BIND).upper()), self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 4, font_name = self.menu2_font, screen = self.window)
 			else:
 				self.draw_text('NEW MODE UNLOCKED!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 				self.draw_text('You have unlocked: ' + self.thenewmode, self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size, font_name = self.menu2_font, screen = self.window)
@@ -766,6 +759,9 @@ class Game():
 
 		# speed
 		self.show_speed()
+
+		# demo text
+		if self.demo: self.draw_text('DEMO GAMEPLAY', 25, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
 
 		# apple pos
 		#self.draw_text('Apple: {0}, {1}'.format(self.apple[0], self.apple[1]), 25, 100, 30, self.gray, self.game_font)
@@ -941,8 +937,8 @@ class Game():
 								if self.apple not in self.apple_List and self.apple not in self.snake:
 									self.apple_List.insert(-1,self.apple)
 									break
-					elif self.score >= 1000:
-						# generate 100 apples
+					elif self.score >= 5000:
+						# generate 500 apples
 						if len(self.apple_List) <= 10:
 							for i in range(100):
 								apple_x = random.randrange(self.border_x,self.DISPLAY_W - self.border_x,self.cell_size)
@@ -969,8 +965,8 @@ class Game():
 						self.apple = [apple_x, apple_y]
 						if self.apple not in self.apple_List and self.apple not in self.snake:
 							self.apple_List.insert(-1,self.apple)
-				elif self.score >= 1000:
-					# generate 1000 apples
+				elif self.score >= 500:
+					# generate 500 apples
 					for i in range(1000):
 						apple_x = random.randrange(self.border_x,self.DISPLAY_W - self.border_x,self.cell_size)
 						apple_y = random.randrange(self.border_y,self.DISPLAY_H - self.border_y,self.cell_size)
@@ -1005,10 +1001,10 @@ class Game():
 			elif self.direction == 'RIGHT':
 				snake_2 = [snake_x - self.cell_size, snake_y]
 				snake_3 = [snake_x - self.cell_size * 2, snake_y]
-			if not (snake[0] >= self.DISPLAY_W - self.cell_size * 3
-			or snake[0] <= self.border_x - self.cell_size * 3
-			or snake[1] >= self.DISPLAY_H - self.cell_size * 3
-			or snake[1] <= self.border_y - self.cell_size * 3):
+			if not (snake[0] >= self.DISPLAY_W - self.cell_size * 3.5
+			or snake[0] <= self.border_x - self.cell_size * 3.5
+			or snake[1] >= self.DISPLAY_H - self.cell_size * 3.5
+			or snake[1] <= self.border_y - self.cell_size * 3.5):
 				self.snake = []
 				self.snake.insert(0, snake_3)
 				self.snake.insert(0, snake_2)
@@ -1019,32 +1015,31 @@ class Game():
 	def run(self):
 
 		self.turbo = False
-		# check function input
-		if self.BACK_KEY:
-			self.paused = True
-		elif self.MENU_KEY:
-			self.playing = False
+		if not self.demo:
+			# check function input
+			if self.BACK_KEY:
+				self.paused = True
+			elif self.MENU_KEY:
+				self.playing = False
 
-
-		key_pressed = pygame.key.get_pressed()
-		if key_pressed[self.X_BIND]:
-			if self.allow_ai_snake:
-				if self.angry_apple == 0:
-					if self.ai_snake:
-						logger.log('AI Snake off.')
+			key_pressed = pygame.key.get_pressed()
+			if key_pressed[self.X_BIND]:
+				if self.allow_ai_snake:
+					if self.angry_apple == 0:
+						if self.ai_snake:
+							logger.log('AI Snake off.')
+						else:
+							logger.log('AI Snake on. The game will now play itself!')
+							if self.speed == 0: self.cheater = True
+						self.ai_snake = not self.ai_snake
 					else:
-						logger.log('AI Snake on. The game will now play itself!')
-						if self.speed == 0: self.cheater = True
-					self.ai_snake = not self.ai_snake
+						logger.log('AI Snake cannot be toggled in Angry Apple mode.')
+
+			if key_pressed[self.CTRL_BIND]:
+				if self.angry_apple == 0:
+					if self.speed > 0: self.turbo = True
 				else:
-					logger.log('AI Snake cannot be toggled in Angry Apple mode.')
-
-
-		if key_pressed[self.CTRL_BIND]:
-			if self.angry_apple == 0:
-				if self.speed > 0: self.turbo = True
-			else:
-				if self.speed > 100: self.turbo = True
+					if self.speed > 100: self.turbo = True
 
 		self.draw_game_screen()
 
@@ -1052,7 +1047,7 @@ class Game():
 		if self.ai_snake == 1:
 			if self.angry_apple == 0:
 				try:
-					pygame.draw.rect(self.display,self.red,(self.apple_List[0][0],self.apple_List[0][1],self.cell_size,self.cell_size))
+					if not self.demo: pygame.draw.rect(self.display,self.red,(self.apple_List[0][0],self.apple_List[0][1],self.cell_size,self.cell_size))
 				except IndexError:
 					self.playing = False
 					self.g_over = True
@@ -1279,8 +1274,6 @@ class Game():
 		elif self.score == 3000 and self.portal_border == 1 and self.curled_up == 1 and self.apple_bag == 1 and not self.allowsecretmode and not self.newmoded:
 			self.newmode = True
 			self.allowsecretmode = True
-		elif self.score == 2147483647: # score hits 32-bit integer limit
-			self.newmode = True
 			
 
 		# if no more apples are left, auto win
@@ -1288,6 +1281,61 @@ class Game():
 			self.playing = False
 			self.g_over = True
 			self.win = True
+
+	def play_demo(self):
+		self.demo = True
+		self.mode()
+		self.new_game()
+		self.change_volume()
+		self.show_instructions = False
+		self.save_high_score = False
+		self.gamemus.play(-1)
+		while not self.g_over:
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					self.running, self.playing = False, False
+					self.curr_menu.run_display = False
+					self.g_over = False
+					logger.log('Sneky session closed.\n')
+					pygame.quit()
+					sys.exit()
+				if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+					self.demo = False
+					self.gamemus.fadeout(500)
+					return
+
+			self.run()
+			if self.g_over: self.draw_game_screen()
+			self.draw_text('PRESS START', self.font_size, int(self.DISPLAY_W/2), int(self.DISPLAY_H - 130))
+			self.draw_text('v.' + self.gameversion, self.font_size / 2, 20, self.DISPLAY_H - 50, anchor = 'topleft', font_name = self.menu2_font)
+			self.window.blit(self.display, (0,0))
+			pygame.display.update()
+
+			if self.g_over:
+				self.gamemus.stop()
+				self.GSdie.play()
+				timer = 0
+				while timer < 50:
+					for event in pygame.event.get():
+						if event.type == pygame.QUIT:
+							self.running, self.playing = False, False
+							self.curr_menu.run_display = False
+							self.g_over = False
+							logger.log('Sneky session closed.\n')
+							pygame.quit()
+							sys.exit()
+						if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+							self.demo = False
+							self.gamemus.fadeout(500)
+							return
+					self.draw_game_screen()
+					self.draw_text('v.' + self.gameversion, self.font_size / 2, 20, self.DISPLAY_H - 50, anchor = 'topleft', font_name = self.menu2_font)
+					self.draw_text('PRESS START', self.font_size, int(self.DISPLAY_W/2), int(self.DISPLAY_H - 130))
+					self.update_fps()
+					self.window.blit(self.display, (0,0))
+					pygame.display.update()
+					timer += 1
+				self.demo = False
 
 	def get_ar(self, width: int, height: int):
 		def gcd(a, b): return a if b == 0 else gcd(b, a % b)
@@ -1305,25 +1353,24 @@ class Game():
 			else: self.cell_size = 20
 		else: self.cell_size = 20
 
-		# get aspect ratio
-		current_ar = self.get_ar(self.current_w, self.current_h)
-
-		widescreen_ar = ['16:9', '16:10', '21:9', '683:384', '85:48']
-
-		widescreen = False
-
-		for ar in widescreen_ar:
-			if current_ar == ar: widescreen = True; break
+		if self.enable_native:
+			# get aspect ratio
+			current_ar = self.get_ar(self.current_w, self.current_h)
+			widescreen_ar = ['16:9', '16:10', '21:9', '683:384', '85:48']
+			widescreen = False
+			for ar in widescreen_ar:
+				if current_ar == ar: widescreen = True; break
+		else: widescreen = False
 
 		#load image
-		if widescreen and self.allow_widescreen:
-			self.imgLoad = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/loading_16_9.png'), (self.DISPLAY_W, self.DISPLAY_H))
-			self.imgMenu = pygame.transform.scale(pygame.image.load(self.temp_path +  'images/' + self.holiday + 'menu_16_9.png'), (self.DISPLAY_W, self.DISPLAY_H))
-			self.imgMenuBG = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holiday + 'menubg_16_9.png'), (self.DISPLAY_W, self.DISPLAY_H))
-		else:
-			self.imgLoad = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/loading.png'), (self.DISPLAY_W, self.DISPLAY_H))
-			self.imgMenu = pygame.transform.scale(pygame.image.load(self.temp_path +  'images/' + self.holiday + 'menu.png'), (self.DISPLAY_W, self.DISPLAY_H))
-			self.imgMenuBG = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holiday + 'menubg.png'), (self.DISPLAY_W, self.DISPLAY_H))
+		if widescreen and self.allow_widescreen: self.imgMenuBG = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holiday + 'menubg_16_9.png'), (self.DISPLAY_W, self.DISPLAY_H))
+		else: self.imgMenuBG = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holiday + 'menubg.png'), (self.DISPLAY_W, self.DISPLAY_H))
+		self.imgSneky = pygame.image.load(self.temp_path + 'images/Sneky.png')
+		self.imgSneky_rect = self.imgSneky.get_rect()
+		self.imgSneky_rect.midtop = (self.DISPLAY_W / 2, 37)
+		self.imgMenu = pygame.image.load(self.temp_path + 'images/' + self.holiday + 'menu.png')
+		self.imgMenu_rect = self.imgMenu.get_rect()
+		self.imgMenu_rect.center = (self.DISPLAY_W / 2, self.DISPLAY_H / 2)
 		self.imgGWE = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/GWE.png'), (512, 438))
 		self.imgGWE_rect = self.imgGWE.get_rect()
 		self.imgGWE_rect.center = (self.DISPLAY_W / 2, self.DISPLAY_H / 2)
@@ -1398,14 +1445,16 @@ class Game():
 		self.apple_bag = apple_bag
 		self.break_border = break_border
 		self.snake_instinct = snake_instinct
-		self.ai_snake = angry_apple
 		self.angry_apple = angry_apple
+		if self.demo: self.ai_snake = 1
+		else: self.ai_snake = angry_apple
 
 	def new_game(self):
-
+		# score
+		self.score = 0
 
 		# apple
-		if self.playing:
+		if self.playing or self.demo:
 			# direction
 			self.direction = random.choice(['UP', 'DOWN', 'LEFT', 'RIGHT'])
 
@@ -1416,8 +1465,6 @@ class Game():
 			self.apple_List = []
 			self.spawn_apple()
 
-		# score
-		self.score = 0
 
 		# speed - lower => faster
 		self.speed = 150
@@ -1531,16 +1578,25 @@ class Game():
 		self.menumus = pygame.mixer.Sound(self.temp_path + 'audio/' + self.holiday + 'wii.menu.mp3')
 		self.gamemus = pygame.mixer.Sound(self.temp_path + 'audio/' + self.holiday + 'bg_music_1.mp3')
 
+	def draw_tiled_bg(self):
+		for x in range(0, self.DISPLAY_W, 2*self.cell_size):
+			for y in range(0, self.DISPLAY_H, 2*self.cell_size):
+				pygame.draw.rect(self.display,(170, 215, 81),(x,y,self.cell_size,self.cell_size))
+				pygame.draw.rect(self.display,(162, 209, 72),(x + self.cell_size,y,self.cell_size,self.cell_size))
+			for y in range(0 + self.cell_size, self.DISPLAY_H, 2*self.cell_size):
+				pygame.draw.rect(self.display,(170, 215, 81),(x + self.cell_size,y,self.cell_size,self.cell_size))
+				pygame.draw.rect(self.display,(162, 209, 72),(x,y,self.cell_size,self.cell_size))
+
 	def print_loading(self, text):
 		self.display.fill(self.black)
-		self.display.blit(self.imgLoad, (0,0))
+		self.draw_tiled_bg()
 		self.display.blit(self.imgGWE, self.imgGWE_rect)
 		self.draw_text(text, self.font_size / 2, self.DISPLAY_W/2, self.DISPLAY_H/2 + 250, color = self.black, font_name = self.menu2_font)
 		self.window.blit(self.display, (0,0))
 		pygame.display.update()
 
 	def logo_screen(self):
-		self.display.blit(self.imgLoad, (0,0))
+		self.draw_tiled_bg()
 		self.display.blit(self.imgGWE, self.imgGWE_rect)
 		self.window.blit(self.display, (0,0))
 		pygame.display.update()
@@ -1551,13 +1607,12 @@ class Game():
 		self.print_loading('Loading settings and save data')
 		for item in self.items_to_import:
 			try:
-				if item != 'fullscreen' or item != 'scaled' or 'item' != 'native_res':
+				if item != 'fullscreen' and item != 'scaled' and item != 'native_res':
 					self.import_settings(item)
 					logger.log('Loading setting "' + item + '": success')
 			except:
 				logger.log('Loading setting "' + item + '": error')
 				pass
-
 
 		self.print_loading('Checking saved data')
 		if not self.allowmode0:

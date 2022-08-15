@@ -1,9 +1,9 @@
+import sys
 if __name__ == '__main__':
 	print('Please run main.py to start Sneky.')
 	sys.exit()
 
 import pygame
-import sys
 import os
 import time
 import logger, updater
@@ -23,8 +23,8 @@ class Menu():
 	def draw_cursor(self, size = 30):
 		self.game.draw_text('→', size, self.cursor_rect.x, self.cursor_rect.y, font_name = self.game.arrow_font)
 
-	def blit_screen(self):
-		self.game.update_fps()
+	def blit_screen(self, fps_font = 'default'):
+		self.game.update_fps(fps_font)
 		self.game.window.blit(self.game.display, (0,0))
 		pygame.display.update()
 		self.game.reset_keys()
@@ -50,7 +50,7 @@ class MainMenu(Menu):
 		while self.run_display:
 			self.game.check_events()
 			self.check_input()
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('MAIN MENU', self.game.font_size, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - self.game.font_size)
 			self.game.draw_text('LAUNCH GAME', self.game.font_size, self.startx, self.starty)
 			self.game.draw_text('SETTINGS', self.game.font_size, self.optionsx, self.optionsy)
@@ -178,7 +178,7 @@ class OptionsMenu(Menu):
 		while self.run_display:
 			self.game.check_events()
 			self.check_input()
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('SETTINGS', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size * 3/2) 
 			self.game.draw_text('VIDEO', int(self.game.font_size * 3/4), self.videox, self.videoy)
 			self.game.draw_text('VOLUME', int(self.game.font_size * 3/4), self.volx, self.voly) 
@@ -302,9 +302,9 @@ class ClearData(Menu):
 		while self.run_display:
 			self.game.check_events()
 			self.check_input()
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('CLEAR DATA', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
-			self.game.draw_text('CLEAR SAVED SETTINGS', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
+			self.game.draw_text('CLEAR SAVED DATA', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 			self.game.draw_text('CLEAR SESSION LOGS', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
 			self.game.draw_text('CLEAR EVERYTHING', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
 			self.draw_cursor(int(self.game.font_size / 2))
@@ -394,10 +394,10 @@ class ClearData(Menu):
 				self.game.DRsnd_select.play()
 				self.clear_data3(cleardata, clearlogs)
 				break
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('CLEAR DATA', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			if cleardata:
-				self.game.draw_text('WARNING! You are about to clear all saved data and settings.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
+				self.game.draw_text('WARNING! You are about to clear all saved data.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
 				if clearlogs:
 					self.game.draw_text('You\'re also clearing all your session logs.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, color = self.game.red, font_name = self.game.menu2_font)
 					self.game.draw_text('This cannot be undone!', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 50, color = self.game.red, font_name = self.game.menu2_font)
@@ -428,11 +428,11 @@ class ClearData(Menu):
 				self.game.DRsnd_select.play()
 				self.clear_data(cleardata, clearlogs)
 				break
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('CLEAR DATA', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			if cleardata:
 				if clearlogs:
-					self.game.draw_text('Are you REALLY sure you wanna clear EVERYTHING?', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
+					self.game.draw_text('Are you REALLY sure you wanna clear your data and logs?', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
 					self.game.draw_text('{0}: CLEAR EVERYTHING'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
 					self.game.draw_text('{0}: CANCEL'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.menu2_font)
 				else:
@@ -447,15 +447,26 @@ class ClearData(Menu):
 			self.blit_screen()
 
 	def clear_data(self, cleardata = True, clearlogs = False):
-		if os.path.exists(self.game.appdata_path):
-			if os.path.exists(self.game.appdata_path + self.game.settings_fn):
-				if cleardata: os.remove(self.game.appdata_path + self.game.settings_fn)
-			if os.path.exists(self.game.appdata_path + logger.logfile):
-				if clearlogs: os.remove(self.game.appdata_path + logger.logfile)
-		print('The following has been cleared:')
-		if cleardata: print('- Saved settings and data')
-		if clearlogs: print('- Session logs')
 		if cleardata:
+			self.allowmode0 = False
+			self.allowmode1 = False
+			self.allowmode2 = False
+			self.allowmode3 = False
+			self.allowmode4 = False
+			self.allowsecretmode = False
+			self.never_entered_unknown = True
+			self.high_scores = {
+			'Classic': 0,
+			'Apple Bag': 0,
+			'Portal Border': 0,
+			'Angry Apple': 0,
+			'Ultimate Snake': 0
+			}
+		if os.path.exists(self.game.appdata_path) and os.path.exists(self.game.appdata_path + logger.logfile) and clearlogs: os.remove(self.game.appdata_path + logger.logfile)
+		logger.log('The following has been cleared:', allowlog = False)
+		if cleardata: print('- Saved data')
+		if clearlogs:
+			print('- Session logs')
 			print('Sneky session closed.')
 			pygame.quit()
 			sys.exit()
@@ -468,9 +479,9 @@ class ClearData(Menu):
 					self.clear4_run_display = False
 					self.game.DRsnd_select.play()
 					self.run_display = True
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('CLEAR DATA', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
-				self.game.draw_text('All session logs have been cleared.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
+				self.game.draw_text('All game data has been cleared.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, color = self.game.red, font_name = self.game.menu2_font)
 				self.game.draw_text('{0}: BACK'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 50, font_name = self.game.menu2_font)
 				self.blit_screen()
 
@@ -486,7 +497,7 @@ class CreditsMenu(Menu):
 				self.game.curr_menu = self.game.main_menu
 				self.run_display = False
 				self.game.DRsnd_select.play()
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('CREDITS', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			self.game.draw_text('Menu & Music/SFX Injection: GamingWithEvets', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, font_name = self.game.menu2_font)
 			self.game.draw_text('Menu Template: ChristianD37 - Mode Menu: SeverusFate', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, font_name = self.game.menu2_font)
@@ -501,12 +512,12 @@ class CreditsMenu(Menu):
 					self.game.draw_text('\"Jingle Bells\" - From YouTube/KON', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 170, font_name = self.game.menu2_font)
 					self.game.draw_text('\"We Wish You A Merry Christmas\"', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 190, font_name = self.game.menu2_font)
 					self.game.draw_text('From YouTube/Pudding TV - Nursery Rhymes', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 210, font_name = self.game.menu2_font)
-					self.game.draw_text('Made with: Pygame', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 250, font_name = self.game.menu2_font)
+					self.game.draw_text('See the full credits in the README file', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 250, font_name = self.game.menu2_font)
 			else:
 				self.game.draw_text('Apple Image: Luna4s', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
 				self.game.draw_text('Wii Menu Music - Nintendo', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 170, font_name = self.game.menu2_font)
 				self.game.draw_text('\"Nothing to Say\" - Md Abdul Kader Zilani', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 190, font_name = self.game.menu2_font)
-				self.game.draw_text('Made with: Pygame', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 230, font_name = self.game.menu2_font)
+				self.game.draw_text('See the full credits in the README file', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 230, font_name = self.game.menu2_font)
 			self.blit_screen()
 
 class VideoMenu(Menu):
@@ -553,19 +564,23 @@ class VideoMenu(Menu):
 				else: self.curr_setting = 'Windowed'
 			self.game.check_events()
 			self.check_input()
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('VIDEO', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
 			self.game.draw_text('Fullscreen: {0}'.format(self.fullscreen_str), int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 			if not self.fullscreen:
 				self.game.draw_text('Scaled Mode: {0}'.format(self.scaled_str), int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font, color = self.game.gray)
 			else:
 				self.game.draw_text('Scaled Mode: {0}'.format(self.scaled_str), int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
-			if self.scaled and self.fullscreen:
-				self.game.draw_text('Native Resolution ({0}x{1}): {2}'.format(self.game.current_w, self.game.current_h, self.native_res_str), int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font, color = self.game.gray)
+			if self.game.enable_native:
+				if self.scaled and self.fullscreen:
+					self.game.draw_text('Native Resolution ({0}x{1}): {2}'.format(self.game.current_w, self.game.current_h, self.native_res_str), int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font, color = self.game.gray)
+				else:
+					self.game.draw_text('Native Resolution ({0}x{1}): {2}'.format(self.game.current_w, self.game.current_h, self.native_res_str), int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
+				self.game.draw_text('APPLY SETTINGS', int(self.game.font_size / 2), self.opt4x, self.opt4y, font_name = self.game.menu2_font)
+				self.game.draw_text('RESET TO DEFAULTS', int(self.game.font_size / 2), self.opt5x, self.opt5y, font_name = self.game.menu2_font)
 			else:
-				self.game.draw_text('Native Resolution ({0}x{1}): {2}'.format(self.game.current_w, self.game.current_h, self.native_res_str), int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
-			self.game.draw_text('APPLY SETTINGS', int(self.game.font_size / 2), self.opt4x, self.opt4y, font_name = self.game.menu2_font)
-			self.game.draw_text('RESET TO DEFAULTS', int(self.game.font_size / 2), self.opt5x, self.opt5y, font_name = self.game.menu2_font)
+				self.game.draw_text('APPLY SETTINGS', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
+				self.game.draw_text('RESET TO DEFAULTS', int(self.game.font_size / 2), self.opt4x, self.opt4y, font_name = self.game.menu2_font)
 			self.game.draw_text('Current window setting: {0}'.format(self.curr_setting), int(self.game.font_size / 2), self.opt4x, self.opt4y + 70, font_name = self.game.menu2_font)
 			self.game.save_settings()
 			self.draw_cursor(int(self.game.font_size / 2))
@@ -576,7 +591,8 @@ class VideoMenu(Menu):
 		if self.game.DOWN_KEY:
 			if self.state == 'fullscreen':
 				if not self.fullscreen:
-					self.state = 'native'
+					if self.game.enable_native: self.state = 'native'
+					else: self.state = 'apply'
 					self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
 				else:
 					self.state = 'scaled'
@@ -586,14 +602,16 @@ class VideoMenu(Menu):
 					self.state = 'apply'
 					self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
 				else:
-					self.state = 'native'
+					if self.game.enable_native: self.state = 'native'
+					else: self.state = 'apply'
 					self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
 			elif self.state == 'native':
 				self.state = 'apply'
 				self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
 			elif self.state == 'apply':
 				self.state = 'reset'
-				self.cursor_rect.midtop = (self.opt5x + self.offset, self.opt5y)
+				if self.game.enable_native: self.cursor_rect.midtop = (self.opt5x + self.offset, self.opt5y)
+				else: self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
 			elif self.state == 'reset':
 				self.state = 'fullscreen'
 				self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
@@ -601,17 +619,27 @@ class VideoMenu(Menu):
 		elif self.game.UP_KEY:
 			if self.state == 'fullscreen':
 				self.state = 'reset'
-				self.cursor_rect.midtop = (self.opt5x + self.offset, self.opt5y)
+				if self.game.enable_native: self.cursor_rect.midtop = (self.opt5x + self.offset, self.opt5y)
+				else: self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
 			elif self.state == 'reset':
 				self.state = 'apply'
-				self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
+				if self.game.enable_native: self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
+				else: self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
 			elif self.state == 'apply':
 				if self.scaled and self.fullscreen:
 					self.state = 'scaled'
 					self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
 				else:
-					self.state = 'native'
-					self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+					if self.game.enable_native:
+						self.state = 'native'
+						self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+					else:
+						if not self.fullscreen:
+							self.state = 'fullscreen'
+							self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
+						else:
+							self.state = 'scaled'
+							self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
 			elif self.state == 'native':
 				if not self.fullscreen:
 					self.state = 'fullscreen'
@@ -633,18 +661,28 @@ class VideoMenu(Menu):
 				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
 				self.state = 'scaled'
 				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(*self.opt3mousey) and self.state != 'native' and (not self.scaled or not self.fullscreen):
-				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
-				self.state = 'native'
-				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(*self.opt4mousey) and self.state != 'apply':
-				self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
-				self.state = 'apply'
-				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(*self.opt5mousey) and self.state != 'reset':
-				self.cursor_rect.midtop = (self.opt5x + self.offset, self.opt5y)
-				self.state = 'reset'
-				self.game.DRsnd_menumove.play()
+			if self.game.enable_native:
+				if self.game.mousey in range(*self.opt3mousey) and self.state != 'native' and (not self.scaled or not self.fullscreen):
+					self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+					self.state = 'native'
+					self.game.DRsnd_menumove.play()
+				elif self.game.mousey in range(*self.opt4mousey) and self.state != 'apply':
+					self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
+					self.state = 'apply'
+					self.game.DRsnd_menumove.play()
+				elif self.game.mousey in range(*self.opt5mousey) and self.state != 'reset':
+					self.cursor_rect.midtop = (self.opt5x + self.offset, self.opt5y)
+					self.state = 'reset'
+					self.game.DRsnd_menumove.play()
+			else:
+				if self.game.mousey in range(*self.opt3mousey) and self.state != 'native' and (not self.scaled or not self.fullscreen):
+					self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+					self.state = 'apply'
+					self.game.DRsnd_menumove.play()
+				elif self.game.mousey in range(*self.opt4mousey) and self.state != 'apply':
+					self.cursor_rect.midtop = (self.opt4x + self.offset, self.opt4y)
+					self.state = 'reset'
+					self.game.DRsnd_menumove.play()
 
 	def check_input(self):
 		self.move_cursor()
@@ -705,18 +743,17 @@ class VideoMenu(Menu):
 			elif self.game.mousey in range(*self.opt2mousey) and self.fullscreen:
 				self.game.DRsnd_select.play()
 				self.scaled = not self.scaled
-			elif self.game.mousey in range(*self.opt3mousey) and (not self.scaled or not self.fullscreen):
+			elif self.game.enable_native and self.game.mousey in range(*self.opt3mousey) and (not self.scaled or not self.fullscreen):
 				self.game.DRsnd_select.play()
 				self.native_res = not self.native_res
-			elif self.game.mousey in range(*self.opt4mousey):
+			elif (self.game.enable_native and self.game.mousey in range(*self.opt4mousey)) or (not self.game.enable_native and self.game.mousey in range(*self.opt3mousey)):
 				self.game.DRsnd_select.play()
 				if self.fullscreen == self.game.fullscreen and self.scaled == self.game.scaled and self.native_res == self.game.native_res:
 					should_continue = False
 				else: should_continue = True
-				if self.fullscreen and not self.scaled and not self.native_res:
-					should_continue = self.noscale_warning()
-				elif (not self.fullscreen and self.game.fullscreen) or (self.native_res and not self.game.native_res):
-					should_continue = self.native_warning()
+				if self.fullscreen and not self.scaled and not self.native_res: should_continue = self.noscale_warning()
+				elif not self.fullscreen and self.game.fullscreen: should_continue = self.small_text_warning()
+				elif self.native_res and not self.game.native_res: should_continue = self.native_warning()
 				if should_continue:
 					self.game.fullscreen = self.fullscreen
 					self.game.scaled = self.scaled
@@ -728,7 +765,7 @@ class VideoMenu(Menu):
 					self.set_values()
 					self.set_cursor_pos()
 					self.game.change_volume()
-			elif self.game.mousey in range(*self.opt5mousey):
+			elif (self.game.enable_native and self.game.mousey in range(*self.opt5mousey)) or (not self.game.enable_native and self.game.mousey in range(*self.opt4mousey)):
 				self.game.DRsnd_select.play()
 				if self.game.fullscreen == True and self.game.scaled == True and self.game.native_res == True:
 					should_continue = False
@@ -763,9 +800,9 @@ class VideoMenu(Menu):
 				self.noscale_run_display = False
 				self.game.DRsnd_select.play()
 				return True
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('VIDEO', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
-			self.game.draw_text('WARNING! Fullscreen without scaled mode and native', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, font_name = self.game.menu2_font)
+			self.game.draw_text('WARNING! Fullscreen without scaled mode or native', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, font_name = self.game.menu2_font)
 			self.game.draw_text('resolution may cause screen issues!', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, font_name = self.game.menu2_font)
 			self.game.draw_text('Are you sure you want to continue?', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 50, font_name = self.game.menu2_font)
 			self.game.draw_text('{0}: YES'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
@@ -784,8 +821,30 @@ class VideoMenu(Menu):
 			elif self.game.START_KEY:
 				self.native_run_display = False
 				self.game.DRsnd_select.play()
+				return self.small_text_warning()
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_text('VIDEO', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
+			self.game.draw_text('Hahaha! I see that you\'ve dug into the game code to', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, font_name = self.game.menu2_font)
+			self.game.draw_text('re-enable the native resolution option. Note that this', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, font_name = self.game.menu2_font)
+			self.game.draw_text('mode is experimental, so use it at your own risk!', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 50, font_name = self.game.menu2_font)
+			self.game.draw_text('{0}: ENABLE NATIVE RESOLUTION'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 90, font_name = self.game.menu2_font)
+			self.game.draw_text('{0}: GO BACK'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 110, font_name = self.game.menu2_font)
+			self.blit_screen()
+
+	def small_text_warning(self):
+		self.small_text_run_display = True
+		while self.small_text_run_display:
+			self.game.reset_keys()
+			self.game.check_events()
+			if self.game.BACK_KEY:
+				self.small_text_run_display = False
+				self.game.DRsnd_select.play()
+				return False
+			elif self.game.START_KEY:
+				self.small_text_run_display = False
+				self.game.DRsnd_select.play()
 				return True
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('VIDEO', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
 			self.game.draw_text('NOTE: If you see that the text/screen is too small, you', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 10, font_name = self.game.menu2_font)
 			self.game.draw_text('probably should switch to fullscreen with scaled mode.', int(self.game.font_size / 2), self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 + 30, font_name = self.game.menu2_font)
@@ -817,7 +876,7 @@ class UpdateMenu(Menu):
 			else: self.prer_str = 'OFF'
 			self.game.check_events()
 			self.check_input()
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('UPDATES', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
 			self.game.draw_text('CHECK FOR UPDATES'.format(round(self.game.musicvol * 100)), int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 			self.game.draw_text('Automatically Check for Updates: {0}'.format(self.auto_str), int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
@@ -911,7 +970,7 @@ class Updater(Menu):
 		if self.run_display:
 			if self.auto and self.game.updatechecked:
 				self.run_display = False
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('UPDATES', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2) 
 			self.game.draw_text('Checking for updates. Please wait...', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 			if self.auto: self.game.draw_text('To disable automatic updates, please go to Settings -> Updates.', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
@@ -919,7 +978,7 @@ class Updater(Menu):
 			self.updstat = updater.check_updates(self.game.gameversion, self.game.check_prerelease)
 			if self.updstat['newupdate']: self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)	
 			while self.run_display:
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('UPDATES', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
 				self.game.check_events()
 				if self.updstat['error']:
@@ -1041,7 +1100,7 @@ class VolumeMenu(Menu):
 		while self.run_display:
 			self.game.check_events()
 			self.check_input()
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('VOLUME', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			self.game.draw_text('MASTER VOLUME: {0}%'.format(round(self.game.volume * 100)), int(self.game.font_size * 3/4), self.mastervolx, self.mastervoly, font_name = self.game.menu2_font)
 			self.game.draw_text('MUSIC: {0}%'.format(round(self.game.musicvol * 100)), int(self.game.font_size * 3/4), self.musicvolx, self.musicvoly, font_name = self.game.menu2_font)
@@ -1141,7 +1200,7 @@ class VolumeMenu(Menu):
 			self.game.change_volume()
 			self.game.save_settings()
 
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('VOLUME', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			self.game.draw_text('MASTER VOLUME: {0}%'.format(round(self.game.volume * 100)), int(self.game.font_size * 3/4), self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10, font_name = self.game.menu2_font)
 			self.game.draw_text('{0}: -1% - {1}: +1% - {2}: -5% - {3}: +5%'.format(pygame.key.name(self.game.UP_BIND).upper(), pygame.key.name(self.game.DOWN_BIND).upper(), pygame.key.name(self.game.LEFT_BIND).upper(), pygame.key.name(self.game.RIGHT_BIND).upper()), 15, self.game.DISPLAY_W / 2, self.mastervoly + 25, font_name = self.game.menu2_font)
@@ -1175,7 +1234,7 @@ class VolumeMenu(Menu):
 			self.game.change_volume()
 			self.game.save_settings()
 
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('VOLUME', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			self.game.draw_text('MUSIC: {0}%'.format(round(self.game.musicvol * 100)), int(self.game.font_size * 3/4), self.musicvolx, self.musicvoly, font_name = self.game.menu2_font)
 			self.game.draw_text('{0}: -1% - {1}: +1% - {2}: -5% - {3}: +5%'.format(pygame.key.name(self.game.UP_BIND).upper(), pygame.key.name(self.game.DOWN_BIND).upper(), pygame.key.name(self.game.LEFT_BIND).upper(), pygame.key.name(self.game.RIGHT_BIND).upper()), 15, self.game.DISPLAY_W / 2, self.musicvoly + 25, font_name = self.game.menu2_font)
@@ -1209,7 +1268,7 @@ class VolumeMenu(Menu):
 			self.game.change_volume()
 			self.game.save_settings()
 
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('VOLUME', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			self.game.draw_text('SOUND: {0}%'.format(round(self.game.soundvol * 100)), int(self.game.font_size * 3/4), self.soundvolx, self.soundvoly, font_name = self.game.menu2_font)
 			self.game.draw_text('{0}: -1% - {1}: +1% - {2}: -5% - {3}: +5%'.format(pygame.key.name(self.game.UP_BIND).upper(), pygame.key.name(self.game.DOWN_BIND).upper(), pygame.key.name(self.game.LEFT_BIND).upper(), pygame.key.name(self.game.RIGHT_BIND).upper()), 15, self.game.DISPLAY_W / 2, self.soundvoly + 25, font_name = self.game.menu2_font)
@@ -1240,7 +1299,7 @@ class ControlsMenu(Menu):
 		while self.run_display:
 			self.game.check_events()
 			self.check_input()
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('REBIND CONTROLS', self.game.font_size, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - self.game.font_size)
 			self.game.draw_text('{0} (menu) - Select Option'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 			self.game.draw_text('{0} - Move Up'.format(pygame.key.name(self.game.UP_BIND).upper()), int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
@@ -1385,44 +1444,44 @@ class ControlsMenu(Menu):
 			self.game.DRsnd_select.play()
 			
 			if self.state == 'enter':
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} (menu) - Select Option'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 				self.game.START_BIND = self.assign_key()
 			elif self.state == 'up':
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} - Move Up'.format(pygame.key.name(self.game.UP_BIND).upper()), int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 				self.game.UP_BIND = self.assign_key()
 			elif self.state == 'down':
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} - Move Down'.format(pygame.key.name(self.game.DOWN_BIND).upper()), int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
 				self.game.DOWN_BIND = self.assign_key()
 			elif self.state == 'left':
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} - Move Left'.format(pygame.key.name(self.game.LEFT_BIND).upper()), int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
 				self.game.LEFT_BIND = self.assign_key()
 			elif self.state == 'right':
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} - Move Right'.format(pygame.key.name(self.game.RIGHT_BIND).upper()), int(self.game.font_size / 2), self.opt4x, self.opt4y, font_name = self.game.menu2_font)
 				self.game.RIGHT_BIND = self.assign_key()
 			elif self.state == 'x':
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} (game) - Toggle AI Snake'.format(pygame.key.name(self.game.X_BIND).upper()), int(self.game.font_size / 2), self.opt5x, self.opt5y, font_name = self.game.menu2_font)
 				self.game.X_BIND = self.assign_key()
 			elif self.state == 'ctrl':
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} (hold) - Turbo Mode'.format(pygame.key.name(self.game.CTRL_BIND).upper()), int(self.game.font_size / 2), self.opt6x, self.opt6y, font_name = self.game.menu2_font)
 				self.game.CTRL_BIND = self.assign_key()
 			elif self.state == 'esc':
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} - Back/Pause'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.opt7x, self.opt7y, font_name = self.game.menu2_font)
 				self.game.BACK_BIND = self.assign_key()
 			elif self.state == 'space':
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} (game over) - New Game'.format(pygame.key.name(self.game.SPACE_BIND).upper()), int(self.game.font_size / 2), self.opt8x, self.opt8y, font_name = self.game.menu2_font)
 				self.game.SPACE_BIND = self.assign_key()
 			elif self.state == 'backspace':
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} (game) - Quit'.format(pygame.key.name(self.game.MENU_BIND).upper()), int(self.game.font_size / 2), self.opt9x, self.opt9y, font_name = self.game.menu2_font)
 				self.game.MENU_BIND = self.assign_key()
 			elif self.state == 'reset':
@@ -1440,53 +1499,53 @@ class ControlsMenu(Menu):
 		if self.game.CLICK and self.game.mousex in range(190, 610):
 			if self.game.mousey in range(300, 320):
 				self.game.DRsnd_select.play()
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} (menu) - Select Option'.format(pygame.key.name(self.game.START_BIND).upper()), int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 				self.game.START_BIND = self.assign_key()
 			elif self.game.mousey in range(321, 340):
 				self.game.DRsnd_select.play()
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} - Move Up'.format(pygame.key.name(self.game.UP_BIND).upper()), int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 				self.game.UP_BIND = self.assign_key()
 			elif self.game.mousey in range(341, 360):
 				self.game.DRsnd_select.play()
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} - Move Down'.format(pygame.key.name(self.game.DOWN_BIND).upper()), int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
 				self.game.DOWN_BIND = self.assign_key()
 			elif self.game.mousey in range(361, 380):
 				self.game.DRsnd_select.play()
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} - Move Left'.format(pygame.key.name(self.game.LEFT_BIND).upper()), int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
 				self.game.LEFT_BIND = self.assign_key()
 			elif self.game.mousey in range(381, 400):
 				self.game.DRsnd_select.play()
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} - Move Right'.format(pygame.key.name(self.game.RIGHT_BIND).upper()), int(self.game.font_size / 2), self.opt4x, self.opt4y, font_name = self.game.menu2_font)
 				self.game.RIGHT_BIND = self.assign_key()
 			elif self.game.mousey in range(401, 420):
 				self.game.DRsnd_select.play()
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} (game) - Toggle AI Snake'.format(pygame.key.name(self.game.X_BIND).upper()), int(self.game.font_size / 2), self.opt5x, self.opt5y, font_name = self.game.menu2_font)
 				self.game.X_BIND = self.assign_key()
 			elif self.game.mousey in range(421, 440):
 				self.game.DRsnd_select.play()
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} (hold) - Turbo Mode'.format(pygame.key.name(self.game.CTRL_BIND).upper()), int(self.game.font_size / 2), self.opt6x, self.opt6y, font_name = self.game.menu2_font)
 				self.game.CTRL_BIND = self.assign_key()
 			elif self.game.mousey in range(441, 460):
 				self.game.DRsnd_select.play()
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} - Back/Pause'.format(pygame.key.name(self.game.BACK_BIND).upper()), int(self.game.font_size / 2), self.opt7x, self.opt7y, font_name = self.game.menu2_font)
 				self.game.BACK_BIND = self.assign_key()
 			elif self.game.mousey in range(461, 480):
 				self.game.DRsnd_select.play()
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} (game over) - New Game'.format(pygame.key.name(self.game.SPACE_BIND).upper()), int(self.game.font_size / 2), self.opt8x, self.opt8y, font_name = self.game.menu2_font)
 				self.blit_screen()
 				self.game.SPACE_BIND = self.assign_key()
 			elif self.game.mousey in range(481, 500):
 				self.game.DRsnd_select.play()
-				self.game.display.blit(self.game.imgMenuBG, (0,0))
+				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 				self.game.draw_text('{0} (game) - Quit'.format(pygame.key.name(self.game.MENU_BIND).upper()), int(self.game.font_size / 2), self.opt9x, self.opt9y, font_name = self.game.menu2_font)
 				self.game.MENU_BIND = self.assign_key()
 				self.game.DRsnd_menumove.play()
@@ -1519,6 +1578,7 @@ class ControlsMenu(Menu):
 class PressStart(Menu):
 	def __init__(self,game):
 		Menu.__init__(self,game)
+		self.timer = 0
 
 	def display_menu(self):
 		self.run_display = True
@@ -1526,7 +1586,7 @@ class PressStart(Menu):
 			self.game.window = self.game.set_window_mode()
 			self.game.logo_screen()
 
-			self.game.WIIstart.play()
+			if not self.game.holiday: self.game.WIIstart.play()
 			self.game.menumus.play(-1)
 			self.game.inited = True
 
@@ -1543,13 +1603,33 @@ class PressStart(Menu):
 				self.run_display = False
 				logger.log('Sneky session closed.\n')
 				pygame.quit()
-				sys.exit()	
+				sys.exit()
 
-			self.game.display.blit(self.game.imgMenu, (0,0))
-			self.game.draw_text(('v.' + self.game.gameversion), self.game.font_size / 2, 20, self.game.DISPLAY_H - 50, anchor = 'topleft', font_name = self.game.menu2_font)
+			if self.timer >= 1000:
+				logger.log('Playing demo.')
+				self.game.menumus.fadeout(500)
+				self.game.play_demo()
+				logger.log('Demo finished.')
+				self.timer = 0
+				if not self.game.holiday: self.game.WIIstart.play()
+				self.game.menumus.play(-1)
+
+			#self.game.display.blit(self.game.imgMenu, (0,0))
+			for x in range(0, self.game.DISPLAY_W, 2*self.game.cell_size):
+				for y in range(0, self.game.DISPLAY_H, 2*self.game.cell_size):
+					pygame.draw.rect(self.game.display,(170, 215, 81),(x,y,self.game.cell_size,self.game.cell_size))
+					pygame.draw.rect(self.game.display,(162, 209, 72),(x + self.game.cell_size,y,self.game.cell_size,self.game.cell_size))
+				for y in range(0 + self.game.cell_size, self.game.DISPLAY_H, 2*self.game.cell_size):
+					pygame.draw.rect(self.game.display,(170, 215, 81),(x + self.game.cell_size,y,self.game.cell_size,self.game.cell_size))
+					pygame.draw.rect(self.game.display,(162, 209, 72),(x,y,self.game.cell_size,self.game.cell_size))
+			self.game.display.blit(self.game.imgSneky, self.game.imgSneky_rect)
+			self.game.display.blit(self.game.imgMenu, self.game.imgMenu_rect)
+			self.game.draw_text('v.' + self.game.gameversion, self.game.font_size / 2, 20, self.game.DISPLAY_H - 50, anchor = 'topleft', font_name = self.game.menu2_font)
 			self.game.draw_text(self.game.curr_splash, self.game.font_size / 2, int(self.game.DISPLAY_W/2), 20, color = self.game.red_god, font_name = self.game.menu2_font)
 			self.game.draw_text('PRESS START', self.game.font_size, int(self.game.DISPLAY_W/2), int(self.game.DISPLAY_H - 130))
+			self.game.draw_text('(c) 2021-2022 GamingWithEvets Inc. All rights go to their respective owners.', int(self.game.font_size/2.5), int(self.game.DISPLAY_W/2), int(self.game.DISPLAY_H - int(self.game.font_size/2.5)), font_name = self.game.menu2_font)
 			self.blit_screen()
+			self.timer += 1
 
 class ModeMenu(Menu):
 	def __init__(self,game):
@@ -1585,7 +1665,7 @@ class ModeMenu(Menu):
 			self.game.save_settings()
 			self.game.check_events()
 			self.check_input()
-			self.game.display.blit(self.game.imgMenuBG, (0,0))
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, (0,0))
 			self.game.draw_text('SELECT A MODE', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
 			self.game.draw_text(self.allState[0], self.game.font_size * 3/4, self.classicx, self.classicy)
 			if self.game.allowmode0:
@@ -1699,7 +1779,7 @@ class ModeMenu(Menu):
 			self.game.show_instructions = True
 			self.game.save_high_score = self.save_high_score
 		elif self.start_game_debug:
-			logger.log('SNEKY DEBUG MODE: loaded custom mode. settings:\n portal_border: {0}\n curled_up: {1}\n apple_bag: {2}\n break_border: {3}\n snake_instinct: {4}\n angry_apple: {5}'.format(self.portal_border, self.curled_up, self.apple_bag, self.break_border, self.snake_instinct, self.angry_apple))
+			logger.log('Loaded custom mode. Settings:\n portal_border: {0}\n curled_up: {1}\n apple_bag: {2}\n break_border: {3}\n snake_instinct: {4}\n angry_apple: {5}'.format(self.portal_border, self.curled_up, self.apple_bag, self.break_border, self.snake_instinct, self.angry_apple), tag = 'DEBUG MODE')
 			self.game.playing = True
 			self.game.inmenu = False
 			self.run_display = False
@@ -1817,7 +1897,7 @@ class ModeMenu(Menu):
 				self.game.draw_text('You finally did it. You have finally unlocked', self.game.font_size, self.mid_w, self.mid_h + self.game.font_size, font_name = self.game.pygame_font)
 				self.game.draw_text('the true debug mode of Sneky.', self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 2, font_name = self.game.pygame_font)
 				self.game.draw_text('Please press ENTER to step forward.', self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 4, font_name = self.game.pygame_font)
-				self.blit_screen()
+				self.blit_screen('pygame')
 
 		self.portal_border = 0
 		self.curled_up = 0
@@ -1856,7 +1936,7 @@ class ModeMenu(Menu):
 						self.start_game_debug = True
 						self.debug_run_display = False
 					elif event.key == pygame.K_ESCAPE:
-						self.game.WIIstart.play()
+						if not self.game.holiday: self.game.WIIstart.play()
 						self.game.menumus.play(-1)
 						self.debug_run_display = False
 
@@ -1871,4 +1951,4 @@ class ModeMenu(Menu):
 			self.game.draw_text('angry_apple: ' + str(self.angry_apple), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 6, font_name = self.game.pygame_font)
 			self.game.draw_text('Use number keys 1-6 to toggle between 0 & 1', self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 8, font_name = self.game.pygame_font)
 			self.game.draw_text('ENTER: Start - ESC: Return', self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 9, font_name = self.game.pygame_font)
-			self.blit_screen()
+			self.blit_screen('pygame')
