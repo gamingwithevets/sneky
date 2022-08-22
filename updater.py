@@ -1,3 +1,8 @@
+import sys
+if __name__ == '__main__':
+	print('Please run main.py to start Sneky.')
+	sys.exit()
+
 import logger
 tag = 'UPDATER'
 
@@ -13,12 +18,12 @@ def check_internet(log = True):
 	url = 'https://google.com'
 	print_tag('Attempting Internet connection test.')
 	try:
-		print_tag('Connecting to URL: {0}'.format(url))
+		print_tag(f'Connecting to URL: {url}')
 		requests.get(url)
-		print_tag('Successfully connected to URL: ' + url + '\nConnection test succeeded!')
+		print_tag(f'Successfully connected to URL: {url}\nConnection test succeeded!')
 		return True
 	except:
-		if log: print_tag('Cannot connect to URL: ' + url + '\nEither the Internet connection is slow, or there is no Internet connection.\nAborting update process.')
+		if log: print_tag(f'Cannot connect to URL: {url}\nEither the Internet connection is slow, or there is no Internet connection.\nAborting update process.')
 		return False
 
 def print_tag(text):
@@ -27,14 +32,16 @@ def print_tag(text):
 def print_rate_limit(totalrequests):
 	try:
 		response = requests.get('https://api.github.com/rate_limit')
-		print_tag('Made {0} request(s), {1}/{2} request(s) left\nRate limit reset: {3}'.format(totalrequests, response.json()['rate']['remaining'], response.json()['rate']['limit'], datetime.fromtimestamp(response.json()['rate']['reset']).strftime("%d/%m/%Y %H:%M:%S")))
-	except:
-		print_tag('Made {0} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??'.format(totalrequests))
+		remaining = response.json()['rate']['remaining']
+		limit = response.json()['rate']['limit']
+		reset = datetime.fromtimestamp(response.json()['rate']['reset']).strftime('%d/%m/%Y %H:%M:%S')
+		print_tag(f'Made {totalrequests} request(s), {remaining}/{limit} request(s) left\nRate limit reset: {reset}')
+	except: print_tag(f'Made {totalrequests} request(s), ????/???? request(s) left\nRate limit reset: ??/??/???? ??:??:??')
 
 def check_updates(currver, prerelease):
 	if prerelease: prerelease_str = 'on'
 	else: prerelease_str = 'off'
-	print_tag('Received call to check updates.\nSetting "Check Prerelease Versions" is {0}.'.format(prerelease_str))
+	print_tag(f'Received call to check updates.\nSetting "Check Prerelease Versions" is {prerelease_str}.')
 	if nomodule:
 		print_tag('Cannot check for Sneky updates because the \'requests\'\nmodule was not installed.\nAborting update process.')
 		return {
@@ -57,9 +64,9 @@ def check_updates(currver, prerelease):
 		totalrequests = 0
 		versions = []
 		if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
-		print_tag('Getting releases from repository: {0}/{1}'.format(username, reponame))
+		print_tag(f'Getting releases from repository: {username}/{reponame}')
 		try:
-			response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases')
+			response = requests.get(f'https://api.github.com/repos/{username}/{reponame}/releases')
 			totalrequests += 1
 			print_tag('Successfully connected.')
 		except:
@@ -67,7 +74,7 @@ def check_updates(currver, prerelease):
 			if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
 
 		i = 0
-		print_tag('Getting release tags from repository: {0}/{1}'.format(username, reponame))
+		print_tag(f'Getting release tags from repository: {username}/{reponame}')
 		try:
 			while True:
 				versions.append(response.json()[i]['tag_name'])
@@ -77,7 +84,7 @@ def check_updates(currver, prerelease):
 			pass
 
 		if 'v' + currver not in versions:
-			print_tag('Tag v{0} not in tag list! Checking more data.'.format(currver))
+			print_tag(f'Tag v{currver} not in tag list! Checking more data.')
 			try:
 				testvar = response.json()['message']
 				if 'API rate limit exceeded for' in testvar:
@@ -89,7 +96,7 @@ def check_updates(currver, prerelease):
 					'exceeded': True
 					}
 				else:
-					print_tag('Unofficial/development version of Sneky (v.' + currver + ') has been detected.')
+					print_tag(f'Unofficial/development version of Sneky (v{currver}) has been detected.')
 					print_rate_limit(totalrequests)
 					return {
 					'newupdate': False,
@@ -97,7 +104,7 @@ def check_updates(currver, prerelease):
 					'unofficial': True
 					}
 			except:
-				print_tag('Unofficial/development version of Sneky (v.' + currver + ') has been detected.')
+				print_tag(f'Unofficial/development version of Sneky (v{currver}) has been detected.')
 				print_rate_limit(totalrequests)
 				return {
 				'newupdate': False,
@@ -105,7 +112,7 @@ def check_updates(currver, prerelease):
 				'unofficial': True
 				}
 		if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
-		print_tag('Getting data for release v{0} from repository: {1}/{2}'.format(currver, username, reponame))
+		print_tag(f'Getting data for release v{currver} from repository: {username}/{reponame}')
 		try:
 			response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases/tags/v' + currver)
 			totalrequests += 1
@@ -136,7 +143,7 @@ def check_updates(currver, prerelease):
 		currvertime = response.json()['published_at']
 		if not prerelease:
 			if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
-			print_tag('Getting latest release from repository: {0}/{1}'.format(username, reponame))
+			print_tag(f'Getting latest release from repository: {username}/{reponame}')
 			try:
 				response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases/latest')
 				totalrequests += 1
@@ -166,7 +173,7 @@ def check_updates(currver, prerelease):
 				pass
 			if response.json()['tag_name'] != 'v' + currver and response.json()['published_at'] > currvertime:
 				print_tag('Updates available. Prompting to update.')
-				tag_name, title = response.json()['tag_name'][1:], response.json()['name']
+				tag_name, title = response.json()['tag_name'], response.json()['name']
 				print_rate_limit(totalrequests)
 				return {
 				'newupdate': True,
@@ -185,7 +192,7 @@ def check_updates(currver, prerelease):
 		else:
 			for version in versions:
 				if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
-				print_tag('Getting data for release {0} from repository: {1}/{2}'.format(version, username, reponame))
+				print_tag(f'Getting data for release {version} from repository: {username}/{reponame}')
 				try:
 					response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases/tags/' + version)
 					totalrequests += 1
@@ -215,7 +222,7 @@ def check_updates(currver, prerelease):
 					pass
 				if currvertime < response.json()['published_at']:
 					print_tag('Updates available. Prompting to update.')
-					tag_name, title = response.json()['tag_name'][1:], response.json()['name']
+					tag_name, title = response.json()['tag_name'], response.json()['name']
 					print_rate_limit(totalrequests)
 					return {
 					'newupdate': True,

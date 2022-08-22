@@ -15,6 +15,7 @@ import platform
 import os
 from menu import *
 import updater
+import traceback
 import random
 import time
 from decimal import *
@@ -30,12 +31,7 @@ class Game():
 		
 		# game version
 		self.gamestatus = 'release'
-		self.gameversion = '1.2.3'
-
-		if os.name == 'nt':
-			self.playername = os.getenv('USERNAME')
-		else:
-			self.playername = os.getenv('USER').upper()
+		self.gameversion = '1.3.0-new-dev1'
 
 		self.mousex, self.mousey = 0, 0
 
@@ -128,16 +124,15 @@ class Game():
 		self.enable_native = True
 
 		try:
-			self.import_settings('fullscreen', catch = True)
-			self.import_settings('scaled', catch = True)
-			self.import_settings('native_res', catch = True)
+			self.import_settings('fullscreen')
+			self.import_settings('scaled')
+			self.import_settings('native_res')
 			self.oldsave = False
 		except:
 			try:
-				self.import_settings('fullscreen_mode', catch = True)
+				self.import_settings('fullscreen_mode')
 				self.oldsave = True
-			except:
-				self.oldsave = False
+			except: self.oldsave = False
 
 		if self.oldsave:
 			logger.log('Detected pre-1.2.3 save')
@@ -178,25 +173,22 @@ class Game():
 		# Sneky preset resolution
 		self.preset_w, self.preset_h = 800, 600
 
-		try:
-			self.window = self.set_window_mode()
+		try: self.window = self.set_window_mode()
 		except:
 			pygame.quit()
 			print('\nUh oh... it seems that you... don\'t have a video driver?\nThis tells me that you\'re probably running Sneky in a dump terminal.\nLike WSL.')
 			print('\nIf this happened on my provided binaries, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
-			import traceback
 			print('\n' + traceback.format_exc())
 			sys.exit()
 
 		self.pygame_font = 'default'
-		self.arrow_font = self.temp_path + 'fonts/MinecraftRegular.ttf'
-		self.menu2_font = self.temp_path + 'fonts/Minecraftia.ttf'
 		self.menu_font = self.temp_path + 'fonts/8_BIT_WONDER.TTF'
+		self.menu2_font = self.temp_path + 'fonts/Minecraftia.ttf'
 		self.game_font = self.temp_path + 'fonts/River Adventurer.ttf'
 		self.font_size = 32
 		self.BLACK, self.WHITE = (0,0,0), (255,255,255)
 		self.holidayname = ''
-		self.holiday = ''
+		self.holidaydir = ''
 		self.auto_update = True
 		self.check_prerelease = False
 		self.updatechecked = False
@@ -213,6 +205,7 @@ class Game():
 		self.mode()
 
 	def init_menus(self):
+		self.menu = Menu(self)
 		self.press_start = PressStart(self)
 		self.main_menu = MainMenu(self)
 		self.options = OptionsMenu(self)
@@ -280,7 +273,7 @@ class Game():
 		if (datetime.now().month == 12 and datetime.now().day >= 21) or \
 			(datetime.now().month == 1 and datetime.now().day <= 5):
 			self.holidayname = 'christmas'
-			self.holiday = 'christmas_exclusive/' 
+			self.holidaydir = 'christmas_exclusive/' 
 		# check for devs' bday (Jan 19/Sep 28)
 		elif datetime.now().month == 1 and datetime.now().day == 19:
 				self.holidayname = 'bday_gwe'
@@ -332,7 +325,7 @@ class Game():
 				if datetime.now().year - 2021 == 1:
 					self.splashes[2] = 'Today, Sneky is turning 1 year old!'
 				elif datetime.now().year - 2021 > 1:
-					self.splashes[2] = 'Today, Sneky is turning {0} years old!'.format(datetime.now().year - 2021)
+					self.splashes[2] = f'Today, Sneky is turning {datetime.now().year - 2021} years old!'
 		else:
 			self.splashes = ['8 ERROR.']
 		if random.randint(0, 1) == 0 and not self.holidayname:
@@ -397,56 +390,57 @@ class Game():
 
 
 	def game_loop(self):
-		self.new_game()
-		self.trans_scr()
-		while self.playing:
-			self.check_events()
-			self.run()
-			self.reset_keys()
-			if self.g_over: self.draw_game_screen()
-			self.window.blit(self.display, (0,0))
-			if self.paused or self.newmode:
-				self.trans_scr()
+		if self.playing:
+			self.new_game()
+			self.trans_scr()
+			while self.playing:
+				self.check_events()
+				self.run()
+				self.reset_keys()
+				if self.g_over: self.draw_game_screen()
+				self.window.blit(self.display, (0,0))
+				if self.paused or self.newmode:
+					self.trans_scr()
 
-			pygame.display.update()
-		
-		self.trans_scr()
+				pygame.display.update()
+			
+			self.trans_scr()
 
 	def init_intros(self):
-		self.snake_instinct_intro = 'certain amount of apples. Let\'s use Sneky\'s powers to win!'
-		self.apple_bag_intro = [
-		'Multiple apples are spawning! Will Sneky eat them or be hungry?',
-		''
-		]
-		self.portal_border_intro = ''
-		self.angry_apple_intro = [
-		'You are an angry apple! You\'re tired of Sneky eating all of your apple',
-		'friends, so you try to escape him by running out of the playfield!',
-		'Escape Sneky to get points. You\'ll get faster, but so does Sneky.',
-		]
-		self.classic_intro = [
-		'You are Sneky! He\'s hungry and wants to eat some delicious apples.',
-		'Eat apples to increase your score, and try not to hit the border',
-		'or yourself!'
-		]
-		if self.holidayname:
-			if self.holidayname == 'christmas':
-				self.snake_instinct_intro = 'certain amount of candy cones. Let\'s use Sneky\'s powers to win!'
-				self.apple_bag_intro = [
-				'Santa\'s giving out more candy cones! Sneky doesn\'t hesitate',
-				'to eat \'em!'
-				]
-				self.portal_border_intro = 'Time to get some treats from Santa!'
-				self.angry_apple_intro = [
-				'You are an angry candy cone! You see that Sneky has eaten too much cones',
-				'and isn\'t stopping! He\'s gonna get fat at this rate. So you try to',
-				'escape him! Then you\'ll get a point and you and Sneky will speed up.',
-				]
-				self.classic_intro = [
-				'It\'s Christmas! Sneky wants Santa\'s candy cones! Eat \'em and don\'t',
-				'touch yourself or the border, or you\'ll die!',
-				''
-				]
+		if self.holidayname == 'christmas':
+			self.snake_instinct_intro = 'certain amount of candy cones. Let\'s use Sneky\'s powers to win!'
+			self.apple_bag_intro = [
+			'Santa\'s giving out more candy cones! Sneky doesn\'t hesitate',
+			'to eat \'em!'
+			]
+			self.portal_border_intro = 'Time to get some treats from Santa!'
+			self.angry_apple_intro = [
+			'You are an angry candy cone! You see that Sneky has eaten too much cones',
+			'and isn\'t stopping! He\'s gonna get fat at this rate. So you try to',
+			'escape him! Then you\'ll get a point and you and Sneky will speed up.',
+			]
+			self.classic_intro = [
+			'It\'s Christmas! Sneky wants Santa\'s candy cones! Eat \'em and don\'t',
+			'touch yourself or the border, or you\'ll die!',
+			''
+			]
+		else:
+			self.snake_instinct_intro = 'certain amount of apples. Let\'s use Sneky\'s powers to win!'
+			self.apple_bag_intro = [
+			'Multiple apples are spawning! Will Sneky eat them or be hungry?',
+			''
+			]
+			self.portal_border_intro = ''
+			self.angry_apple_intro = [
+			'You are an angry apple! You\'re tired of Sneky eating all of your apple',
+			'friends, so you try to escape him by running out of the playfield!',
+			'Escape Sneky to get points. You\'ll get faster, but so does Sneky.',
+			]
+			self.classic_intro = [
+			'You are Sneky! He\'s hungry and wants to eat some delicious apples.',
+			'Eat apples to increase your score, and try not to hit the border',
+			'or yourself!'
+			]
 
 
 	def trans_scr(self):
@@ -464,7 +458,7 @@ class Game():
 			if self.save_high_score:
 				if self.angry_apple == 1:
 					if self.score > self.high_scores['Angry Apple']: self.high_scores['Angry Apple'] = self.score
-				if self.ai_snake == 0:
+				if not self.cheater:
 					if self.snake_instinct == 1:
 						if self.score > self.high_scores['Ultimate Snake']: self.high_scores['Ultimate Snake'] = self.score
 					elif self.apple_bag == 1:
@@ -477,42 +471,42 @@ class Game():
 			# gameover text
 			self.gamemus.stop()
 			if self.win:
-				if self.angry_apple == 0: logger.log('No more apples on the playfield!')
+				if self.angry_apple == 0:
+					if self.holidayname == 'christmas': logger.log('No more candy cones on the playfield!')
+					else: logger.log('No more apples on the playfield!')
 				if self.ai_snake == 0:
-					logger.log('Player ' + self.playername + ' won!')
+					logger.log('You won!')
 					self.draw_text('YOU WIN!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 				else:
 					if self.angry_apple == 0:
-						self.draw_text('YOU CHEATED', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
-						if not self.apple_bag == 1 and self.portal_border == 1 and self.curled_up == 1:
-							logger.log('My my! What a cheater you are!')
-						else: logger.log('My my! What a cheater you are!\nYour score will not be saved.')
+						self.draw_text('CHEATER...', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
+						if self.save_high_score: logger.log('My my! What a cheater you are!\nYour score will not be saved.')
+						else: logger.log('My my! What a cheater you are!')
 					else:
 						self.draw_text('YOU WIN!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 						logger.log('Sneky died!')
-						logger.log('Player ' + self.playername + ' won!')
+						logger.log('You won!')
 						self.GSdie.play()
 				self.GSwin.play()
 			else:
 				logger.log('Sneky died!')
 				if self.ai_snake == 0:
-					logger.log('Player ' + self.playername + ' lost!')
+					logger.log('You died!')
 					self.draw_text('YOU DIED!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 					self.GSdie.play()
 				else:
 					if self.angry_apple == 0:
 						self.draw_text('YOU DIED AND YOU CHEATED!', int(self.font_size / 1.25), self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
-						if not self.apple_bag == 1 and self.portal_border == 1 and self.curled_up == 1:
-							logger.log('Cheaters never win. And you cheated and lost.')
-						else: logger.log('Cheaters never win. And you cheated and lost.\nYour score will not be saved.')
+						if self.save_high_score: logger.log('Cheaters never win. And you cheated and lost.\nYour score will not be saved.')
+						else: logger.log('Cheaters never win. And you cheated and lost.')
 						self.GSdie.play()
 					else:
 						self.draw_text('YOU DIED!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
-						logger.log('Sneky ate the Angry Apple!')
-						logger.log('Player ' + self.playername + ' lost!')
+						if self.holidayname == 'christmas': logger.log('Sneky ate the Angry Candy Cone!\nYou died!')
+						else: logger.log('Sneky ate the Angry Apple!\nYou died!')
 						self.SMB2down.play()
-			self.draw_text('{0}: New Game'.format(pygame.key.name(self.SPACE_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
-			self.draw_text('{0}/{1}: Quit'.format(pygame.key.name(self.BACK_BIND).upper(), pygame.key.name(self.MENU_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.game_font, screen = self.window)
+			self.draw_text(f'{pygame.key.name(self.SPACE_BIND).upper()}: New Game', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
+			self.draw_text(f'{pygame.key.name(self.BACK_BIND).upper()}/{pygame.key.name(self.MENU_BIND).upper()}: Quit', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.game_font, screen = self.window)
 
 			# self.window.blit(self.over_text, self.over_rect)
 			pygame.display.update()
@@ -529,7 +523,7 @@ class Game():
 					self.playing = True
 					self.g_over = False
 					self.reset_keys()
-					logger.log('Player ' + self.playername + ' decides to play again!')
+					logger.log('You decided to play again!')
 					self.gamemus.play(-1)
 					self.score = 0
 					self.game_loop()
@@ -556,9 +550,9 @@ class Game():
 
 			# gameover text
 			self.draw_text('GAME PAUSED', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
-			logger.log('Player ' + self.playername + ' paused the game!')
-			self.draw_text('{0}: Resume Game'.format(pygame.key.name(self.BACK_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
-			self.draw_text('{0}: Quit'.format(pygame.key.name(self.MENU_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.game_font, screen = self.window)
+			logger.log('You paused the game!')
+			self.draw_text(f'{pygame.key.name(self.BACK_BIND).upper()}: Resume Game', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.game_font, screen = self.window)
+			self.draw_text(f'{pygame.key.name(self.MENU_BIND).upper()}: Quit', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = self.game_font, screen = self.window)
 
 				# self.window.blit(self.over_text, self.over_rect)
 			pygame.mixer.pause()
@@ -580,7 +574,7 @@ class Game():
 					self.reset_keys()
 					pygame.mixer.unpause()
 					self.SMB3pause.play()
-					logger.log('Player ' + self.playername + ' unpaused the game!')
+					logger.log('You unpaused the game!')
 					return
 
 		elif self.show_instructions:
@@ -625,8 +619,8 @@ class Game():
 				self.draw_text(self.classic_intro[1], self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 3, font_name = self.menu2_font, screen = self.window)
 				self.draw_text(self.classic_intro[2], self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 4, font_name = self.menu2_font, screen = self.window)
 
-			self.draw_text('{0}: Start'.format(pygame.key.name(self.SPACE_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 7, font_name = self.game_font, screen = self.window)
-			self.draw_text('{0}/{1}: Quit'.format(pygame.key.name(self.BACK_BIND).upper(), pygame.key.name(self.MENU_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 8, font_name = self.game_font, screen = self.window)
+			self.draw_text(f'{pygame.key.name(self.SPACE_BIND).upper()}: Start', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 7, font_name = self.game_font, screen = self.window)
+			self.draw_text(f'{pygame.key.name(self.BACK_BIND).upper()}/{pygame.key.name(self.MENU_BIND).upper()}: Quit', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 8, font_name = self.game_font, screen = self.window)
 
 			# self.window.blit(self.over_text, self.over_rect)
 			pygame.display.update()
@@ -675,8 +669,8 @@ class Game():
 				self.draw_text('...!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 				self.draw_text('You suddenly hear a secret door opening...', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size, font_name = self.menu2_font, screen = self.window)
 				self.draw_text('maybe you should go check?', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('{0}/{1}: Yeah, sure'.format(pygame.key.name(self.BACK_BIND).upper(), pygame.key.name(self.MENU_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 4, font_name = self.game_font, screen = self.window)
-				self.draw_text('{0}: Nah, later'.format(pygame.key.name(self.SPACE_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 5, font_name = self.game_font, screen = self.window)
+				self.draw_text(f'{pygame.key.name(self.BACK_BIND).upper()}/{pygame.key.name(self.MENU_BIND).upper()}: Yeah sure', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 4, font_name = self.game_font, screen = self.window)
+				self.draw_text(f'{pygame.key.name(self.SPACE_BIND).upper()}: Nah, later', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 5, font_name = self.game_font, screen = self.window)
 			elif self.allow_ai_snake and self.allow_speed_up:
 				self.draw_text('CONGRATS...', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 				self.draw_text('You have reached the HARDEST part of Ultimate Snake Mode.', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size, font_name = self.menu2_font, screen = self.window)
@@ -687,14 +681,14 @@ class Game():
 				self.draw_text('You\'ve also unlocked De Snake Mode and 2 debugging', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 4, font_name = self.menu2_font, screen = self.window)
 				self.draw_text('features: the AI Snake mode and the Turbo Mode.', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 4.5, font_name = self.menu2_font, screen = self.window)
 				self.draw_text('Can you take on the challenge or do you wanna quit?', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 5, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('{0}/{1}: I\'ll quit'.format(pygame.key.name(self.BACK_BIND).upper(), pygame.key.name(self.MENU_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 6, font_name = self.game_font, screen = self.window)
-				self.draw_text('{0}: I\'ll try my best to win'.format(pygame.key.name(self.SPACE_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 7, font_name = self.game_font, screen = self.window)
+				self.draw_text(f'{pygame.key.name(self.BACK_BIND).upper()}/{pygame.key.name(self.MENU_BIND).upper()}: I\'ll quit', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 6, font_name = self.game_font, screen = self.window)
+				self.draw_text(f'{pygame.key.name(self.SPACE_BIND).upper()}: I\'ll try my best to win', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 7, font_name = self.game_font, screen = self.window)
 			else:
 				self.draw_text('NEW MODE UNLOCKED!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = self.game_font, screen = self.window)
 				self.draw_text('You have unlocked: ' + self.thenewmode, self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size, font_name = self.menu2_font, screen = self.window)
 				self.draw_text('Do you want to try it out?', self.font_size *1/2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = self.menu2_font, screen = self.window)
-				self.draw_text('{0}/{1}: Yeah sure'.format(pygame.key.name(self.BACK_BIND).upper(), pygame.key.name(self.MENU_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 3, font_name = self.game_font, screen = self.window)
-				self.draw_text('{0}: Nah I\'m good'.format(pygame.key.name(self.SPACE_BIND).upper()), self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.game_font, screen = self.window)
+				self.draw_text(f'{pygame.key.name(self.BACK_BIND).upper()}/{pygame.key.name(self.MENU_BIND).upper()}: Yeah sure', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 3, font_name = self.game_font, screen = self.window)
+				self.draw_text(f'{pygame.key.name(self.SPACE_BIND).upper()}: Nah I\'m good', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 4, font_name = self.game_font, screen = self.window)
 
 			pygame.mixer.pause()
 			self.DRsnd_won.play()
@@ -722,7 +716,7 @@ class Game():
 				self.reset_keys()
 
 		if not self.inmenu and not self.playing:
-			logger.log('Player ' + self.playername + ' quit the game!')
+			logger.log('You quit the game!')
 			self.show_instructions = False
 			self.inmenu = True
 			self.gamemus.stop()
@@ -731,10 +725,12 @@ class Game():
 
 	def show_turbo(self):
 		if self.turbo:
-			if self.angry_apple == 0:
-				self.draw_text('TURBO MODE IS ON', 25, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
-			else:
-				self.draw_text('YOU AND SNEKY SPED UP!', 25, self.DISPLAY_W / 2 - 80, 30, self.red, self.game_font)
+				if self.angry_apple == 0:
+					if self.ai_snake == 1: self.draw_text('AI SNAKE + TURBO MODE', 25, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
+					else: self.draw_text('TURBO MODE', 25, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
+				else: self.draw_text('YOU AND SNEKY SPED UP!', 25, self.DISPLAY_W / 2 - 80, 30, self.red, self.game_font)
+		elif self.ai_snake == 1 and self.angry_apple == 0: self.draw_text('AI SNAKE', 25, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
+		if self.ai_snake_cooldown > 0: self.draw_text(f'AI SNAKE BUTTON COOLDOWN: {self.ai_snake_cooldown}', 15, self.DISPLAY_W / 2 - 50, 45, self.gray, self.game_font)
 
 	def draw_game_screen(self):
 		# white BG
@@ -742,26 +738,25 @@ class Game():
 
 		if not self.show_instructions:
 			# speed
-			if not self.turbo:
-				pygame.time.delay(int(self.speed))
-			elif self.allow_speed_up:
+			if self.turbo:
 					if self.angry_apple == 0:
 						pygame.time.delay(0)
 					else:
-						pygame.time.delay(int(100))
+						pygame.time.delay(100)
+			else: pygame.time.delay(int(self.speed))
 					
-		#self.show_turbo()
+		if not self.g_over: self.show_turbo()
+
 
 		self.update_fps()
 
-		#score
-		self.show_score()
+		# score/demo text
+		if self.demo: self.draw_text('DEMO GAMEPLAY - Press any key to stop', 20, 50, 30, self.red, self.game_font, anchor = 'midleft')
+		else: self.show_score()
 
 		# speed
 		self.show_speed()
 
-		# demo text
-		if self.demo: self.draw_text('DEMO GAMEPLAY', 25, self.DISPLAY_W / 2 - 50, 30, self.red, self.game_font)
 
 		# apple pos
 		#self.draw_text('Apple: {0}, {1}'.format(self.apple[0], self.apple[1]), 25, 100, 30, self.gray, self.game_font)
@@ -849,35 +844,25 @@ class Game():
 					self.draw_hat(self.snake[0][0], self.snake[0][1])
 			
 		else:
-			if self.direction == 'RIGHT':
-				self.display.blit(self.imgHead_r,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
-				self.draw_hat()
-			if self.direction == 'LEFT':
-				self.display.blit(self.imgHead_l,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
-				self.draw_hat()
-			if self.direction == 'UP':
-				self.display.blit(self.imgHead_u,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
-				self.draw_hat()
-			if self.direction == 'DOWN':
-				self.display.blit(self.imgHead_d,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
-				self.draw_hat()
+			if self.direction == 'RIGHT': self.display.blit(self.imgHead_r,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+			elif self.direction == 'LEFT': self.display.blit(self.imgHead_l,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+			elif self.direction == 'UP': self.display.blit(self.imgHead_u,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+			elif self.direction == 'DOWN': self.display.blit(self.imgHead_d,pygame.Rect(self.snake_head[0], self.snake_head[1], self.cell_size, self.cell_size))
+			self.draw_hat()
 
 	def draw_hat(self, snakepos0 = None, snakepos1 = None):
-		if self.holidayname:
-			if self.holidayname == 'christmas':
-				if snakepos0 == None:
-					snakepos0 = self.snake_head[0]
-				if snakepos1 == None:
-					snakepos1 = self.snake_head[1]
+		if self.holidayname == 'christmas':
+			if snakepos0 == None: snakepos0 = self.snake_head[0]
+			if snakepos1 == None: snakepos1 = self.snake_head[1]
 
-				if self.direction == 'RIGHT':
-					self.display.blit(self.imgHead_hat,pygame.Rect(snakepos0, snakepos1 - self.cell_size, self.cell_size, self.cell_size))
-				if self.direction == 'LEFT':
-					self.display.blit(self.imgHead_hat,pygame.Rect(snakepos0, snakepos1 - self.cell_size, self.cell_size, self.cell_size))
-				if self.direction == 'UP':
-					self.display.blit(self.imgHead_hat,pygame.Rect(snakepos0, snakepos1 - (self.cell_size + 3), self.cell_size, self.cell_size))
-				if self.direction == 'DOWN':
-					self.display.blit(self.imgHead_hat,pygame.Rect(snakepos0, snakepos1 - (self.cell_size + 3), self.cell_size, self.cell_size))
+			if self.direction == 'RIGHT':
+				self.display.blit(self.imgHead_hat,pygame.Rect(snakepos0, snakepos1 - self.cell_size, self.cell_size, self.cell_size))
+			if self.direction == 'LEFT':
+				self.display.blit(self.imgHead_hat,pygame.Rect(snakepos0, snakepos1 - self.cell_size, self.cell_size, self.cell_size))
+			if self.direction == 'UP':
+				self.display.blit(self.imgHead_hat,pygame.Rect(snakepos0, snakepos1 - (self.cell_size + 3), self.cell_size, self.cell_size))
+			if self.direction == 'DOWN':
+				self.display.blit(self.imgHead_hat,pygame.Rect(snakepos0, snakepos1 - (self.cell_size + 3), self.cell_size, self.cell_size))
 
 	def move_apple(self):
 		key_pressed = pygame.key.get_pressed()
@@ -940,7 +925,7 @@ class Game():
 					elif self.score >= 5000:
 						# generate 500 apples
 						if len(self.apple_List) <= 10:
-							for i in range(100):
+							for i in range(500):
 								apple_x = random.randrange(self.border_x,self.DISPLAY_W - self.border_x,self.cell_size)
 								apple_y = random.randrange(self.border_y,self.DISPLAY_H - self.border_y,self.cell_size)
 								self.apple = [apple_x, apple_y]
@@ -967,7 +952,7 @@ class Game():
 							self.apple_List.insert(-1,self.apple)
 				elif self.score >= 500:
 					# generate 500 apples
-					for i in range(1000):
+					for i in range(500):
 						apple_x = random.randrange(self.border_x,self.DISPLAY_W - self.border_x,self.cell_size)
 						apple_y = random.randrange(self.border_y,self.DISPLAY_H - self.border_y,self.cell_size)
 						self.apple = [apple_x, apple_y]
@@ -984,58 +969,33 @@ class Game():
 							self.apple_List.insert(-1,self.apple)
 							break
 
-	def spawn_snake(self):
-		while True:
-			snake_x = random.randrange(self.border_x,self.DISPLAY_W-self.border_x,self.cell_size)
-			snake_y = random.randrange(self.border_y,self.DISPLAY_H-self.border_y,self.cell_size)
-			snake = [snake_x, snake_y]
-			if self.direction == 'UP':
-				snake_2 = [snake_x, snake_y + self.cell_size]
-				snake_3 = [snake_x, snake_y + self.cell_size * 2]
-			elif self.direction == 'DOWN':
-				snake_2 = [snake_x, snake_y - self.cell_size]
-				snake_3 = [snake_x, snake_y - self.cell_size * 2]
-			elif self.direction == 'LEFT':
-				snake_2 = [snake_x + self.cell_size, snake_y]
-				snake_3 = [snake_x + self.cell_size * 2, snake_y]
-			elif self.direction == 'RIGHT':
-				snake_2 = [snake_x - self.cell_size, snake_y]
-				snake_3 = [snake_x - self.cell_size * 2, snake_y]
-			if not (snake[0] >= self.DISPLAY_W - self.cell_size * 3.5
-			or snake[0] <= self.border_x - self.cell_size * 3.5
-			or snake[1] >= self.DISPLAY_H - self.cell_size * 3.5
-			or snake[1] <= self.border_y - self.cell_size * 3.5):
-				self.snake = []
-				self.snake.insert(0, snake_3)
-				self.snake.insert(0, snake_2)
-				self.snake.insert(0, snake)
-				self.snake_head = list(snake)
-				break
-
 	def run(self):
+		if self.ai_snake_cooldown > 0: self.ai_snake_cooldown -= 1
 
 		self.turbo = False
 		if not self.demo:
 			# check function input
-			if self.BACK_KEY:
-				self.paused = True
-			elif self.MENU_KEY:
-				self.playing = False
+			if self.BACK_KEY: self.paused = True
+			elif self.MENU_KEY: self.playing = False
 
 			key_pressed = pygame.key.get_pressed()
-			if key_pressed[self.X_BIND]:
+			if key_pressed[self.X_BIND] and self.ai_snake_cooldown == 0:
+				self.ai_snake_cooldown = int(self.speed * 1.5)
+				if self.speed <= 0 or self.turbo: self.ai_snake_cooldown = 100
 				if self.allow_ai_snake:
 					if self.angry_apple == 0:
-						if self.ai_snake:
+						if self.ai_snake == 1:
 							logger.log('AI Snake off.')
+							self.ai_snake = 0
 						else:
 							logger.log('AI Snake on. The game will now play itself!')
-							if self.speed == 0: self.cheater = True
-						self.ai_snake = not self.ai_snake
+							self.ai_snake = 1
 					else:
-						logger.log('AI Snake cannot be toggled in Angry Apple mode.')
+						if self.holidayname == 'christmas': logger.log('AI Snake cannot be toggled in Angry Candy Cone mode.')
+						else: logger.log('AI Snake cannot be toggled in Angry Apple mode.')
+			if self.ai_snake == 1 and self.angry_apple == 0 and self.speed <= 0: self.cheater = True
 
-			if key_pressed[self.CTRL_BIND]:
+			if key_pressed[self.CTRL_BIND] and self.allow_speed_up:
 				if self.angry_apple == 0:
 					if self.speed > 0: self.turbo = True
 				else:
@@ -1045,6 +1005,7 @@ class Game():
 
 		# auto mode
 		if self.ai_snake == 1:
+			if not self.allowmove: self.allowmove = True
 			if self.angry_apple == 0:
 				try:
 					if not self.demo: pygame.draw.rect(self.display,self.red,(self.apple_List[0][0],self.apple_List[0][1],self.cell_size,self.cell_size))
@@ -1124,33 +1085,68 @@ class Game():
 		if self.angry_apple == 0:
 			if self.ai_snake == 0:
 				# check input
-				if self.curled_up == 0:
-					if self.UP_KEY and self.direction != 'DOWN' and self.direction != 'UP':
-						self.direction = 'UP'
-						self.allowmovesound = True
-					elif self.DOWN_KEY and self.direction != 'UP' and self.direction != 'DOWN':
-						self.direction = 'DOWN'
-						self.allowmovesound = True
-					elif self.RIGHT_KEY and self.direction != 'LEFT' and self.direction != 'RIGHT':
-						self.direction = 'RIGHT'
-						self.allowmovesound = True
-					elif self.LEFT_KEY and self.direction != 'RIGHT' and self.direction != 'LEFT':
-						self.direction = 'LEFT'
-						self.allowmovesound = True
+				if self.allowmove:
+					if self.curled_up == 0:
+						if self.UP_KEY and self.direction != 'DOWN' and self.direction != 'UP':
+							self.direction = 'UP'
+							self.allowmovesound = True
+						elif self.DOWN_KEY and self.direction != 'UP' and self.direction != 'DOWN':
+							self.direction = 'DOWN'
+							self.allowmovesound = True
+						elif self.RIGHT_KEY and self.direction != 'LEFT' and self.direction != 'RIGHT':
+							self.direction = 'RIGHT'
+							self.allowmovesound = True
+						elif self.LEFT_KEY and self.direction != 'RIGHT' and self.direction != 'LEFT':
+							self.direction = 'LEFT'
+							self.allowmovesound = True
+					else:
+						if self.UP_KEY and self.direction != 'UP':
+							self.allowmovesound = True
+							self.direction = 'UP'
+						elif self.DOWN_KEY and self.direction != 'DOWN':
+							self.direction = 'DOWN'
+							self.allowmovesound = True
+						elif self.RIGHT_KEY and self.direction != 'RIGHT':
+							self.direction = 'RIGHT'
+							self.allowmovesound = True
+						elif self.LEFT_KEY and self.direction != 'LEFT':
+							self.direction = 'LEFT'
+							self.allowmovesound = True
 				else:
-					if self.UP_KEY and self.direction != 'UP':
-						self.allowmovesound = True
-						self.direction = 'UP'
-					elif self.DOWN_KEY and self.direction != 'DOWN':
-						self.direction = 'DOWN'
-						self.allowmovesound = True
-					elif self.RIGHT_KEY and self.direction != 'RIGHT':
-						self.direction = 'RIGHT'
-						self.allowmovesound = True
-					elif self.LEFT_KEY and self.direction != 'LEFT':
-						self.direction = 'LEFT'
-						self.allowmovesound = True
-
+					if self.curled_up == 0:
+						if self.UP_KEY and self.direction != 'DOWN':
+							if self.direction != 'UP': self.allowmovesound = True
+							self.direction = 'UP'
+							self.allowmove = True
+						elif self.DOWN_KEY and self.direction != 'UP':
+							if self.direction != 'DOWN': self.allowmovesound = True
+							self.direction = 'DOWN'
+							self.allowmove = True
+						elif self.RIGHT_KEY and self.direction != 'LEFT':
+							if self.direction != 'RIGHT': self.allowmovesound = True
+							self.direction = 'RIGHT'
+							self.allowmove = True
+						elif self.LEFT_KEY and self.direction != 'RIGHT':
+							if self.direction != 'LEFT': self.allowmovesound = True
+							self.direction = 'LEFT'
+							self.allowmove = True
+					else:
+						if self.UP_KEY:
+							if self.direction != 'UP': self.allowmovesound = True
+							self.direction = 'UP'
+							self.allowmove = True
+						elif self.DOWN_KEY:
+							if self.direction != 'DOWN': self.allowmovesound = True
+							self.direction = 'DOWN'
+							self.allowmove = True
+						elif self.RIGHT_KEY:
+							if self.direction != 'RIGHT': self.allowmovesound = True
+							self.direction = 'RIGHT'
+							self.allowmove = True
+						elif self.LEFT_KEY:
+							if self.direction != 'LEFT': self.allowmovesound = True
+							self.direction = 'LEFT'
+							self.allowmove = True
 		else:
 			self.move_apple()
 
@@ -1160,33 +1156,33 @@ class Game():
 				self.GSmove_u.play()
 				self.allowmovesound = False
 				self.UP_KEY = False
-			self.snake_head[1] -= self.cell_size
+			if self.allowmove: self.snake_head[1] -= self.cell_size
 		elif self.direction == 'DOWN':
 			if self.allowmovesound:
 				self.GSmove_d.play()
 				self.allowmovesound = False
 				self.DOWN_KEY = False
-			self.snake_head[1] += self.cell_size
+			if self.allowmove: self.snake_head[1] += self.cell_size
 		elif self.direction == 'RIGHT':
 			if self.allowmovesound:
 				self.GSmove_r.play()
 				self.allowmovesound = False
 				self.RIGHT_KEY = False
-			self.snake_head[0] += self.cell_size
+			if self.allowmove: self.snake_head[0] += self.cell_size
 		elif self.direction == 'LEFT':
 			if self.allowmovesound:
 				self.GSmove_l.play()
 				self.allowmovesound = False
 				self.LEFT_KEY = False
-			self.snake_head[0] -= self.cell_size
+			if self.allowmove: self.snake_head[0] -= self.cell_size
 
 		# eat yourself
 		if self.curled_up == 0 and self.snake_head in self.snake:
-			pygame.draw.rect(self.display, self.snake_color,(self.snake[0][0],self.snake[0][1],self.cell_size,self.cell_size))
-			self.playing = False
-			self.g_over = True
-			if self.angry_apple == 1:
-				self.win = True
+			if self.allowmove:
+				pygame.draw.rect(self.display, self.snake_color,(self.snake[0][0],self.snake[0][1],self.cell_size,self.cell_size))
+				self.playing = False
+				self.g_over = True
+				if self.angry_apple == 1: self.win = True
 		
 		if self.break_border == 0:
 		#hit border
@@ -1199,13 +1195,12 @@ class Game():
 					pygame.draw.rect(self.display, self.snake_color,(self.snake[0][0],self.snake[0][1],self.cell_size,self.cell_size))
 					self.playing = False
 					self.g_over = True
-					if self.angry_apple == 1:
-						self.win = True
+					if self.angry_apple == 1: self.win = True
 
 				else:
 					# portal border
 					if self.snake_head[0] < self.border_x:
-						self.snake_head[0] = self.DISPLAY_W - self.cell_size
+						self.snake_head[0] = self.DISPLAY_W - 2*self.cell_size
 						self.GSportal.play()
 					elif self.snake_head[0] >= self.DISPLAY_W - self.cell_size:
 						self.snake_head[0] = self.border_x
@@ -1214,13 +1209,12 @@ class Game():
 						self.snake_head[1] = self.border_y
 						self.GSportal.play()
 					elif self.snake_head[1] < self.border_y:
-						self.snake_head[1] = self.DISPLAY_H - self.cell_size
+						self.snake_head[1] = self.DISPLAY_H - 2*self.cell_size
 						self.GSportal.play()
 		
 		# snake moving
-		if not self.g_over:
-			self.snake.insert(0, list(self.snake_head))
-		
+		if not self.g_over and self.allowmove: self.snake.insert(0, list(self.snake_head))
+
 		# eat apple
 		if self.snake_head in self.apple_List:
 			self.GSeatapple.play()
@@ -1243,11 +1237,8 @@ class Game():
 			self.spawn_apple()			
 				
 		else:
-			if not self.disallowpopping:
-				if not self.g_over:
-					self.snake.pop()
-			else:
-				self.disallowpopping = False
+			if not self.disallowpopping and not self.g_over and self.allowmove: self.snake.pop()
+			else: self.disallowpopping = False
 
 		# unlock modes
 		if self.score == 20 and self.portal_border == 0 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode0 and not self.newmoded:
@@ -1261,7 +1252,8 @@ class Game():
 		elif self.score == 40 and self.portal_border == 1 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode2 and not self.newmoded:
 			self.newmode = True
 			self.allowmode2 = True
-			self.thenewmode = 'Angry Apple'
+			if self.holidayname == 'christmas': self.thenewmode = 'Angry Candy Cone'
+			else: self.thenewmode = 'Angry Apple'
 		elif self.score == 30 and self.angry_apple == 1 and not self.allowmode3 and not self.newmoded:
 			self.newmode = True
 			self.allowmode3 = True
@@ -1306,8 +1298,6 @@ class Game():
 
 			self.run()
 			if self.g_over: self.draw_game_screen()
-			self.draw_text('PRESS START', self.font_size, int(self.DISPLAY_W/2), int(self.DISPLAY_H - 130))
-			self.draw_text('v.' + self.gameversion, self.font_size / 2, 20, self.DISPLAY_H - 50, anchor = 'topleft', font_name = self.menu2_font)
 			self.window.blit(self.display, (0,0))
 			pygame.display.update()
 
@@ -1329,8 +1319,6 @@ class Game():
 							self.gamemus.fadeout(500)
 							return
 					self.draw_game_screen()
-					self.draw_text('v.' + self.gameversion, self.font_size / 2, 20, self.DISPLAY_H - 50, anchor = 'topleft', font_name = self.menu2_font)
-					self.draw_text('PRESS START', self.font_size, int(self.DISPLAY_W/2), int(self.DISPLAY_H - 130))
 					self.update_fps()
 					self.window.blit(self.display, (0,0))
 					pygame.display.update()
@@ -1363,17 +1351,44 @@ class Game():
 		else: widescreen = False
 
 		#load image
-		if widescreen and self.allow_widescreen: self.imgMenuBG = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holiday + 'menubg_16_9.png'), (self.DISPLAY_W, self.DISPLAY_H))
-		else: self.imgMenuBG = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holiday + 'menubg.png'), (self.DISPLAY_W, self.DISPLAY_H))
+		if widescreen and self.allow_widescreen: self.imgMenuBG = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'menubg_16_9.png'), (self.DISPLAY_W, self.DISPLAY_H))
+		else: self.imgMenuBG = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'menubg.png'), (self.DISPLAY_W, self.DISPLAY_H))
 		self.imgSneky = pygame.image.load(self.temp_path + 'images/Sneky.png')
 		self.imgSneky_rect = self.imgSneky.get_rect()
 		self.imgSneky_rect.midtop = (self.DISPLAY_W / 2, 37)
-		self.imgMenu = pygame.image.load(self.temp_path + 'images/' + self.holiday + 'menu.png')
+		self.imgMenu = pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'menu.png')
 		self.imgMenu_rect = self.imgMenu.get_rect()
 		self.imgMenu_rect.center = (self.DISPLAY_W / 2, self.DISPLAY_H / 2)
 		self.imgGWE = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/GWE.png'), (512, 438))
 		self.imgGWE_rect = self.imgGWE.get_rect()
 		self.imgGWE_rect.center = (self.DISPLAY_W / 2, self.DISPLAY_H / 2)
+
+		# buttons
+		self.imgBack = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/back.png'), (68, 52))
+		self.imgBack_rect = self.imgBack.get_rect()
+		self.imgBack_rect.bottomleft = (16, self.DISPLAY_H - 31)
+		self.imgBack_highlight = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/back_highlight.png'), (68, 52))
+		self.imgEnter = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/enter.png'), (68, 52))
+		self.imgEnter_rect = self.imgEnter.get_rect()
+		self.imgEnter_rect.bottomright = (self.DISPLAY_W - 14, self.DISPLAY_H - 31)
+		self.imgEnter_highlight = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/enter_highlight.png'), (68, 52))
+		self.imgEnter_disabled = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/enter_disabled.png'), (68, 52))
+		self.imgVolDown1 = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/voldown1.png'), (68, 52))
+		self.imgVolDown5 = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/voldown5.png'), (68, 52))
+		self.imgVolUp1 = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/volup1.png'), (68, 52))
+		self.imgVolUp5 = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/volup5.png'), (68, 52))
+		self.imgVolDown1_disabled = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/voldown1_disabled.png'), (68, 52))
+		self.imgVolDown5_disabled = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/voldown5_disabled.png'), (68, 52))
+		self.imgVolUp1_disabled = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/volup1_disabled.png'), (68, 52))
+		self.imgVolUp5_disabled = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/volup5_disabled.png'), (68, 52))
+		self.imgVolDown1_rect = self.imgVolDown1.get_rect()
+		self.imgVolDown5_rect = self.imgVolDown5.get_rect()
+		self.imgVolUp1_rect = self.imgVolUp1.get_rect()
+		self.imgVolUp5_rect = self.imgVolUp5.get_rect()
+		self.imgVolDown1_highlight = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/voldown1_highlight.png'), (68, 52))
+		self.imgVolDown5_highlight = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/voldown5_highlight.png'), (68, 52))
+		self.imgVolUp1_highlight = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/volup1_highlight.png'), (68, 52))
+		self.imgVolUp5_highlight = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/volup5_highlight.png'), (68, 52))
 
 		self.imgHead_r = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_r.png'),(self.cell_size,self.cell_size))
 		self.imgHead_l = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_l.png'),(self.cell_size,self.cell_size))
@@ -1383,11 +1398,12 @@ class Game():
 		self.imgHead_win = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_win.png'),(self.cell_size,self.cell_size))
 
 		# Load special images for holidays
-		if self.holiday:
-			self.imgHead_hat = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holiday + 'hat.png'),(self.cell_size + 10, self.cell_size + 5))
-			self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holiday + 'apple.png'),(self.cell_size / 2, self.cell_size))
+		if self.holidaydir:
+			self.imgHead_hat = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'hat.png'),(self.cell_size + 10, self.cell_size + 5))
+			self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'apple.png'),(int(11 * (self.cell_size / 21)), self.cell_size))
 		else:
-			self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/apple.png'),(self.cell_size - 3, self.cell_size))
+			self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/apple.png'),(int(40 * (self.cell_size / 46)), self.cell_size))
+		self.imgApple_menu = pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'apple.png')
 
 		# Load audio
 		self.WIIstart = pygame.mixer.Sound(self.temp_path + 'audio/wii.start.mp3')
@@ -1448,24 +1464,26 @@ class Game():
 		self.angry_apple = angry_apple
 		if self.demo: self.ai_snake = 1
 		else: self.ai_snake = angry_apple
+		self.ai_snake_cooldown = 0
 
 	def new_game(self):
 		# score
 		self.score = 0
 
-		# apple
 		if self.playing or self.demo:
-			# direction
-			self.direction = random.choice(['UP', 'DOWN', 'LEFT', 'RIGHT'])
+			self.direction = 'RIGHT'
 
-			# snake
-			self.spawn_snake()
+			self.snake_head = [100, 100]
 
-			# apple
-			self.apple_List = []
-			self.spawn_apple()
+			self.snake = [[100, 100], [80, 100], [60, 100]]
+			self.inserted_snake = False
 
+			self.apple = [300, 300]
+			self.apple_List = [[300, 300]]
 
+		if self.demo: self.allowmove = True
+		else: self.allowmove = False
+		
 		# speed - lower => faster
 		self.speed = 150
 		self.turbo = False
@@ -1484,27 +1502,27 @@ class Game():
 		self.cheater = False
 
 	def show_score(self):
-		self.draw_text('Score: {0}'.format(self.score), 25, 50, 20, self.gray, self.game_font, anchor = 'topleft')
+		self.draw_text(f'Score: {self.score}', 25, 50, 20, self.gray, self.game_font, anchor = 'topleft')
 		if self.save_high_score:
 			if self.snake_instinct == 1:
 				if self.high_scores['Ultimate Snake'] > 0:
-					self.draw_text('HIGH SCORE: {0}'.format(self.high_scores['Ultimate Snake']), 15, 50, 5, self.gray, self.game_font, anchor = 'topleft')
+					self.draw_text(f'HIGH SCORE: {self.high_scores["Ultimate Snake"]}'.format(self.high_scores['Ultimate Snake']), 15, 50, 5, self.gray, self.game_font, anchor = 'topleft')
 					if self.score > self.high_scores['Ultimate Snake']: self.draw_text('HIGH SCORE!', 15, 50, 45, self.red, self.game_font, anchor = 'topleft')
 			elif self.apple_bag == 1:
 				if self.high_scores['Apple Bag'] > 0:
-					self.draw_text('HIGH SCORE: {0}'.format(self.high_scores['Apple Bag']), 15, 50, 5, self.gray, self.game_font, anchor = 'topleft')
+					self.draw_text(f'HIGH SCORE: {self.high_scores["Apple Bag"]}'.format(self.high_scores['Apple Bag']), 15, 50, 5, self.gray, self.game_font, anchor = 'topleft')
 					if self.score > self.high_scores['Apple Bag']: self.draw_text('HIGH SCORE!', 15, 50, 45, self.red, self.game_font, anchor = 'topleft')
 			elif self.portal_border == 1:
 				if self.high_scores['Portal Border'] > 0:
-					self.draw_text('HIGH SCORE: {0}'.format(self.high_scores['Portal Border']), 15, 50, 5, self.gray, self.game_font, anchor = 'topleft')
+					self.draw_text(f'HIGH SCORE: {self.high_scores["Portal Border"]}'.format(self.high_scores['Portal Border']), 15, 50, 5, self.gray, self.game_font, anchor = 'topleft')
 					if self.score > self.high_scores['Portal Border']: self.draw_text('HIGH SCORE!', 15, 50, 45, self.red, self.game_font, anchor = 'topleft')
 			elif self.angry_apple == 1:
 				if self.high_scores['Angry Apple'] > 0:
-					self.draw_text('HIGH SCORE: {0}'.format(self.high_scores['Angry Apple']), 15, 50, 5, self.gray, self.game_font, anchor = 'topleft')
+					self.draw_text(f'HIGH SCORE: {self.high_scores["Angry Apple"]}'.format(self.high_scores['Angry Apple']), 15, 50, 5, self.gray, self.game_font, anchor = 'topleft')
 					if self.score > self.high_scores['Angry Apple']: self.draw_text('HIGH SCORE!', 15, 50, 45, self.red, self.game_font, anchor = 'topleft')
 			else:
 				if self.high_scores['Classic'] > 0:
-					self.draw_text('HIGH SCORE: {0}'.format(self.high_scores['Classic']), 15, 50, 5, self.gray, self.game_font, anchor = 'topleft')
+					self.draw_text(f'HIGH SCORE: {self.high_scores["Classic"]}'.format(self.high_scores['Classic']), 15, 50, 5, self.gray, self.game_font, anchor = 'topleft')
 					if self.score > self.high_scores['Classic']: self.draw_text('HIGH SCORE!', 15, 50, 45, self.red, self.game_font, anchor = 'topleft')
 
 	def show_speed(self):
@@ -1575,8 +1593,8 @@ class Game():
 			self.BAcorrect.set_volume(self.soundvol * self.volume)
 
 	def load_music(self):
-		self.menumus = pygame.mixer.Sound(self.temp_path + 'audio/' + self.holiday + 'wii.menu.mp3')
-		self.gamemus = pygame.mixer.Sound(self.temp_path + 'audio/' + self.holiday + 'bg_music_1.mp3')
+		self.menumus = pygame.mixer.Sound(self.temp_path + 'audio/' + self.holidaydir + 'wii.menu.mp3')
+		self.gamemus = pygame.mixer.Sound(self.temp_path + 'audio/' + self.holidaydir + 'bg_music_1.mp3')
 
 	def draw_tiled_bg(self):
 		for x in range(0, self.DISPLAY_W, 2*self.cell_size):
@@ -1609,10 +1627,10 @@ class Game():
 			try:
 				if item != 'fullscreen' and item != 'scaled' and item != 'native_res':
 					self.import_settings(item)
-					logger.log('Loading setting "' + item + '": success')
+					logger.log(f'Importing setting "{item}": success')
 			except:
-				logger.log('Loading setting "' + item + '": error')
-				pass
+				logger.log(f'Importing setting "{item}": error - using default value')
+				traceback.format_exc()
 
 		self.print_loading('Checking saved data')
 		if not self.allowmode0:
@@ -1620,7 +1638,7 @@ class Game():
 				logger.log('Portal Border mode unlocked too early. Locking.')
 				self.allowmode1 = False
 			elif self.allowmode2:
-				if self.holidayname == 'christmas': logger.log('Angry Treat mode unlocked too early. Locking.')
+				if self.holidayname == 'christmas': logger.log('Angry Candy Cone mode unlocked too early. Locking.')
 				else: logger.log('Angry Apple mode unlocked too early. Locking.')
 				self.allowmode2 = False
 			elif self.allowmode3:
@@ -1635,7 +1653,7 @@ class Game():
 
 		if not self.allowmode1:
 			if self.allowmode2:
-				if self.holidayname == 'christmas': logger.log('Angry Treat mode unlocked too early. Locking.')
+				if self.holidayname == 'christmas': logger.log('Angry Candy Cone mode unlocked too early. Locking.')
 				else: logger.log('Angry Apple mode unlocked too early. Locking.')
 				self.allowmode2 = False
 			elif self.allowmode3:
@@ -1693,33 +1711,32 @@ class Game():
 
 		for score in self.high_scores:
 			if self.high_scores[score] < 0:
-				logger.log('Invalid ' + score + ' score: ' + str(self.high_scores[score]) + '\nResetting score to 0.')
+				logger.log(f'{score} score cannot be negative, resetting score to 0.')
+				self.high_scores[score] = 0
+			elif self.high_scores[score] == float('inf'):
+				logger.log(f'{score} score cannot be infinity, resetting score to 0.')
 				self.high_scores[score] = 0
 
+		logger.log('Finished loading save data.')
+
+		logger.log('Getting splash text')
 		self.print_loading('Getting splash text')
 		self.generate_splash()
+		logger.log('Adjusting volume')
 		self.print_loading('Adjusting volume')
 		self.change_volume()
 
 		self.save_settings()
 
-		logger.log('Finished loading save data.')
+		logger.log('Finished initialization.')
 		
 	def save_settings(self):
+		if not os.path.exists(self.appdata_path + self.settings_fn): logger.log('No settings file found, creating new settings file.')
 		# save settings to settings.py
-		f = open(self.appdata_path + self.settings_fn, 'w', encoding = 'utf8')
-		f.write('# WARNING! This script is AUTO-GENERATED by Sneky.\n# You should NOT modify it in any way!\n\n# Nevermind, you won\'t even listen anyway. Go ahead and do anything you want.\n\n')
-		for item in self.items_to_import:
-			exec('f.write(\'{0} = {{0}}\\n\'.format(self.{0}))'.format(item))
-		f.close()
+		with open(self.appdata_path + self.settings_fn, 'w', encoding = 'utf8') as f:
+			f.write('# WARNING! This script is AUTO-GENERATED by Sneky.\n# You should NOT modify it in any way!\n\n# Nevermind, you won\'t even listen anyway. Go ahead and do anything you want.\n\n')
+			for item in self.items_to_import: exec('f.write(f\'{0} = {{self.{0}}}\\n\')'.format(item))
+			f.close()
 
-	def import_settings(self, var, catch = False):
-		if catch:
-			exec('from settings import ' + var)
-			exec('self.{0} = {0}'.format(var))
-		else:
-			try:
-				exec('from settings import ' + var)
-				exec('self.{0} = {0}'.format(var))
-			except Exception:
-				pass
+	def import_settings(self, var):
+		exec('from settings import {0}; self.{0} = {0}'.format(var))
