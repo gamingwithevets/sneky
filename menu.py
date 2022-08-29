@@ -94,7 +94,6 @@ class MainMenu(Menu):
 		self.quitmousey = (self.mid_h + 130, self.mid_h + 160)
 
 	def display_menu(self):
-		if self.game.no_swipe: self.no_sdl_warning()
 		if self.game.auto_update: self.game.updater.display_menu(True)
 
 		self.run_display = True
@@ -206,28 +205,6 @@ class MainMenu(Menu):
 				pygame.quit()
 				sys.exit()
 			self.run_display = False
-
-	def no_sdl_warning(self):
-		if not self.game.sdl2_checked:
-			no_sdl_run_display = True
-			while no_sdl_run_display:
-				self.game.check_events()
-				if self.game.START_KEY or self.game.menu.enter_button_click():
-					no_sdl_run_display = False
-					self.game.sdl2_checked = True
-					self.game.DRsnd_select.play()
-				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, self.game.imgMenuBG_rect)
-				self.game.menu.enter_button()
-				self.game.draw_text('WARNING', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size)
-				self.game.draw_text('Your version of Pygame was compiled without SDL2,', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
-				self.game.draw_text('which means swiping controls are disabled in Sneky.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, font_name = self.game.menu2_font)
-				self.game.draw_text('To play Sneky, please make sure you have a working', int(self.game.font_size / 2), self.mid_w, self.mid_h + 50, font_name = self.game.menu2_font)
-				self.game.draw_text('keyboard to play.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
-				self.game.draw_text('PS: Actually, your Pygame version is kind of "one of a kind".', int(self.game.font_size / 2), self.mid_w, self.mid_h + 110, font_name = self.game.menu2_font)
-				self.game.draw_text('Almost everyone has an SDL2 Pygame installed, including myself,', int(self.game.font_size / 2), self.mid_w, self.mid_h + 130, font_name = self.game.menu2_font)
-				self.game.draw_text('so thanks for testing this screen with a non-SDL2 Pygame! <3', int(self.game.font_size / 2), self.mid_w, self.mid_h + 150, font_name = self.game.menu2_font)
-				self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: OK', int(self.game.font_size / 2), self.mid_w, self.mid_h + 190, font_name = self.game.menu2_font)
-				self.blit_screen()
 
 class OptionsMenu(Menu):
 	def __init__(self, game):

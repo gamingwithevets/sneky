@@ -48,13 +48,6 @@ class Game():
 		self.RIGHT_BIND = pygame.K_RIGHT
 		self.X_BIND = pygame.K_x
 
-		try:
-			testvar = pygame.FINGERDOWN
-			self.no_swipe = False
-		except:
-			logger.log('Pygame compiled without SDL2, disabling swipe controls.')
-			self.no_swipe = True
-
 		# variables for swipe function
 		self.SWIPE_UP, self.SWIPE_DOWN, self.SWIPE_LEFT, self.SWIPE_RIGHT = False, False, False, False # DO NOT put in reset_keys()
 		self.swipe_distance = 50
