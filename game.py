@@ -380,28 +380,27 @@ class Game():
 				elif event.button == 5: self.MOUSESLIDERDOWN = True
 
 		# swipe function (EXPERIMENTAL)
-		if not self.no_swipe:
-			self.swipe_time = int(self.speed * 1.5)
-			if self.speed <= 0 or self.turbo: self.swipe_time = 25
-			elif self.speed >= 140: self.swipe_time = 1
-			elif self.speed >= 125: self.swipe_time = 2
-			elif self.speed >= 100: self.swipe_time = 5
-			elif self.speed >= 50: self.swipe_time = 10
-			if pygame.mouse.get_pressed()[0]:
-				if self.mousex >= 0 and self.mousey >= 0: # negative mouse values will not work (applies to scaled mode)
-					if self.mousex_before == -1 and self.mousey_before == -1: self.mousex_before, self.mousey_before = self.mousex, self.mousey
-					if self.swipe_timer >= self.swipe_time:
-						if self.mousex_now == -1 and self.mousey_now == -1: self.mousex_now, self.mousey_now = self.mousex, self.mousey
-						if self.mousey_before - self.mousey_now >= self.swipe_distance: self.SWIPE_UP = True
-						elif self.mousey_now - self.mousey_before >= self.swipe_distance: self.SWIPE_DOWN = True
-						elif self.mousex_now - self.mousex_before >= self.swipe_distance: self.SWIPE_RIGHT = True
-						elif self.mousex_before - self.mousex_now >= self.swipe_distance: self.SWIPE_LEFT = True
-					else: self.swipe_timer += 1
-			else:
-				self.SWIPE_UP, self.SWIPE_DOWN, self.SWIPE_LEFT, self.SWIPE_RIGHT = False, False, False, False
-				self.swipe_timer = 0
-				self.mousex_before, self.mousey_before = -1, -1
-				self.mousex_now, self.mousey_now = -1, -1
+		self.swipe_time = int(self.speed * 1.5)
+		if self.speed <= 0 or self.turbo: self.swipe_time = 25
+		elif self.speed >= 140: self.swipe_time = 1
+		elif self.speed >= 125: self.swipe_time = 2
+		elif self.speed >= 100: self.swipe_time = 5
+		elif self.speed >= 50: self.swipe_time = 10
+		if pygame.mouse.get_pressed()[0]:
+			if self.mousex >= 0 and self.mousey >= 0: # negative mouse values will not work (applies to scaled mode)
+				if self.mousex_before == -1 and self.mousey_before == -1: self.mousex_before, self.mousey_before = self.mousex, self.mousey
+				if self.swipe_timer >= self.swipe_time:
+					if self.mousex_now == -1 and self.mousey_now == -1: self.mousex_now, self.mousey_now = self.mousex, self.mousey
+					if self.mousey_before - self.mousey_now >= self.swipe_distance: self.SWIPE_UP = True
+					elif self.mousey_now - self.mousey_before >= self.swipe_distance: self.SWIPE_DOWN = True
+					elif self.mousex_now - self.mousex_before >= self.swipe_distance: self.SWIPE_RIGHT = True
+					elif self.mousex_before - self.mousex_now >= self.swipe_distance: self.SWIPE_LEFT = True
+				else: self.swipe_timer += 1
+		else:
+			self.SWIPE_UP, self.SWIPE_DOWN, self.SWIPE_LEFT, self.SWIPE_RIGHT = False, False, False, False
+			self.swipe_timer = 0
+			self.mousex_before, self.mousey_before = -1, -1
+			self.mousex_now, self.mousey_now = -1, -1
 
 	def reset_keys(self):
 		self.START_KEY, self.BACK_KEY, self.MENU_KEY, self.SPACE_KEY = False, False, False, False
