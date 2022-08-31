@@ -62,12 +62,19 @@ Music & SFX Injection: GamingWithEvets
 Crash Handler & Logger: GamingWithEvets  
 
 ## Theme Credits
-Themes: GamingWithEvets
+Themes: GamingWithEvets  
+Music from [Free Music Archive](https://freemusicarchive.org)
+
 ### Christmas Theme Credits  
-Candy Cane Image: Kandi Patterns  
+Candy Cone Image: Kandi Patterns  
 Santa Hat: John3 from TopPNG  
-Menu Music: ["Jingle Bells\"](https://www.youtube.com/watch?v=R1gskElaLNo) - From [YouTube](https://www.youtube.com/)/[KON](https://www.youtube.com/channel/UCcmWi0LJKaovJG_DaEhGD_g)  
-Game Music: ["We Wish You A Merry Christmas"](https://www.youtube.com/watch?v=8vdXR_igALU) - From [YouTube](https://www.youtube.com/)/[Pudding TV - Nursery Rhymes](https://www.youtube.com/channel/UCjPZm-0TqBPNAzxSrs6zMHw)
+Menu Music: "Little Ducklin" - Maarten Schellekens  
+Game Music: "Yuletide" - Dee Yan-Key
+
+## Halloween Theme Credits
+Witch Hat: William Chen  
+Menu Music: "Emertane" - LR Friberg  
+Game music from the game "Bounce Tales"
 
 **© 2021-2022 GamingWithEvets Inc. All rights go to their respective owners.  
 Sneky is a trademark of GamingWithEvets Inc.**
