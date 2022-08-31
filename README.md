@@ -71,7 +71,7 @@ Santa Hat: John3 from TopPNG
 Menu Music: "Little Ducklin" - Maarten Schellekens  
 Game Music: "Yuletide" - Dee Yan-Key
 
-## Halloween Theme Credits
+### Halloween Theme Credits
 Witch Hat: William Chen  
 Menu Music: "Emertane" - LR Friberg  
 Game music from the game "Bounce Tales"
