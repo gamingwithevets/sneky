@@ -5,6 +5,7 @@ if __name__ == '__main__':
 
 import pygame
 import os
+import math
 import time
 import logger, updater
 import shutil
@@ -369,7 +370,7 @@ class ClearData(Menu):
 			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, self.game.imgMenuBG_rect)
 			self.game.menu.back_button()
 			self.game.draw_text('CLEAR DATA', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size)
-			self.game.draw_text('CLEAR SAVED DATA', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
+			self.game.draw_text('CLEAR HIGH SCORES', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 			self.game.draw_text('CLEAR SESSION LOGS', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
 			self.game.draw_text('CLEAR DATA AND LOGS', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
 			self.draw_cursor(int(self.game.font_size / 2))
@@ -464,7 +465,7 @@ class ClearData(Menu):
 			self.game.menu.enter_button()
 			self.game.draw_text('CLEAR DATA', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size)
 			if cleardata:
-				self.game.draw_text('WARNING! You are about to clear all saved data.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, color = self.game.red, font_name = self.game.menu2_font)
+				self.game.draw_text('WARNING! You are about to clear all saved high scores.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, color = self.game.red, font_name = self.game.menu2_font)
 				if clearlogs:
 					self.game.draw_text('You\'re also clearing all your session logs.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, color = self.game.red, font_name = self.game.menu2_font)
 					self.game.draw_text('This cannot be undone!', int(self.game.font_size / 2), self.mid_w, self.mid_h + 50, color = self.game.red, font_name = self.game.menu2_font)
@@ -485,7 +486,7 @@ class ClearData(Menu):
 		clear3_run_display = True
 		self.game.menu.enter_button_disabled = True
 		enter_button_disabled = True
-		timer = 500
+		timer = 5
 		while clear3_run_display:
 			self.game.reset_keys()
 			self.game.check_events()
@@ -511,12 +512,12 @@ class ClearData(Menu):
 			self.game.draw_text('CLEAR DATA', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size)
 			if cleardata:
 				if clearlogs:
-					self.game.draw_text('Are you REALLY sure you wanna clear your data and logs?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, color = self.game.red, font_name = self.game.menu2_font)
-					if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CLEAR DATA AND LOGS ({int(timer / 100) + (timer % 100 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font, color = self.game.gray)
+					self.game.draw_text('Are you REALLY sure you wanna clear your high scores and session logs?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, color = self.game.red, font_name = self.game.menu2_font)
+					if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CLEAR HIGH SCORES AND LOGS ({int(timer / 100) + (timer % 100 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font, color = self.game.gray)
 					else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CLEAR DATA AND LOGS', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
 				else:
-					self.game.draw_text('Are you REALLY sure you wanna clear your data?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, color = self.game.red, font_name = self.game.menu2_font)
-					if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CLEAR ALL SAVED DATA ({int(timer / 100) + (timer % 100 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font, color = self.game.gray)
+					self.game.draw_text('Are you REALLY sure you wanna clear your high scores?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, color = self.game.red, font_name = self.game.menu2_font)
+					if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CLEAR SAVED HIGH SCORES ({int(timer / 100) + (timer % 100 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font, color = self.game.gray)
 					else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CLEAR ALL SAVED DATA', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
 			elif clearlogs:
 				self.game.draw_text('Are you REALLY sure you wanna clear all session logs?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, color = self.game.red, font_name = self.game.menu2_font)
@@ -525,7 +526,7 @@ class ClearData(Menu):
 			self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: CANCEL', int(self.game.font_size / 2), self.mid_w, self.mid_h + 90, font_name = self.game.menu2_font)
 			self.game.draw_text('THIS IS YOUR LAST WARNING!', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, color = self.game.red, font_name = self.game.menu2_font)
 			self.blit_screen()
-			timer -= 1
+			timer -= self.deltatime
 
 	def clear_data(self, cleardata = True, clearlogs = False):
 		if cleardata:
@@ -543,16 +544,19 @@ class ClearData(Menu):
 			'Angry Apple': 0,
 			'Ultimate Snake': 0
 			}
+			self.game.angry_apple_halloween_hs = 3599000
 			self.game.save_settings()
 		if os.path.exists(self.game.appdata_path) and os.path.exists(self.game.appdata_path + logger.logfile) and clearlogs: os.remove(self.game.appdata_path + logger.logfile)
-		logger.log('The following has been cleared:', allowlog = False)
-		if cleardata: print('- Saved data')
-		if clearlogs:
+		if self.clearlogs:
+			logger.log('The following has been cleared:', allowlog = False)
+			if cleardata: print('- Saved high scores')
 			print('- Session logs')
 			print('Sneky session closed.')
 			pygame.quit()
 			sys.exit()
 		else:
+			logger.log('The following has been cleared:\n- Saved high scores')
+
 			clear4_run_display = True
 			while clear4_run_display:
 				self.game.reset_keys()
@@ -854,7 +858,7 @@ class VideoMenu(Menu):
 		noscale_run_display = True
 		self.game.menu.enter_button_disabled = True
 		enter_button_disabled = True
-		timer = 500
+		timer = 5
 		while noscale_run_display:
 			self.game.reset_keys()
 			self.game.check_events()
@@ -885,7 +889,7 @@ class VideoMenu(Menu):
 			else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES', int(self.game.font_size / 2), self.mid_w, self.mid_h + 90, font_name = self.game.menu2_font)
 			self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: NO', int(self.game.font_size / 2), self.mid_w, self.mid_h + 110, font_name = self.game.menu2_font)
 			self.blit_screen()
-			timer -= 1
+			timer -= self.deltatime
 
 	def native_warning(self):
 		native_run_display = True
@@ -915,7 +919,7 @@ class VideoMenu(Menu):
 		small_text_run_display = True
 		self.game.menu.enter_button_disabled = True
 		enter_button_disabled = True
-		timer = 500
+		timer = 5
 		while small_text_run_display:
 			self.game.reset_keys()
 			self.game.check_events()
@@ -946,7 +950,7 @@ class VideoMenu(Menu):
 			else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES', int(self.game.font_size / 2), self.mid_w, self.mid_h + 90, font_name = self.game.menu2_font)
 			self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: NO', int(self.game.font_size / 2), self.mid_w, self.mid_h + 110, font_name = self.game.menu2_font)
 			self.blit_screen()
-			timer -= 1
+			timer -= self.deltatime
 
 class UpdateMenu(Menu):
 	def __init__(self,game):
@@ -1048,7 +1052,7 @@ class UpdateMenu(Menu):
 class GeneralMenu(Menu):
 	def __init__(self,game):
 		Menu.init_values(self,game)
-		self.state = 'tut'
+		self.state = 'leg'
 		self.opt1x, self.opt1y = self.mid_w, self.mid_h + 10
 		self.opt2x, self.opt2y = self.mid_w, self.mid_h + 40
 		self.opt3x, self.opt3y = self.mid_w, self.mid_h + 70
@@ -1058,64 +1062,63 @@ class GeneralMenu(Menu):
 		self.opt1mousey = (self.mid_h, self.mid_h + 20)
 		self.opt2mousey = (self.mid_h + 30, self.mid_h + 50)
 		self.opt3mousey = (self.mid_h + 60, self.mid_h + 80)
-
 	def display_menu(self):
 		self.run_display = True
 		while self.run_display:
-			if self.game.tutorial: self.tut_str = 'ON'
-			else: self.tut_str = 'OFF'
 			if self.game.legacy_experience: self.leg_str = 'ON'
 			else: self.leg_str = 'OFF'
 			if self.game.dark_mode: self.dark_str = 'ON'
 			else: self.dark_str = 'OFF'
+			if self.game.showfps: self.fps_str = 'ON'
+			else: self.fps_str = 'OFF'
 			self.game.check_events()
 			self.check_input()
 			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, self.game.imgMenuBG_rect)
 			self.game.menu.back_button()
 			self.game.draw_text('GENERAL', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
-			self.game.draw_text(f'Show Tutorial: {self.tut_str}', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
-			self.game.draw_text(f'Legacy Experience: {self.leg_str}', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
-			self.game.draw_text(f'Dark Mode: {self.dark_str}', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
+			self.game.draw_text(f'Legacy Experience: {self.leg_str}', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
+			self.game.draw_text(f'Dark Mode: {self.dark_str}', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
+			self.game.draw_text(f'Show FPS Count: {self.fps_str}', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
 			self.game.save_settings()
 			self.draw_cursor(int(self.game.font_size / 2))
 			self.blit_screen()
 
 	def move_cursor(self):
 		if self.game.DOWN_KEY:
-			if self.state == 'tut':
-				self.state = 'leg'
-				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
-			elif self.state == 'leg':
+			if self.state == 'leg':
 				self.state = 'dark'
-				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
 			elif self.state == 'dark':
-				self.state = 'tut'
+				self.state = 'fps'
+				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+			elif self.state == 'fps':
+				self.state = 'leg'
 				self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
 			self.game.DRsnd_menumove.play()
 		elif self.game.UP_KEY:
-			if self.state == 'tut':
-				self.state = 'dark'
+			if self.state == 'leg':
+				self.state = 'fps'
 				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+			elif self.state == 'fps':
+				self.state = 'dark'
+				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
 			elif self.state == 'dark':
 				self.state = 'leg'
-				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
-			elif self.state == 'leg':
-				self.state = 'tut'
 				self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
 			self.game.DRsnd_menumove.play()
 
 		if self.game.MOUSEMOVE and self.game.mousex in range(*self.menumousex):
-			if self.game.mousey in range(*self.opt1mousey) and self.state != 'tut':
+			if self.game.mousey in range(*self.opt1mousey) and self.state != 'leg':
 				self.cursor_rect.midtop = (self.opt1x + self.offset, self.opt1y)
-				self.state = 'tut'
-				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(*self.opt2mousey) and self.state != 'leg':
-				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
 				self.state = 'leg'
 				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(*self.opt3mousey) and self.state != 'dark':
-				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+			elif self.game.mousey in range(*self.opt2mousey) and self.state != 'dark':
+				self.cursor_rect.midtop = (self.opt2x + self.offset, self.opt2y)
 				self.state = 'dark'
+				self.game.DRsnd_menumove.play()
+			elif self.game.mousey in range(*self.opt3mousey) and self.state != 'fps':
+				self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)
+				self.state = 'fps'
 				self.game.DRsnd_menumove.play()
 
 	def check_input(self):
@@ -1126,20 +1129,20 @@ class GeneralMenu(Menu):
 			self.game.DRsnd_select.play()
 		elif self.game.START_KEY:
 			self.game.DRsnd_select.play()
-			if self.state == 'tut': self.game.tutorial = not self.game.tutorial
-			elif self.state == 'leg': self.game.legacy_experience = not self.game.legacy_experience
+			if self.state == 'leg': self.game.legacy_experience = not self.game.legacy_experience
 			elif self.state == 'dark': self.game.dark_mode = not self.game.dark_mode
+			elif self.state == 'fps': self.game.showfps = not self.game.showfps
 
 		if self.game.CLICK and self.game.mousex in range(*self.menumousex):
 			if self.game.mousey in range(*self.opt1mousey):
 				self.game.DRsnd_select.play()
-				self.game.tutorial = not self.game.tutorial
+				self.game.legacy_experience = not self.game.legacy_experience
 			elif self.game.mousey in range(*self.opt2mousey):
 				self.game.DRsnd_select.play()
-				self.game.legacy_experience = not self.game.legacy_experience
+				self.game.dark_mode = not self.game.dark_mode
 			elif self.game.mousey in range(*self.opt3mousey):
 				self.game.DRsnd_select.play()
-				self.game.dark_mode = not self.game.dark_mode
+				self.game.showfps = not self.game.showfps
 
 class Updater(Menu):
 	def __init__(self, game):
@@ -1656,6 +1659,8 @@ class ControlsMenu(Menu):
 		self.opt8x, self.opt8y = self.mid_w, self.mid_h + 170
 		self.opt9x, self.opt9y = self.mid_w, self.mid_h + 190
 		self.opt10x, self.opt10y = self.mid_w, self.mid_h + 210
+		self.opt11x, self.opt11y = self.mid_w, self.mid_h + 230
+		self.offset -= 10
 		self.cursor_rect.midtop = (self.opt0x + self.offset, self.opt0y)
 		self.checks = 0
 
@@ -1671,6 +1676,7 @@ class ControlsMenu(Menu):
 		self.opt8mousey = (self.mid_h + 160, self.mid_h + 180)
 		self.opt9mousey = (self.mid_h + 180, self.mid_h + 200)
 		self.opt10mousey = (self.mid_h + 200, self.mid_h + 220)
+		self.opt11mousey = (self.mid_h + 220, self.mid_h + 240)
 
 	def display_menu(self):
 		self.run_display = True
@@ -1688,12 +1694,18 @@ class ControlsMenu(Menu):
 			self.game.draw_text(f'{pygame.key.name(self.game.RIGHT_BIND).upper()} - Move Right', int(self.game.font_size / 2), self.opt4x, self.opt4y, font_name = self.game.menu2_font)
 			if self.game.allow_ai_snake: self.game.draw_text(f'{pygame.key.name(self.game.X_BIND).upper()} (game) - Toggle AI Snake', int(self.game.font_size / 2), self.opt5x, self.opt5y, font_name = self.game.menu2_font)
 			else: self.game.draw_text('??? - ???', int(self.game.font_size / 2), self.opt5x, self.opt5y, font_name = self.game.menu2_font, color = self.game.gray)
-			if self.game.allow_speed_up: self.game.draw_text(f'{pygame.key.name(self.game.CTRL_BIND).upper()} (hold) - Turbo Mode', int(self.game.font_size / 2), self.opt6x, self.opt6y, font_name = self.game.menu2_font)
+			if self.game.allow_speed_up: self.game.draw_text(f'{pygame.key.name(self.game.CTRL_BIND).upper()} (game - hold) - Turbo Mode', int(self.game.font_size / 2), self.opt6x, self.opt6y, font_name = self.game.menu2_font)
 			else: self.game.draw_text('??? - ???', int(self.game.font_size / 2), self.opt6x, self.opt6y, font_name = self.game.menu2_font, color = self.game.gray)
 			self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} - Back/Pause', int(self.game.font_size / 2), self.opt7x, self.opt7y, font_name = self.game.menu2_font)
-			self.game.draw_text(f'{pygame.key.name(self.game.SPACE_BIND).upper()} (game over) - New Game', int(self.game.font_size / 2), self.opt8x, self.opt8y, font_name = self.game.menu2_font)
-			self.game.draw_text(f'{pygame.key.name(self.game.MENU_BIND).upper()} (game) - Quit', int(self.game.font_size / 2), self.opt9x, self.opt9y, font_name = self.game.menu2_font)
-			self.game.draw_text('RESET TO DEFAULTS', int(self.game.font_size / 2), self.opt10x, self.opt10y, font_name = self.game.menu2_font)
+			if self.game.holidayname == 'halloween':
+				self.game.draw_text(f'{pygame.key.name(self.game.SPACE_BIND).upper()} - New Game (game over) /', int(self.game.font_size / 2), self.opt8x, self.opt8y, font_name = self.game.menu2_font)
+				self.game.draw_text('Place Poison Apple (Angry Apple)', int(self.game.font_size / 2), self.opt9x, self.opt9y, font_name = self.game.menu2_font)
+				self.game.draw_text(f'{pygame.key.name(self.game.MENU_BIND).upper()} (game) - Quit', int(self.game.font_size / 2), self.opt10x, self.opt10y, font_name = self.game.menu2_font)
+				self.game.draw_text('RESET TO DEFAULTS', int(self.game.font_size / 2), self.opt11x, self.opt11y, font_name = self.game.menu2_font)
+			else:
+				self.game.draw_text(f'{pygame.key.name(self.game.SPACE_BIND).upper()} (game over) - New Game', int(self.game.font_size / 2), self.opt8x, self.opt8y, font_name = self.game.menu2_font)
+				self.game.draw_text(f'{pygame.key.name(self.game.MENU_BIND).upper()} (game) - Quit', int(self.game.font_size / 2), self.opt9x, self.opt9y, font_name = self.game.menu2_font)
+				self.game.draw_text('RESET TO DEFAULTS', int(self.game.font_size / 2), self.opt10x, self.opt10y, font_name = self.game.menu2_font)
 			self.game.save_settings()
 			self.draw_cursor(size = int(self.game.font_size / 2))
 			self.blit_screen()
@@ -1737,10 +1749,12 @@ class ControlsMenu(Menu):
 				self.cursor_rect.midtop = (self.opt8x + self.offset, self.opt8y)
 			elif self.state == 'space':
 				self.state = 'backspace'
-				self.cursor_rect.midtop = (self.opt9x + self.offset, self.opt9y)
+				if self.game.holidayname == 'halloween': self.cursor_rect.midtop = (self.opt10x + self.offset, self.opt10y)
+				else: self.cursor_rect.midtop = (self.opt9x + self.offset, self.opt9y)
 			elif self.state == 'backspace':
 				self.state = 'reset'
-				self.cursor_rect.midtop = (self.opt10x + self.offset, self.opt10y)
+				if self.game.holidayname == 'halloween': self.cursor_rect.midtop = (self.opt11x + self.offset, self.opt11y)
+				else: self.cursor_rect.midtop = (self.opt10x + self.offset, self.opt10y)
 			elif self.state == 'reset':
 				self.state = 'enter'
 				self.cursor_rect.midtop = (self.opt0x + self.offset, self.opt0y)
@@ -1748,10 +1762,12 @@ class ControlsMenu(Menu):
 		elif self.game.UP_KEY:
 			if self.state == 'enter':
 				self.state = 'reset'
-				self.cursor_rect.midtop = (self.opt10x + self.offset, self.opt10y)
+				if self.game.holidayname == 'halloween': self.cursor_rect.midtop = (self.opt11x + self.offset, self.opt11y)
+				else: self.cursor_rect.midtop = (self.opt10x + self.offset, self.opt10y)
 			elif self.state == 'reset':
 				self.state = 'backspace'
-				self.cursor_rect.midtop = (self.opt9x + self.offset, self.opt9y)
+				if self.game.holidayname == 'halloween': self.cursor_rect.midtop = (self.opt10x + self.offset, self.opt10y)
+				else: self.cursor_rect.midtop = (self.opt9x + self.offset, self.opt9y)
 			elif self.state == 'backspace':
 				self.state = 'space'
 				self.cursor_rect.midtop = (self.opt8x + self.offset, self.opt8y)
@@ -1825,16 +1841,18 @@ class ControlsMenu(Menu):
 				self.cursor_rect.midtop = (self.opt7x + self.offset, self.opt7y)
 				self.state = 'esc'
 				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(*self.opt8mousey) and self.state != 'space':
+			elif (self.game.mousey in range(*self.opt8mousey) or (self.game.holidayname == 'halloween' and self.game.mousey in range(*self.opt9mousey))) and self.state != 'space':
 				self.cursor_rect.midtop = (self.opt8x + self.offset, self.opt8y)
 				self.state = 'space'
 				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(*self.opt9mousey) and self.state != 'backspace':
-				self.cursor_rect.midtop = (self.opt9x + self.offset, self.opt9y)
+			elif ((self.game.holidayname != 'halloween' and self.game.mousey in range(*self.opt9mousey)) or (self.game.holidayname == 'halloween' and self.game.mousey in range(*self.opt10mousey))) and self.state != 'backspace':
+				if self.game.holidayname == 'halloween': self.cursor_rect.midtop = (self.opt10x + self.offset, self.opt10y)
+				else: self.cursor_rect.midtop = (self.opt9x + self.offset, self.opt9y)
 				self.state = 'backspace'
 				self.game.DRsnd_menumove.play()
-			elif self.game.mousey in range(*self.opt10mousey) and self.state != 'reset':
-				self.cursor_rect.midtop = (self.opt10x + self.offset, self.opt10y)
+			elif ((self.game.holidayname != 'halloween' and self.game.mousey in range(*self.opt10mousey)) or (self.game.holidayname == 'halloween' and self.game.mousey in range(*self.opt11mousey))) and self.state != 'reset':
+				if self.game.holidayname == 'halloween': self.cursor_rect.midtop = (self.opt11x + self.offset, self.opt11y)
+				else: self.cursor_rect.midtop = (self.opt10x + self.offset, self.opt10y)
 				self.state = 'reset'
 				self.game.DRsnd_menumove.play()
 
@@ -1847,7 +1865,7 @@ class ControlsMenu(Menu):
 		elif self.game.START_KEY:
 			self.game.DRsnd_select.play()
 			
-			if self.state == 'enter': self.game.START_BIND = self.assign_key(self.game.START_BIND, 'Select Option', self.opt0x, self.opt0y)
+			if self.state == 'enter': self.game.START_BIND = self.assign_key(self.game.START_BIND, 'Select Option', self.opt0x, self.opt0y, 'menu')
 			elif self.state == 'up': self.game.UP_BIND = self.assign_key(self.game.UP_BIND, 'Move Up', self.opt1x, self.opt1y)
 			elif self.state == 'down': self.game.DOWN_BIND = self.assign_key(self.game.DOWN_BIND, 'Move Down', self.opt2x, self.opt2y)
 			elif self.state == 'left': self.game.LEFT_BIND = self.assign_key(self.game.LEFT_BIND, 'Move Left', self.opt3x, self.opt3y)
@@ -1855,8 +1873,13 @@ class ControlsMenu(Menu):
 			elif self.state == 'x': self.game.X_BIND = self.assign_key(self.game.X_BIND, 'Toggle AI Snake', self.opt5x, self.opt5y, 'game')
 			elif self.state == 'ctrl': self.game.CTRL_BIND = self.assign_key(self.game.CTRL_BIND, 'Turbo Mode', self.opt6x, self.opt6y, 'game - hold')
 			elif self.state == 'esc': self.game.BACK_BIND = self.assign_key(self.game.BACK_BIND, 'Back/Pause', self.opt7x, self.opt7y)
-			elif self.state == 'space': self.game.SPACE_BIND = self.assign_key(self.game.SPACE_BIND, 'New Game', self.opt8x, self.opt8y, 'game over')
-			elif self.state == 'backspace': self.game.MENU_BIND = self.assign_key(self.game.MENU_BIND, 'Quit', self.opt9x, self.opt9y)
+			elif self.state == 'space':
+				if self.game.holidayname == 'halloween':
+					self.game.SPACE_BIND = self.assign_key(self.game.SPACE_BIND, 'New Game (game over) /', self.opt8x, self.opt8y)
+				else: self.game.SPACE_BIND = self.assign_key(self.game.SPACE_BIND, 'New Game', self.opt8x, self.opt8y, 'game over')
+			elif self.state == 'backspace':
+				if self.game.holidayname == 'halloween': self.game.MENU_BIND = self.assign_key(self.game.MENU_BIND, 'Quit', self.opt10x, self.opt10y)
+				else: self.game.MENU_BIND = self.assign_key(self.game.MENU_BIND, 'Quit', self.opt9x, self.opt9y)
 			elif self.state == 'reset':
 				self.game.CTRL_BIND = pygame.K_LCTRL
 				self.game.START_BIND = pygame.K_RETURN
@@ -1872,7 +1895,7 @@ class ControlsMenu(Menu):
 		if self.game.CLICK and self.game.mousex in range(*self.menumousex):
 			if self.game.mousey in range(*self.opt0mousey):
 				self.game.DRsnd_select.play()
-				self.game.START_BIND = self.assign_key(self.game.START_BIND, 'Select Option', self.opt0x, self.opt0y)
+				self.game.START_BIND = self.assign_key(self.game.START_BIND, 'Select Option', self.opt0x, self.opt0y, 'menu')
 			elif self.game.mousey in range(*self.opt1mousey):
 				self.game.DRsnd_select.play()
 				self.game.UP_BIND = self.assign_key(self.game.UP_BIND, 'Move Up', self.opt1x, self.opt1y)
@@ -1894,13 +1917,15 @@ class ControlsMenu(Menu):
 			elif self.game.mousey in range(*self.opt7mousey):
 				self.game.DRsnd_select.play()
 				self.game.BACK_BIND = self.assign_key(self.game.BACK_BIND, 'Back/Pause', self.opt7x, self.opt7y)
-			elif self.game.mousey in range(*self.opt8mousey):
+			elif self.game.mousey in range(*self.opt8mousey) or (self.game.holidayname == 'halloween' and self.game.mousey in range(*self.opt9mousey)):
 				self.game.DRsnd_select.play()
-				self.game.SPACE_BIND = self.assign_key(self.game.SPACE_BIND, 'New Game', self.opt8x, self.opt8y, 'game over')
-			elif self.game.mousey in range(*self.opt9mousey):
+				if self.game.holidayname == 'halloween': self.game.SPACE_BIND = self.assign_key(self.game.SPACE_BIND, 'New Game (game over) /', self.opt8x, self.opt8y)
+				else: self.game.SPACE_BIND = self.assign_key(self.game.SPACE_BIND, 'New Game', self.opt8x, self.opt8y, 'game over')
+			elif (self.game.holidayname != 'halloween' and self.game.mousey in range(*self.opt9mousey)) or (self.game.holidayname == 'halloween' and self.game.mousey in range(*self.opt10mousey)):
 				self.game.DRsnd_select.play()
-				self.game.MENU_BIND = self.assign_key(self.game.MENU_BIND, 'Quit', self.opt9x, self.opt9y)
-			elif self.game.mousey in range(*self.opt10mousey):
+				if self.game.holidayname == 'halloween': self.game.MENU_BIND = self.assign_key(self.game.MENU_BIND, 'Quit', self.opt10x, self.opt10y)
+				else: self.game.MENU_BIND = self.assign_key(self.game.MENU_BIND, 'Quit', self.opt9x, self.opt9y)
+			elif (self.game.holidayname != 'halloween' and self.game.mousey in range(*self.opt10mousey)) or (self.game.holidayname == 'halloween' and self.game.mousey in range(*self.opt11mousey)):
 				self.game.DRsnd_select.play()
 				self.game.CTRL_BIND = pygame.K_LCTRL
 				self.game.START_BIND = pygame.K_RETURN
@@ -1914,20 +1939,21 @@ class ControlsMenu(Menu):
 				self.game.X_BIND = pygame.K_x
 				
 
-	def assign_key(self, old_value, desc, x, y , paren = None):
-		self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, self.game.imgMenuBG_rect)
-		self.game.draw_text('REBIND CONTROLS', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size)
-		if paren: self.game.draw_text(f'{pygame.key.name(old_value).upper()} ({paren}) - {desc}', int(self.game.font_size / 2), x, y, font_name = self.game.menu2_font)
-		else: self.game.draw_text(f'{pygame.key.name(old_value).upper()} - {desc}', int(self.game.font_size / 2), x, y, font_name = self.game.menu2_font)
-		self.game.draw_text('Press a key within 5 seconds to rebind.', 15, self.opt10x, self.opt10y, font_name = self.game.menu2_font)
-		self.blit_screen(showfps = False)
-		checks = 0
-		while checks != 500:
+	def assign_key(self, old_value, desc, x, y, paren = None):
+		checks = 5
+		while checks > 0:
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, self.game.imgMenuBG_rect)
+			if old_value == self.game.SPACE_BIND: self.game.draw_text('Place Poison Apple (Angry Apple)', int(self.game.font_size / 2), self.opt9x, self.opt9y, font_name = self.game.menu2_font)
+			self.game.draw_text('REBIND CONTROLS', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size)
+			if paren: self.game.draw_text(f'{pygame.key.name(old_value).upper()} ({paren}) - {desc}', int(self.game.font_size / 2), x, y, font_name = self.game.menu2_font)
+			else: self.game.draw_text(f'{pygame.key.name(old_value).upper()} - {desc}', int(self.game.font_size / 2), x, y, font_name = self.game.menu2_font)
+			self.game.draw_text(f'Press a key within {math.ceil(checks)} seconds to rebind.', int(self.game.font_size / 2), self.opt11x, self.opt11y + 20, font_name = self.game.menu2_font)
+			self.blit_screen()
 			for event in pygame.event.get():
 				if event.type == pygame.KEYDOWN:
 					return event.key
 			pygame.time.delay(1)
-			self.checks += 1
+			checks -= self.game.deltatime
 		return old_value
 
 class PressStart(Menu):
@@ -1989,6 +2015,7 @@ class ModeMenu(Menu):
 		Menu.init_values(self,game)
 		self.allState = ['Classic', 'Apple Bag', 'Portal Border', 'Angry Apple', 'Ultimate Snake', 'De Snake Mode', 'Unknown']
 		if self.game.holidayname == 'christmas': self.allState[1], self.allState[3] = 'Treat Bag', 'Angry Candy Cone'
+		elif self.game.holidayname == 'halloween': self.allState[1] = 'Poison Apple Hell'
 		self.stateIndex = 0
 		self.state = self.allState[self.stateIndex]
 		self.classicx, self.classicy = self.mid_w, self.mid_h + self.game.font_size
@@ -2038,8 +2065,10 @@ class ModeMenu(Menu):
 				self.game.draw_text(self.allState[6], self.game.font_size * 3/4, self.debugx, self.debugy)
 			if self.stateIndex < 5:
 				if self.state == self.allState[1]: self.game.draw_text('HIGH SCORE: ' + str(self.game.high_scores['Apple Bag']), self.game.font_size * 3/4, self.mid_w, 100, font_name = self.game.menu2_font)
-				elif self.state == self.allState[3]: self.game.draw_text('HIGH SCORE: ' + str(self.game.high_scores['Angry Apple']), self.game.font_size * 3/4, self.mid_w, 100, font_name = self.game.menu2_font)
-				else: self.game.draw_text('HIGH SCORE: ' + str(self.game.high_scores[self.state]), self.game.font_size * 3/4, self.mid_w, 100, font_name = self.game.menu2_font)
+				elif self.state == self.allState[3]:
+					if self.game.holidayname == 'halloween': self.game.draw_text(f'BEST TIME: {self.game.timecode(self.game.angry_apple_halloween_hs)}', self.game.font_size * 3/4, self.mid_w, 100, font_name = self.game.menu2_font)
+					else: self.game.draw_text(f'HIGH SCORE: {self.game.high_scores["Angry Apple"]}', self.game.font_size * 3/4, self.mid_w, 100, font_name = self.game.menu2_font)
+				else: self.game.draw_text(f'HIGH SCORE: {self.game.high_scores[self.state]}', self.game.font_size * 3/4, self.mid_w, 100, font_name = self.game.menu2_font)
 			self.draw_cursor()
 			self.blit_screen()
 
@@ -2071,7 +2100,7 @@ class ModeMenu(Menu):
 						self.debug_mode()
 						if not self.start_game_debug: logger.log('You exited the Unknown...')
 						break
-					else: self.game.mode(1,1,1); break
+					else: self.game.mode(1,1,1, poison_apples = 0); break
 
 		elif self.game.CLICK and self.game.mousex in range(*self.menumousex):
 			if self.game.mousey in range(*self.opt0mousey):
@@ -2112,7 +2141,7 @@ class ModeMenu(Menu):
 			elif self.game.mousey in range(*self.opt5mousey) and self.game.allowmode4:
 				self.start_game = True
 				logger.log('De Snake Mode loaded.')
-				self.game.mode(1,1,1)
+				self.game.mode(1,1,1, poison_apples = 0)
 				self.game.DRsnd_select.play()
 
 			elif self.game.mousey in range(*self.opt6mousey) and self.game.allowmode4:
@@ -2132,7 +2161,7 @@ class ModeMenu(Menu):
 			self.game.show_instructions = True
 			self.game.save_high_score = self.save_high_score
 		elif self.start_game_debug:
-			logger.log(f'Loaded custom mode. Settings:\n portal_border: {self.portal_border}\n curled_up: {self.curled_up}\n apple_bag: {self.apple_bag}\n break_border: {self.break_border}\n snake_instinct: {self.snake_instinct}\n angry_apple: {self.angry_apple}', tag = 'DEBUG MODE')
+			logger.log(f'Loaded custom mode. Settings:\n portal_border: {self.portal_border}\n curled_up: {self.curled_up}\n apple_bag: {self.apple_bag}\n break_border: {self.break_border}\n snake_instinct: {self.snake_instinct}\n angry_apple: {self.angry_apple}\n poison_apples: {self.poison_apples}', tag = 'DEBUG MODE')
 			self.game.playing = True
 			self.game.inmenu = False
 			self.run_display = False
@@ -2257,6 +2286,7 @@ class ModeMenu(Menu):
 		self.break_border = 0
 		self.snake_instinct = 0
 		self.angry_apple = 0
+		self.poison_apples = 1
 
 		while self.debug_run_display:
 			for event in pygame.event.get():
@@ -2283,8 +2313,11 @@ class ModeMenu(Menu):
 					elif event.key == pygame.K_6 or event.key == pygame.K_KP6:
 						self.angry_apple += 1
 						if self.angry_apple == 2: self.angry_apple = 0
+					elif event.key == pygame.K_7 or event.key == pygame.K_KP7:
+						self.poison_apples += 1
+						if self.poison_apples == 2: self.poison_apples = 0
 					elif event.key == pygame.K_RETURN:
-						self.game.mode(self.portal_border, self.curled_up, self.apple_bag, self.break_border, self.snake_instinct, self.angry_apple)
+						self.game.mode(self.portal_border, self.curled_up, self.apple_bag, self.break_border, self.snake_instinct, self.angry_apple, self.poison_apples)
 						self.start_game_debug = True
 						self.debug_run_display = False
 					elif event.key == pygame.K_ESCAPE:
@@ -2293,14 +2326,15 @@ class ModeMenu(Menu):
 						self.debug_run_display = False
 
 			self.game.display.fill(self.game.BLACK)
-			self.game.draw_text('SNEKY DEBUG MODE', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2, font_name = self.game.pygame_font)
-			self.game.draw_text('NOTE: High scores are NOT saved in this mode.', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 0.5, font_name = self.game.pygame_font)
-			self.game.draw_text('portal_border: ' + str(self.portal_border), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size, font_name = self.game.pygame_font)
-			self.game.draw_text('curled_up: ' + str(self.curled_up), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 2, font_name = self.game.pygame_font)
-			self.game.draw_text('apple_bag: ' + str(self.apple_bag), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 3, font_name = self.game.pygame_font)
-			self.game.draw_text('break_border: ' + str(self.break_border), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 4, font_name = self.game.pygame_font)
-			self.game.draw_text('snake_instinct: ' + str(self.snake_instinct), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 5, font_name = self.game.pygame_font)
-			self.game.draw_text('angry_apple: ' + str(self.angry_apple), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 6, font_name = self.game.pygame_font)
-			self.game.draw_text('Use number keys 1-6 to toggle between 0 & 1', self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 8, font_name = self.game.pygame_font)
-			self.game.draw_text('ENTER: Start - ESC: Return', self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 9, font_name = self.game.pygame_font)
+			self.game.draw_text('SNEKY DEBUG MODE', self.game.font_size, self.mid_w, 0, font_name = self.game.pygame_font, anchor = 'midtop')
+			self.game.draw_text('NOTE: High scores are NOT saved in this mode.', self.game.font_size, self.mid_w, self.game.font_size, font_name = self.game.pygame_font, anchor = 'midtop')
+			self.game.draw_text('portal_border: ' + str(self.portal_border), self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3, font_name = self.game.pygame_font)
+			self.game.draw_text('curled_up: ' + str(self.curled_up), self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 2, font_name = self.game.pygame_font)
+			self.game.draw_text('apple_bag: ' + str(self.apple_bag), self.game.font_size, self.mid_w, self.mid_h - self.game.font_size, font_name = self.game.pygame_font)
+			self.game.draw_text('break_border: ' + str(self.break_border), self.game.font_size, self.mid_w, self.mid_h, font_name = self.game.pygame_font)
+			self.game.draw_text('snake_instinct: ' + str(self.snake_instinct), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size, font_name = self.game.pygame_font)
+			self.game.draw_text('angry_apple: ' + str(self.angry_apple), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 2, font_name = self.game.pygame_font)
+			self.game.draw_text('poison_apples (Halloween theme only!): ' + str(self.poison_apples), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 3, font_name = self.game.pygame_font)
+			self.game.draw_text('Use number keys 1-7 to toggle between 0 & 1', self.game.font_size, self.mid_w, self.game.DISPLAY_H - self.game.font_size, font_name = self.game.pygame_font, anchor = 'midbottom')
+			self.game.draw_text('ENTER: Start - ESC: Return', self.game.font_size, self.mid_w, self.game.DISPLAY_H, font_name = self.game.pygame_font, anchor = 'midbottom')
 			self.blit_screen('pygame')
