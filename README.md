@@ -7,9 +7,9 @@
 <h4 align="center">Snake, remade in Pygame with new modes!</h4>
 
 <p align="center">
-  <a href="https://github.com/gamingwithevets/sneky/releases/latest">Download Latest Version (RECOMMENDED)</a> •
-  <a href="https://github.com/gamingwithevets/sneky/releases/tag/v1.2.3-dev5">Download Latest Prerelease</a> •
-  <a href=/../../wiki>Wiki</a>
+  <a href="/../../releases/tag/v1.3.0-pre1">Download Latest Prerelease (RECOMMENDED)</a> •
+  <a href="/../../releases/latest">Download Latest Version</a> •
+  <a href="/../../wiki">Wiki</a>
 </p>
 
 (Style taken from [here](https://github.com/itsmattkc/LEGOIslandRebuilder/blob/master/README.md) :/ )
