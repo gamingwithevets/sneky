@@ -941,16 +941,16 @@ class VideoMenu(Menu):
 			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, self.game.imgMenuBG_rect)
 			self.game.menu.back_button()
 			self.game.menu.enter_button()
-			if enter_button_disabled: self.game.draw_text(f'{int(timer / 100) + (timer % 100 > 0)}', self.game.font_size, *self.game.imgEnter_rect.center, font_name = self.game.menu2_font, color = self.game.red_god)
+			if enter_button_disabled: self.game.draw_text(f'{math.ceil(timer)}', self.game.font_size, *self.game.imgEnter_rect.center, font_name = self.game.menu2_font, color = self.game.red_god)
 			self.game.draw_text('VIDEO SETTINGS', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
 			self.game.draw_text('NOTE: If you see that the text/screen is too small, you', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
 			self.game.draw_text('probably should switch to fullscreen with scaled mode.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, font_name = self.game.menu2_font)
 			self.game.draw_text('Do you want to apply this setting?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 50, font_name = self.game.menu2_font)
-			if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES ({int(timer / 100) + (timer % 100 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 90, font_name = self.game.menu2_font, color = self.game.gray)
+			if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES ({math.ceil(timer)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 90, font_name = self.game.menu2_font, color = self.game.gray)
 			else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES', int(self.game.font_size / 2), self.mid_w, self.mid_h + 90, font_name = self.game.menu2_font)
 			self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: NO', int(self.game.font_size / 2), self.mid_w, self.mid_h + 110, font_name = self.game.menu2_font)
 			self.blit_screen()
-			timer -= self.deltatime
+			timer -= self.game.deltatime
 
 class UpdateMenu(Menu):
 	def __init__(self,game):
@@ -1079,6 +1079,7 @@ class GeneralMenu(Menu):
 			self.game.draw_text(f'Legacy Experience: {self.leg_str}', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 			self.game.draw_text(f'Dark Mode: {self.dark_str}', int(self.game.font_size / 2), self.opt2x, self.opt2y, font_name = self.game.menu2_font)
 			self.game.draw_text(f'Show FPS Count: {self.fps_str}', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
+			self.game.draw_text(f'FPS: {self.fps_str}', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
 			self.game.save_settings()
 			self.draw_cursor(int(self.game.font_size / 2))
 			self.blit_screen()

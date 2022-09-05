@@ -12,8 +12,7 @@ if platform.python_version() < python_requirement:
 		print('\nGet a newer version!')
 		sys.exit()
 
-try:
-	import pygame
+try: import pygame
 except:
 	print('You don\'t have Pygame! How can you run Pygame games WITHOUT Pygame????')
 	print('Did you forget to "pip install pygame"?')

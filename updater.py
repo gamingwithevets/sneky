@@ -20,10 +20,13 @@ def check_internet(log = True):
 	try:
 		print_tag(f'Connecting to URL: {url}')
 		requests.get(url)
-		print_tag(f'Successfully connected to URL: {url}\nConnection test succeeded!')
+		print_tag(f'Successfully connected to URL: {url}')
+		print_tag('Connection test succeeded!')
 		return True
 	except:
-		if log: print_tag(f'Cannot connect to URL: {url}\nEither the Internet connection is slow, or there is no Internet connection.\nAborting update process.')
+		if log:
+			print_tag(f'Cannot connect to URL: {url}')
+			print_tag('Either the Internet connection is slow, or there is no Internet connection. Aborting update process.')
 		return False
 
 def print_tag(text):
@@ -43,7 +46,7 @@ def check_updates(currver, prerelease):
 	else: prerelease_str = 'off'
 	print_tag(f'Received call to check updates.\nSetting "Check Prerelease Versions" is {prerelease_str}.')
 	if nomodule:
-		print_tag('Cannot check for Sneky updates because the \'requests\'\nmodule was not installed.\nAborting update process.')
+		print_tag('Cannot check for Sneky updates because the \'requests\'\nmodule was not installed. Aborting update process.')
 		return {
 		'newupdate': False,
 		'error': True,
@@ -51,7 +54,7 @@ def check_updates(currver, prerelease):
 		'nomodule': True
 		}
 	if not check_internet(False):
-		print_tag('Cannot check for Sneky updates because there is no Internet connection.\nAborting update process.')
+		print_tag('Cannot check for Sneky updates because there is no Internet connection. Aborting update process.')
 		return {
 		'newupdate': False,
 		'error': True,
@@ -88,7 +91,7 @@ def check_updates(currver, prerelease):
 			try:
 				testvar = response.json()['message']
 				if 'API rate limit exceeded for' in testvar:
-					print_tag('GitHub API rate limit exceeded!\nAborting update process.')
+					print_tag('GitHub API rate limit exceeded! Aborting update process.')
 					print_rate_limit(totalrequests)
 					return {
 					'newupdate': False,
@@ -123,7 +126,7 @@ def check_updates(currver, prerelease):
 		try:
 			testvar = response.json()['message']
 			if 'API rate limit exceeded for' in testvar:
-				print_tag('GitHub API rate limit exceeded!\nAborting update process.')
+				print_tag('GitHub API rate limit exceeded! Aborting update process.')
 				print_rate_limit(totalrequests)
 				return {
 				'newupdate': False,
@@ -154,7 +157,7 @@ def check_updates(currver, prerelease):
 			try:
 				testvar = response.json()['message']
 				if 'API rate limit exceeded for' in testvar:
-					print_tag('GitHub API rate limit exceeded!\nAborting update process.')
+					print_tag('GitHub API rate limit exceeded! Aborting update process.')
 					print_rate_limit(totalrequests)
 					return {
 					'newupdate': False,
@@ -203,7 +206,7 @@ def check_updates(currver, prerelease):
 				try:
 					testvar = response.json()['message']
 					if 'API rate limit exceeded for' in testvar:
-						print_tag('GitHub API rate limit exceeded!\nAborting update process.')
+						print_tag('GitHub API rate limit exceeded! Aborting update process.')
 						print_rate_limit(totalrequests)
 						return {
 						'newupdate': False,
@@ -239,7 +242,7 @@ def check_updates(currver, prerelease):
 					'error': False
 					}
 	except:
-		print_tag('An error occurred while checking for updates!\n' + traceback.format_exc() + '\nAborting update process.')
+		print_tag('An error occurred while checking for updates!\n' + traceback.format_exc() + ' Aborting update process.')
 		print_rate_limit(totalrequests)
 		return {
 		'newupdate': False,

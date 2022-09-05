@@ -16,6 +16,7 @@ import platform
 import os
 import math
 from menu import *
+import numpy
 import updater
 import traceback
 import random
@@ -33,7 +34,7 @@ class Game():
 		
 		# game version
 		self.gamestatus = 'release'
-		self.gameversion = '1.3.0-pre1'
+		self.gameversion = '1.3.0-pre2'
 
 		self.mousex, self.mousey = 0, 0
 
@@ -135,7 +136,7 @@ class Game():
 		self.scaled = True
 
 		# native resolution option toggle
-		self.enable_native = False
+		self.enable_native = True
 
 		try:
 			self.import_settings('fullscreen')
@@ -381,12 +382,8 @@ class Game():
 
 		# swipe function (EXPERIMENTAL)
 		self.update_fps()
-		self.swipe_time = int(self.speed * 1.5)
+		self.swipe_time = 25 * self.deltatime
 		if self.speed <= 0 or self.turbo: self.swipe_time = 25
-		elif self.speed >= 140: self.swipe_time = 1
-		elif self.speed >= 125: self.swipe_time = 2
-		elif self.speed >= 100: self.swipe_time = 5
-		elif self.speed >= 50: self.swipe_time = 10
 		if pygame.mouse.get_pressed()[0]:
 			if self.mousex >= 0 and self.mousey >= 0: # negative mouse values will not work (applies to scaled mode)
 				if self.mousex_before == -1 and self.mousey_before == -1: self.mousex_before, self.mousey_before = self.mousex, self.mousey
@@ -555,8 +552,8 @@ class Game():
 				else:
 					if self.angry_apple == 0:
 						self.draw_text('Cheater...', size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font, color = color)
-						if self.save_high_score: logger.log('My my! What a cheater you are!\nYour score will not be saved.')
-						else: logger.log('My my! What a cheater you are!')
+						logger.log('My my! What a cheater you are!')
+						if self.save_high_score: logger.log('Your score will not be saved.')
 					else:
 						self.draw_text('You win!', size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font, color = color)
 						logger.log('Sneky died!')
@@ -570,11 +567,13 @@ class Game():
 				else:
 					if self.angry_apple == 0:
 						self.draw_text('You died and you cheated!', size4, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font, color = color)
-						if self.save_high_score: logger.log('Cheaters never win. And you cheated and lost.\nYour score will not be saved.')
-						else: logger.log('Cheaters never win. And you cheated and lost.')
+						logger.log('Cheaters never win. And you cheated and lost.')
+						if self.save_high_score: logger.log('Your score will not be saved.')
 					else:
 						self.draw_text('You died!', size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font, color = color)
-						if self.holidayname == 'christmas': logger.log('Sneky ate the Angry Candy Cone!\nGame over!')
+						if self.holidayname == 'christmas':
+							logger.log('Sneky ate the Angry Candy Cone!')
+							logger.log('Game over!')
 						else:
 							logger.log('Sneky ate the Angry Apple!')
 							logger.log('Game over!')
@@ -756,18 +755,20 @@ class Game():
 			font = self.pygame_font
 			size = 40
 			size2 = 30
+			size3 = 30
 			color = self.green
 			color2 = self.red
 		else:
 			font = self.game_font
 			size = 25
 			size2 = 20
+			size3 = 25
 			color = self.red
 			if self.dark_mode: color2 = self.white
 			else: color2 = self.gray
 		if self.turbo:
 				if self.angry_apple == 0:
-					if self.ai_snake == 1: self.draw_text('AI Snake + Turbo Mode on', size, int(self.DISPLAY_W / 2) - 50, 30, color, font)
+					if self.ai_snake == 1: self.draw_text('AI Snake + Turbo Mode on', size3, int(self.DISPLAY_W / 2) - 50, 30, color, font)
 					else: self.draw_text('Turbo Mode on', size, int(self.DISPLAY_W / 2) - 50, 30, color, font)
 				else: self.draw_text('You and Sneky sped up!', size2, int(self.DISPLAY_W / 2) - 80, 30, color, font)
 		elif self.ai_snake == 1 and self.angry_apple == 0 and not self.demo: self.draw_text('AI Snake on', size, int(self.DISPLAY_W / 2) - 50, 30, color, font)
@@ -781,16 +782,12 @@ class Game():
 		if not self.show_instructions:
 			# speed
 			if self.turbo:
-					if self.angry_apple == 0:
-						pygame.time.delay(0)
-					else:
-						pygame.time.delay(100)
+				if self.angry_apple == 1: pygame.time.delay(100)
 			else: pygame.time.delay(int(self.speed))
 					
 		if not self.g_over: self.show_turbo()
 
-
-		self.update_fps()
+		if not self.show_instructions: self.update_fps()
 
 		# score/demo text
 		if self.demo:
@@ -1025,6 +1022,62 @@ class Game():
 							else: self.poison_Apple_List.insert(-1,self.apple)
 							break
 
+	def calc_nearest_apple(self):
+		if self.holidayname == 'halloween': applist = self.apple_List
+		else: applist = self.apple_List + self.poison_Apple_List
+		
+		if self.previous_target in applist: target = self.previous_target
+		else:
+			appx = []; appy = []
+			for apple in applist: appx.append(apple[0])
+			appx = numpy.asarray(appx)
+
+			try:
+				appx_test_pos1 = appx[appx > self.snake_head[0]].min()
+				appx_test_pos1_fail = False
+			except Exception: appx_test_pos1_fail = True
+			try:
+				appx_test_pos2 = appx[appx < self.snake_head[0]].max()
+				appx_test_pos2_fail = False
+			except Exception: appx_test_pos2_fail = True
+
+			if appx_test_pos1_fail and appx_test_pos2_fail: appx_pos = applist[0][0]
+			elif appx_test_pos1_fail: appx_pos = appx_test_pos2
+			elif appx_test_pos2_fail: appx_pos = appx_test_pos1
+			elif not appx_test_pos1_fail and not appx_test_pos2_fail:
+				if appx_test_pos1 - self.snake_head[0] >= self.snake_head[0] - appx_test_pos2: appx_pos = appx_test_pos1
+				else: appx_pos = appx_test_pos2
+
+			for i in range(len(applist)):
+				if applist[i][0] == appx_pos:
+					if appy == []: appy_pos_indX = i
+					appy.append(apple[1])
+			appy = numpy.asarray(appy)
+
+			try:
+				appy_test_pos1 = appy[appy > self.snake_head[1]].min()
+				appy_test_pos1_fail = False
+			except Exception: appy_test_pos1_fail = True
+			try:
+				appy_test_pos2 = appy[appy < self.snake_head[1]].max()
+				appy_test_pos2_fail = False
+			except Exception: appy_test_pos2_fail = True
+
+			if appy_test_pos1_fail and appy_test_pos2_fail: appy_pos = applist[appy_pos_indX][1]
+			elif appy_test_pos1_fail: appy_pos = appy_test_pos2
+			elif appy_test_pos2_fail: appy_pos = appy_test_pos1
+			elif not appy_test_pos1_fail and not appy_test_pos2_fail:
+				if appy_test_pos1 - self.snake_head[1] >= self.snake_head[1] - appy_test_pos2: appy_pos = appy_test_pos1
+				else: appy_pos = appy_test_pos2
+
+			target = [appx_pos, appy_pos]
+			self.previous_target = target
+
+		if target in applist: logger.log(f'Snake head: {self.snake_head} - Target: {target} - Index #{applist.index(target)}', allowlog = False)
+		else: logger.log(f'Snake head: {self.snake_head} - Target: {target} - Not an apple!', allowlog = False)
+
+		return target
+
 	def run(self):
 		if self.poison_apple_timer >= 5:
 			self.poison_Apple_List = []
@@ -1063,7 +1116,7 @@ class Game():
 
 			if key_pressed[self.CTRL_BIND] and self.allow_speed_up:
 				if self.angry_apple == 0:
-					if self.speed > 0: self.turbo = True
+					if self.speed_percent < 100: self.turbo = True
 				else:
 					if self.speed > 100: self.turbo = True
 
@@ -1072,38 +1125,43 @@ class Game():
 		# auto mode
 		if self.ai_snake == 1:
 			if not self.allowmove: self.allowmove = True
+
+			# calculate target
+			if self.holidayname == 'halloween' and self.apple_List == []:
+				# make the snake spin in circles
+				if self.direction == 'UP' or self.direction == 'DOWN': target = [0, 0]
+				elif self.direction == 'DOWN': target = [0, self.DISPLAY_H]
+				elif self.direction == 'RIGHT': target = [self.DISPLAY_W, 0]
+			else: target = self.calc_nearest_apple()
+
 			if self.angry_apple == 0:
 				try:
-					if not self.demo: pygame.draw.rect(self.display,self.red,(self.apple_List[0][0],self.apple_List[0][1],self.cell_size,self.cell_size))
-				except IndexError:
-					self.playing = False
-					self.g_over = True
-					self.win = True
-					return
+					if not self.demo: pygame.draw.rect(self.display,self.red,(target[0],target[1],self.cell_size,self.cell_size))
+				except IndexError: pass
 
 			if self.curled_up == 0:
-				if (self.apple_List[0][1] < self.snake_head[1] and self.direction != 'DOWN'
+				if (target[1] < self.snake_head[1] and self.direction != 'DOWN'
 				and not self.snake_head[1] - self.cell_size <= self.border_y - 10
 				and [self.snake_head[0],self.snake_head[1] - self.cell_size] not in self.snake):
 					if self.direction != 'UP':
 						self.direction = 'UP'
 						self.allowmovesound = True
 
-				elif (self.apple_List[0][1] > self.snake_head[1] and self.direction != 'UP' 
+				elif (target[1] > self.snake_head[1] and self.direction != 'UP' 
 				and not self.snake_head[1] + self.cell_size >= self.DISPLAY_H - 20	
 				and [self.snake_head[0],self.snake_head[1] + self.cell_size] not in self.snake):
 					if self.direction != 'DOWN':
 						self.direction = 'DOWN'
 						self.allowmovesound = True
 
-				elif (self.apple_List[0][0] > self.snake_head[0] and self.direction != 'LEFT' 
+				elif (target[0] > self.snake_head[0] and self.direction != 'LEFT' 
 				and not self.snake_head[0] + self.cell_size >= self.DISPLAY_W - 20
 				and [self.snake_head[0] + self.cell_size,self.snake_head[1]] not in self.snake):
 					if self.direction != 'RIGHT':
 						self.direction = 'RIGHT'
 						self.allowmovesound = True
 
-				elif (self.apple_List[0][0] < self.snake_head[0] and self.direction != 'RIGHT' 
+				elif (target[0] < self.snake_head[0] and self.direction != 'RIGHT' 
 				and not self.snake_head[0] - self.cell_size <= self.border_x - 10
 				and [self.snake_head[0] - self.cell_size,self.snake_head[1]] not in self.snake):
 					if self.direction != 'LEFT':
@@ -1131,19 +1189,19 @@ class Game():
 							self.allowmovesound = True
 
 			else:
-				if self.apple_List[0][1] < self.snake_head[1]:
+				if target[1] < self.snake_head[1]:
 					if self.direction != 'UP':
 						self.direction = 'UP'
 						self.allowmovesound = True
-				elif self.apple_List[0][1] > self.snake_head[1]:
+				elif target[1] > self.snake_head[1]:
 					if self.direction != 'DOWN':
 						self.direction = 'DOWN'
 						self.allowmovesound = True
-				elif self.apple_List[0][0] > self.snake_head[0]:
+				elif target[0] > self.snake_head[0]:
 					if self.direction != 'RIGHT':
 						self.direction = 'RIGHT'
 						self.allowmovesound = True
-				elif self.apple_List[0][0] < self.snake_head[0]:
+				elif target[0] < self.snake_head[0]:
 					if self.direction != 'LEFT':
 						self.direction = 'LEFT'
 						self.allowmovesound = True
@@ -1299,10 +1357,10 @@ class Game():
 			# generate apple
 			self.spawn_apple()
 
-		elif self.holidayname == 'halloween' and self.snake_head in self.poison_Apple_List:
+		elif self.snake_head in self.poison_Apple_List:
 			self.GSeatapple.play()
 			self.poison_Apple_List.remove(self.snake_head)
-			if self.poison_apples == 1:
+			if self.poison_apples == 1 and self.holidayname == 'halloween':
 				logger.log('Sneky ate a poison apple!')
 				self.window.blit(self.display, (0,0))
 				pygame.display.update()
@@ -1312,6 +1370,7 @@ class Game():
 				else: self.SMB2down.play()
 				return
 			else:
+				self.score += 1
 				self.speed *= 0.97
 
 				# generate apple
@@ -1322,29 +1381,29 @@ class Game():
 			else: self.disallowpopping = False
 
 		# unlock modes
-		if self.score == 20 and self.portal_border == 0 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode0 and not self.newmoded:
+		if not self.cheater and self.score == 20 and self.portal_border == 0 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode0 and not self.newmoded:
 			self.newmode = True
 			self.allowmode0 = True
 			self.thenewmode = 'Apple Bag'
-		elif self.score == 40 and self.portal_border == 0 and self.curled_up == 0 and self.apple_bag == 1 and not self.allowmode1 and not self.newmoded:
+		elif not self.cheater and self.score == 40 and self.portal_border == 0 and self.curled_up == 0 and self.apple_bag == 1 and not self.allowmode1 and not self.newmoded:
 			self.newmode = True
 			self.allowmode1 = True
 			self.thenewmode = 'Portal Border'
-		elif self.score == 40 and self.portal_border == 1 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode2 and not self.newmoded:
+		elif not self.cheater and self.score == 40 and self.portal_border == 1 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode2 and not self.newmoded:
 			self.newmode = True
 			self.allowmode2 = True
 			if self.holidayname == 'christmas': self.thenewmode = 'Angry Candy Cone'
 			else: self.thenewmode = 'Angry Apple'
-		elif self.score == 30 and self.angry_apple == 1 and not self.allowmode3 and not self.newmoded:
+		elif not self.cheater and self.score == 30 and self.angry_apple == 1 and not self.allowmode3 and not self.newmoded:
 			self.newmode = True
 			self.allowmode3 = True
 			self.thenewmode = 'Ultimate Snake'
-		elif self.score == 90 and self.snake_instinct == 1 and not self.allowmode4 and not self.newmoded:
+		elif not self.cheater and self.score == 90 and self.snake_instinct == 1 and not self.allowmode4 and not self.newmoded:
 			self.newmode = True
 			self.allowmode4 = True
 			self.allow_ai_snake = True
 			self.allow_speed_up = True
-		elif self.score == 3000 and self.portal_border == 1 and self.curled_up == 1 and self.apple_bag == 1 and not self.allowsecretmode and not self.newmoded:
+		elif not self.cheater and self.score == 3000 and self.portal_border == 1 and self.curled_up == 1 and self.apple_bag == 1 and not self.allowsecretmode and not self.newmoded:
 			self.newmode = True
 			self.allowsecretmode = True
 			
@@ -1569,6 +1628,8 @@ class Game():
 
 		self.angry_apple_halloween_time = 0
 
+		self.previous_target = []
+
 		if self.playing or self.demo:
 			self.direction = 'RIGHT'
 
@@ -1660,26 +1721,26 @@ class Game():
 			color2 = self.red
 
 		# speed percent
-		speed_percent = (150 - self.speed) / 150 * 100
+		self.speed_percent = (150 - self.speed) / 150 * 100
 		
 		if self.angry_apple == 1:
 			if self.turbo:
 				self.draw_text('Snake speed: 33.33%', size, self.DISPLAY_W - 200, 30, color, font)
 				self.draw_text('Temporary!'.format(29 / 30 * 100), size2, self.DISPLAY_W - 200, 50, color2, font)
 			else:
-				if speed_percent >= 100:
+				if self.speed_percent >= 100:
 					self.draw_text('Snake speed: 100.00%', size, self.DISPLAY_W - 200, 30, color, font)
 					self.draw_text('Max!'.format(29 / 30 * 100), size2, self.DISPLAY_W - 200, 50, color2, font)
-				else: self.draw_text('Snake speed: {:.2f}%'.format(speed_percent), size, self.DISPLAY_W - 200, 30, color, font)
+				else: self.draw_text('Snake speed: {:.2f}%'.format(self.speed_percent), size, self.DISPLAY_W - 200, 30, color, font)
 		else:
 			if self.turbo:
 				self.draw_text('Speed: 100.00%', size, self.DISPLAY_W - 200, 30, color, font)
 				self.draw_text('Temporary!'.format(29 / 30 * 100), size2, self.DISPLAY_W - 200, 50, color2, font)
 			else:
-				if speed_percent >= 100:
+				if self.speed_percent >= 100:
 					self.draw_text('Speed: 100.00%', size, self.DISPLAY_W - 200, 30, color, font)
 					self.draw_text('Max!'.format(29 / 30 * 100), size2, self.DISPLAY_W - 200, 50, color2, font)
-				else: self.draw_text('Speed: {:.2f}%'.format(speed_percent), size, self.DISPLAY_W - 200, 30, color, font)
+				else: self.draw_text('Speed: {:.2f}%'.format(self.speed_percent), size, self.DISPLAY_W - 200, 30, color, font)
 
 	def show_aligned(self):
 		if (self.native_res or (self.native_res and self.fullscreen and not self.scaled)) and (not self.g_over or (self.g_over and self.win)):
