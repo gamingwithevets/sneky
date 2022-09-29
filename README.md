@@ -7,7 +7,7 @@
 <h4 align="center">Snake, remade in Pygame with new modes!</h4>
 
 <p align="center">
-  <a href="/../../releases/tag/v1.3.0-pre2">Download Latest Prerelease (RECOMMENDED)</a> •
+  <a href="/../../releases/tag/v1.3.0-pre3">Download Latest Prerelease (RECOMMENDED)</a> •
   <a href="/../../releases/latest">Download Latest Version</a> •
   <a href="/../../wiki">Wiki</a>
 </p>
