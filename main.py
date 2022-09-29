@@ -38,14 +38,11 @@ import os
 import traceback
 import logger
 
-if os.name == 'nt':
-	appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
+if os.name == 'nt': appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
 elif os.name == 'posix':
-	if platform.system() != 'Darwin':
-		appdata_path = os.path.expanduser('~/.config/Sneky')
+	if platform.system() != 'Darwin': appdata_path = os.path.expanduser('~/.config/Sneky')
 	else:
-		print('It appears you are running the game on a Mac! Keep in mind that\nSneky on macOS is NOT tested yet and may have problems!\nIf you found any, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues')
-		print('Using ~/Library/Application Support/Sneky as appdata path.\nIf it can\'t write there, please report it via the URL above.')
+		print('It appears you are running the game on a Mac! Keep in mind that\nSneky on macOS is NOT tested yet and may have problems!\nIf you found any, PLEASE report it here:\nhttps://github.com/gamingwithevets/sneky/issues\n\nUsing ~/Library/Application Support/Sneky as appdata path.\nIf it can\'t write there, please report it via the URL above.')
 		appdata_path = os.path.expanduser('~/Library/Application Support/Sneky')
  
 if not os.path.exists(appdata_path): os.makedirs(appdata_path)

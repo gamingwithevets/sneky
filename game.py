@@ -6,7 +6,7 @@ if __name__ == '__main__':
 import pygame
 import logger
 
-logger.log('Initializing Pygame...\n', allowlog = False)
+logger.log('Initializing Pygame...', allowlog = False)
 pygame.init()
 logger.log('Pygame initialized, loading Sneky.', allowlog = False)
 pygame.display.set_caption('Sneky')
@@ -33,8 +33,8 @@ class Game():
 			self.temp_path = ''
 		
 		# game version
-		self.gamestatus = 'release'
-		self.gameversion = '1.3.0-pre2'
+		self.version = '1.3.0'
+		self.version_suffix = '-pre3'
 
 		self.mousex, self.mousey = 0, 0
 
@@ -239,7 +239,7 @@ class Game():
 	def update_fps(self, font = 'default', color = None):
 		if self.limitedfps: self.deltatime = self.clock.tick(self.FPS) / 1000
 		else: self.deltatime = self.clock.tick() / 1000
-		if self.showfps:
+		if self.showfps and not self.show_instructions and not self.g_over and not self.paused:
 			self.curr_fps = self.clock.get_fps()
 			if font == 'pygame': self.draw_text(str(int(self.curr_fps * 10)), int(self.font_size / 2), 0, self.DISPLAY_H, anchor = 'bottomleft', font_name = self.pygame_font)
 			else:
@@ -286,15 +286,17 @@ class Game():
 				return pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
 
 	def check_holidays(self):
-		# check for Christmas (Dec 21 - Jan 5)
-		if (datetime.now().month == 12 and datetime.now().day >= 21) or \
-			(datetime.now().month == 1 and datetime.now().day <= 5):
+		# check for Christmas
+		if datetime.now().month == 12 and datetime.now().day >= 21 and datetime.now().day <= 31:
 			self.holidayname = 'christmas'
 			self.holidaydir = 'christmas_exclusive/'
-		# check for Halloween (Oct 31)
-		elif datetime.now().month == 10 and datetime.now().day == 31:
+		# check for Halloween
+		elif (datetime.now().month == 10 and datetime.now().day >= 20) or \
+			(datetime.now().month == 11 and datetime.now().day <= 5):
 			self.holidayname = 'halloween'
-			#self.holidaydir = 'halloween_exclusive/'
+			self.holidaydir = 'halloween_exclusive/'
+		# check for New Year's Day
+		elif datetime.now().month == 1 and datetime.now().day == 1: self.holidayname = 'new_year'
 		# check for devs' bday (Jan 19/Sep 28)
 		elif datetime.now().month == 1 and datetime.now().day == 19: self.holidayname = 'bday_gwe'
 		elif datetime.now().month == 9 and datetime.now().day == 28: self.holidayname = 'bday_sj'
@@ -327,6 +329,9 @@ class Game():
 				'THIS IS HALLOWEEN',
 				'Trick or apple?'
 				]
+			elif self.holidayname == 'new_year':
+				f'Happy new year {datetime.now().year}!',
+				f'Farewell, {datetime.now().year - 1}...'
 			elif self.holidayname == 'bday_gwe':
 				self.splashes = [
 				'Happy birthday, GamingWithEvets!',
@@ -341,14 +346,14 @@ class Game():
 				'Today is the birthday of Severus, the OG developer of Sneky!'
 				]
 			elif self.holidayname == 'bday_sneky':
-				self.splashes = [
+				if datetime.now().year - 2021 <= 0: self.splashes = ['Wait, you changed the date? How p a t h e t i c .']
+				else: self.splashes = [
 				'Today is the day the first public release of Sneky was released!',
 				'Happy birthday, Sneky!',
-				'Wait, you changed the date? How p a t h e t i c .',
-				'Today\'s the day the first public Sneky release, beta 1.0.4, was uploaded!'
+				'',
+				'Today\'s the day the first public Sneky release, Beta 1.0.4, was uploaded!'
 				]
-				if datetime.now().year - 2021 == 1: self.splashes[2] = 'Today, Sneky is turning 1 year old!'
-				elif datetime.now().year - 2021 > 1: self.splashes[2] = f'Today, Sneky is turning {datetime.now().year - 2021} years old!'
+				self.splashes[2] = f'Today, Sneky is turning {"1 year" if datetime.now().year - 2021 == 1 else f"{datetime.now().year - 2021} years"} old!'
 		else: self.splashes = ['8 ERROR.']
 		if random.choice([True, False]) and not self.holidayname: self.curr_splash = self.global_splashes[random.randint(0, len(self.global_splashes) - 1)]
 		else: self.curr_splash = self.splashes[random.randint(0, len(self.splashes) - 1)]
@@ -560,23 +565,22 @@ class Game():
 						logger.log('You won!')
 				self.GSwin.play()
 			else:
-				logger.log('Sneky died!')
 				if self.ai_snake == 0:
-					logger.log('Game over!')
+					self.GSdie.play()
+					if self.angry_apple == 0: logger.log('Sneky died!\nGame over!')
 					self.draw_text('You died!', size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font, color = color)
 				else:
 					if self.angry_apple == 0:
+						self.GSdie.play()
 						self.draw_text('You died and you cheated!', size4, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font, color = color)
 						logger.log('Cheaters never win. And you cheated and lost.')
 						if self.save_high_score: logger.log('Your score will not be saved.')
 					else:
 						self.draw_text('You died!', size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font, color = color)
 						if self.holidayname == 'christmas':
-							logger.log('Sneky ate the Angry Candy Cone!')
-							logger.log('Game over!')
+							logger.log('Sneky ate the Angry Candy Cone!\nGame over!')
 						else:
-							logger.log('Sneky ate the Angry Apple!')
-							logger.log('Game over!')
+							logger.log('Sneky ate the Angry Apple!\nGame over!')
 						self.SMB2down.play()
 			self.draw_text(f'{pygame.key.name(self.SPACE_BIND).upper()} / Enter button: Play again', size3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = font, color = color)
 			self.draw_text(f'{pygame.key.name(self.BACK_BIND).upper()}/{pygame.key.name(self.MENU_BIND).upper()} / Back button: Quit', size3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = font, color = color)
@@ -787,12 +791,12 @@ class Game():
 					
 		if not self.g_over: self.show_turbo()
 
-		if not self.show_instructions: self.update_fps()
+		self.update_fps()
 
 		# score/demo text
 		if self.demo:
-			if self.legacy_experience: self.draw_text('Demo gameplay - Press any key to stop', 30, 50, 30, self.green, self.pygame_font, anchor = 'midleft')
-			else: self.draw_text('Demo gameplay - Press any key to stop', 20, 50, 30, self.red, self.game_font, anchor = 'midleft')
+			if self.legacy_experience: self.draw_text('Demo gameplay - Press any button to stop', 30, 50, 30, self.green, self.pygame_font, anchor = 'midleft')
+			else: self.draw_text('Demo gameplay - Press any button to stop', 20, 50, 30, self.red, self.game_font, anchor = 'midleft')
 		else: self.show_score()
 
 		# speed
@@ -937,12 +941,15 @@ class Game():
 			if self.SPACE_KEY: self.poison_Apple_List.insert(-1, list(self.apple_List[0]))
 
 	def spawn_apple(self):
+		def rand_apple():
+			apple_x = random.randrange(self.border_x,self.DISPLAY_W-self.cell_size,self.cell_size)
+			apple_y = random.randrange(self.border_y,self.DISPLAY_H-self.cell_size,self.cell_size)
+			return [apple_x, apple_y]
+
 		if self.angry_apple == 1:
 			while True:
 				# generate 1 apple
-				apple_x = random.randrange(self.border_x,self.DISPLAY_W-self.border_x,self.cell_size)
-				apple_y = random.randrange(self.border_y,self.DISPLAY_H-self.border_y,self.cell_size)
-				self.apple = [apple_x, apple_y]
+				self.apple = rand_apple()
 				if self.apple not in self.snake:
 					self.apple_List.insert(-1,self.apple)
 					break
@@ -951,9 +958,7 @@ class Game():
 				if self.snake_instinct == 0:
 					while True:
 						# generate 1 apple
-						apple_x = random.randrange(self.border_x,self.DISPLAY_W-self.border_x,self.cell_size)
-						apple_y = random.randrange(self.border_y,self.DISPLAY_H-self.border_y,self.cell_size)
-						self.apple = [apple_x, apple_y]
+						self.apple = rand_apple()
 						if self.apple not in self.snake:
 							if random.choice([True, False]): self.apple_List.insert(-1,self.apple)
 							else: self.poison_Apple_List.insert(-1,self.apple)
@@ -963,9 +968,7 @@ class Game():
 							# generate apple = score divide by 10
 							if len(self.apple_List) + len(self.poison_Apple_List) <= 10:
 								for i in range(int(self.score // 10)):
-									apple_x = random.randrange(self.border_x,self.DISPLAY_W - self.border_x,self.cell_size)
-									apple_y = random.randrange(self.border_y,self.DISPLAY_H - self.border_y,self.cell_size)
-									self.apple = [apple_x, apple_y]
+									self.apple = rand_apple()
 									if self.apple not in self.apple_List and self.apple not in self.poison_Apple_List and self.apple not in self.snake:
 										if random.choice([True, False]): self.apple_List.insert(-1,self.apple)
 										else: self.poison_Apple_List.insert(-1,self.apple)
@@ -974,9 +977,7 @@ class Game():
 						# generate 500 apples
 						if len(self.apple_List) <= 10:
 							for i in range(500):
-								apple_x = random.randrange(self.border_x,self.DISPLAY_W - self.border_x,self.cell_size)
-								apple_y = random.randrange(self.border_y,self.DISPLAY_H - self.border_y,self.cell_size)
-								self.apple = [apple_x, apple_y]
+								self.apple = rand_apple()
 								if self.apple not in self.apple_List and self.apple not in self.poison_Apple_List and self.apple not in self.snake:
 									if random.choice([True, False]): self.apple_List.insert(-1,self.apple)
 									else: self.poison_Apple_List.insert(-1,self.apple)
@@ -984,9 +985,7 @@ class Game():
 						# generate 1 apple if score is below 1
 						while True:
 							# generate 1 apple
-							apple_x = random.randrange(self.border_x,self.DISPLAY_W-self.border_x,self.cell_size)
-							apple_y = random.randrange(self.border_y,self.DISPLAY_H-self.border_y,self.cell_size)
-							self.apple = [apple_x, apple_y]
+							self.apple = rand_apple()
 							if self.apple not in self.snake:
 								if random.choice([True, False]): self.apple_List.insert(-1,self.apple)
 								else: self.poison_Apple_List.insert(-1,self.apple)
@@ -995,18 +994,14 @@ class Game():
 				if self.score >= 1:
 					# generate apple bag = score
 					for i in range(self.score):
-						apple_x = random.randrange(self.border_x,self.DISPLAY_W - self.border_x,self.cell_size)
-						apple_y = random.randrange(self.border_y,self.DISPLAY_H - self.border_y,self.cell_size)
-						self.apple = [apple_x, apple_y]
+						self.apple = rand_apple()
 						if self.apple not in self.apple_List and self.apple not in self.poison_Apple_List and self.apple not in self.snake:
 							if random.randint(0, 9) == 0: self.apple_List.insert(-1,self.apple)
 							else: self.poison_Apple_List.insert(-1,self.apple)
 				elif self.score >= 500:
 					# generate 500 apples
 					for i in range(500):
-						apple_x = random.randrange(self.border_x,self.DISPLAY_W - self.border_x,self.cell_size)
-						apple_y = random.randrange(self.border_y,self.DISPLAY_H - self.border_y,self.cell_size)
-						self.apple = [apple_x, apple_y]
+						self.apple = rand_apple()
 						if self.apple not in self.apple_List and self.apple not in self.poison_Apple_List and self.apple not in self.snake:
 							if random.randint(0, 9) == 0: self.apple_List.insert(-1,self.apple)
 							else: self.poison_Apple_List.insert(-1,self.apple)
@@ -1014,13 +1009,133 @@ class Game():
 					# generate 1 apple if score is below 1
 					while True:
 						# generate 1 apple
-						apple_x = random.randrange(self.border_x,self.DISPLAY_W-self.border_x,self.cell_size)
-						apple_y = random.randrange(self.border_y,self.DISPLAY_H-self.border_y,self.cell_size)
-						self.apple = [apple_x, apple_y]
+						self.apple = rand_apple()
 						if self.apple not in self.snake:
 							if random.choice([True, False]): self.apple_List.insert(-1,self.apple)
 							else: self.poison_Apple_List.insert(-1,self.apple)
 							break
+
+	def calc_nearest_path_old(self, target):
+		if self.curled_up == 0:
+			if (target[1] < self.snake_head[1] and self.direction != 'DOWN'
+			and not self.snake_head[1] - self.cell_size <= self.border_y - 10
+			and [self.snake_head[0],self.snake_head[1] - self.cell_size] not in self.snake):
+				if self.direction != 'UP':
+					self.direction = 'UP'
+					self.allowmovesound = True
+
+			elif (target[1] > self.snake_head[1] and self.direction != 'UP' 
+			and not self.snake_head[1] + self.cell_size >= self.DISPLAY_H - 20	
+			and [self.snake_head[0],self.snake_head[1] + self.cell_size] not in self.snake):
+				if self.direction != 'DOWN':
+					self.direction = 'DOWN'
+					self.allowmovesound = True
+
+			elif (target[0] > self.snake_head[0] and self.direction != 'LEFT' 
+			and not self.snake_head[0] + self.cell_size >= self.DISPLAY_W - 20
+			and [self.snake_head[0] + self.cell_size,self.snake_head[1]] not in self.snake):
+				if self.direction != 'RIGHT':
+					self.direction = 'RIGHT'
+					self.allowmovesound = True
+
+			elif (target[0] < self.snake_head[0] and self.direction != 'RIGHT' 
+			and not self.snake_head[0] - self.cell_size <= self.border_x - 10
+			and [self.snake_head[0] - self.cell_size,self.snake_head[1]] not in self.snake):
+				if self.direction != 'LEFT':
+					self.direction = 'LEFT'
+					self.allowmovesound = True
+
+			elif self.direction == 'RIGHT' or self.direction == 'LEFT':
+				if [self.snake_head[0],self.snake_head[1] - self.cell_size] not in self.snake:
+					if self.direction != 'UP':
+						self.direction = 'UP'
+						self.allowmovesound = True
+				else:
+					if self.direction != 'DOWN':
+						self.direction = 'DOWN'
+						self.allowmovesound = True
+
+			elif self.direction == 'UP' or self.direction == 'DOWN':
+				if [self.snake_head[0] + self.cell_size,self.snake_head[1]] not in self.snake:
+					if self.direction != 'RIGHT':
+						self.direction = 'RIGHT'
+						self.allowmovesound = True
+				else:
+					if self.direction != 'LEFT':
+						self.direction = 'LEFT'
+						self.allowmovesound = True
+
+		else:
+			if target[1] < self.snake_head[1]:
+				if self.direction != 'UP':
+					self.direction = 'UP'
+					self.allowmovesound = True
+			elif target[1] > self.snake_head[1]:
+				if self.direction != 'DOWN':
+					self.direction = 'DOWN'
+					self.allowmovesound = True
+			elif target[0] > self.snake_head[0]:
+				if self.direction != 'RIGHT':
+					self.direction = 'RIGHT'
+					self.allowmovesound = True
+			elif target[0] < self.snake_head[0]:
+				if self.direction != 'LEFT':
+					self.direction = 'LEFT'
+					self.allowmovesound = True
+
+	def calc_nearest_path(self, target):
+		possible_directions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+		if self.curled_up == 0:
+			possible_directions.remove(self.oppo_dir(self.direction))
+			for pos in self.snake:
+				if self.snake_head[1] - self.cell_size == pos[1] and 'UP' in possible_directions: possible_directions.remove('UP')
+				if self.snake_head[1] + self.cell_size == pos[1] and 'DOWN' in possible_directions: possible_directions.remove('DOWN')
+				if self.snake_head[0] - self.cell_size == pos[0] and 'LEFT' in possible_directions: possible_directions.remove('LEFT')
+				if self.snake_head[0] + self.cell_size == pos[0] and 'RIGHT' in possible_directions: possible_directions.remove('RIGHT')
+
+		if self.portal_border == 0:
+			if self.snake_head[1] - self.cell_size < self.border_y: possible_directions.remove('UP')
+			if self.snake_head[1] + self.cell_size >= self.DISPLAY_H - self.cell_size: possible_directions.remove('DOWN')
+			if self.snake_head[0] - self.cell_size < self.border_x: possible_directions.remove('LEFT')
+			if self.snake_head[0] - self.cell_size >= self.DISPLAY_W - self.cell_size: possible_directions.remove('RIGHT')
+
+		if 'UP' in possible_directions: dist_up = (abs(target[0] - self.snake_head[0]) + abs(target[1] - self.snake_head[1] + self.cell_size)) / self.cell_size
+		if 'DOWN' in possible_directions: dist_down = (abs(target[0] - self.snake_head[0]) + abs(target[1] - self.snake_head[1] - self.cell_size)) / self.cell_size
+		if 'LEFT' in possible_directions: dist_left = (abs(target[0] - self.snake_head[0] + self.cell_size) + abs(target[1] - self.snake_head[1])) / self.cell_size
+		if 'RIGHT' in possible_directions: dist_right = (abs(target[0] - self.snake_head[0] - self.cell_size) + abs(target[1] - self.snake_head[1])) / self.cell_size
+
+		if 'dist_up' in locals() and (\
+		('dist_down' in locals() and 'dist_left' not in locals() and 'dist_right' not in locals() and dist_down == dist_up) or \
+		('dist_down' in locals() and 'dist_left' in locals() and 'dist_right' not in locals() and dist_down == dist_up and dist_left == dist_up) or \
+		('dist_down' in locals() and 'dist_left' not in locals() and 'dist_right' in locals() and dist_down == dist_up and dist_right == dist_up) or \
+		('dist_down' in locals() and 'dist_left' in locals() and 'dist_right' in locals() and dist_down == dist_up and dist_left == dist_up and dist_right == dist_up)\
+		): direction = 'UP'
+		else:
+			dist = {}
+			if 'dist_up' in locals(): dist['UP'] = dist_up
+			if 'dist_down' in locals(): dist['DOWN'] = dist_down
+			if 'dist_left' in locals(): dist['LEFT'] = dist_left
+			if 'dist_right' in locals(): dist['RIGHT'] = dist_right
+			if dist != {}: direction = min(dist, key = dist.get)
+			else: direction = self.direction
+
+		#self.draw_text(f'{f"up: {dist_up}" if "dist_up" in locals() else "up: None"} - {f"down: {dist_down}" if "dist_down" in locals() else "down: None"} - {f"left: {dist_left}" if "dist_left" in locals() else "left: None"} - {f"right: {dist_right}" if "dist_right" in locals() else "right: None"}', 15, 0, 0, self.white, self.menu2_font, anchor = 'topleft')
+		#self.draw_text(f'current direction: {self.direction.lower()} - next direction: {direction.lower()}', 15, 0, 15, self.white, self.menu2_font, anchor = 'topleft')
+
+		if self.curled_up == 0:
+			if self.direction != self.oppo_dir(direction) and self.direction != direction:
+				self.direction = direction
+				self.allowmovesound = True
+		else:
+			if self.direction != direction:
+				self.direction = direction
+				self.allowmovesound = True
+
+	def oppo_dir(self, direction):
+		if direction == 'UP': return 'DOWN'
+		elif direction == 'DOWN': return 'UP'
+		elif direction == 'LEFT': return 'RIGHT'
+		elif direction == 'RIGHT': return 'LEFT'
 
 	def calc_nearest_apple(self):
 		if self.holidayname == 'halloween': applist = self.apple_List
@@ -1028,53 +1143,25 @@ class Game():
 		
 		if self.previous_target in applist: target = self.previous_target
 		else:
-			appx = []; appy = []
-			for apple in applist: appx.append(apple[0])
-			appx = numpy.asarray(appx)
+			x, y = self.snake_head
+			appidx = -1
+			smallest = float('inf')
+			for app in applist:
+				if app[0] == x or app[1] == y:
+					dist = abs(x - app[0]) + abs(y - app[1])
+					if dist < smallest:
+						appidx = applist.index(app)
+						smallest = dist
+					elif dist == smallest:
+						if applist.index(app) < appidx:
+							appidx = applist.index(app)
+							smallest = dist
 
-			try:
-				appx_test_pos1 = appx[appx > self.snake_head[0]].min()
-				appx_test_pos1_fail = False
-			except Exception: appx_test_pos1_fail = True
-			try:
-				appx_test_pos2 = appx[appx < self.snake_head[0]].max()
-				appx_test_pos2_fail = False
-			except Exception: appx_test_pos2_fail = True
-
-			if appx_test_pos1_fail and appx_test_pos2_fail: appx_pos = applist[0][0]
-			elif appx_test_pos1_fail: appx_pos = appx_test_pos2
-			elif appx_test_pos2_fail: appx_pos = appx_test_pos1
-			elif not appx_test_pos1_fail and not appx_test_pos2_fail:
-				if appx_test_pos1 - self.snake_head[0] >= self.snake_head[0] - appx_test_pos2: appx_pos = appx_test_pos1
-				else: appx_pos = appx_test_pos2
-
-			for i in range(len(applist)):
-				if applist[i][0] == appx_pos:
-					if appy == []: appy_pos_indX = i
-					appy.append(apple[1])
-			appy = numpy.asarray(appy)
-
-			try:
-				appy_test_pos1 = appy[appy > self.snake_head[1]].min()
-				appy_test_pos1_fail = False
-			except Exception: appy_test_pos1_fail = True
-			try:
-				appy_test_pos2 = appy[appy < self.snake_head[1]].max()
-				appy_test_pos2_fail = False
-			except Exception: appy_test_pos2_fail = True
-
-			if appy_test_pos1_fail and appy_test_pos2_fail: appy_pos = applist[appy_pos_indX][1]
-			elif appy_test_pos1_fail: appy_pos = appy_test_pos2
-			elif appy_test_pos2_fail: appy_pos = appy_test_pos1
-			elif not appy_test_pos1_fail and not appy_test_pos2_fail:
-				if appy_test_pos1 - self.snake_head[1] >= self.snake_head[1] - appy_test_pos2: appy_pos = appy_test_pos1
-				else: appy_pos = appy_test_pos2
-
-			target = [appx_pos, appy_pos]
+			target = applist[appidx]
 			self.previous_target = target
 
-		if target in applist: logger.log(f'Snake head: {self.snake_head} - Target: {target} - Index #{applist.index(target)}', allowlog = False)
-		else: logger.log(f'Snake head: {self.snake_head} - Target: {target} - Not an apple!', allowlog = False)
+		#if target in applist: logger.log(f'Snake head: {self.snake_head} - Target: {target} - Index #{applist.index(target)}', allowlog = False)
+		#else: logger.log(f'Snake head: {self.snake_head} - Target: {target} - Not an apple!', allowlog = False)
 
 		return target
 
@@ -1086,8 +1173,6 @@ class Game():
 			self.BAcorrect.play()
 			self.spawn_apple()
 
-		if self.ai_snake_cooldown > 0: self.ai_snake_cooldown -= 1
-
 		self.turbo = False
 		if not self.demo:
 			# check function input
@@ -1095,28 +1180,13 @@ class Game():
 			elif self.MENU_KEY: self.playing = False
 
 			key_pressed = pygame.key.get_pressed()
-			if key_pressed[self.X_BIND] and self.ai_snake_cooldown == 0:
-				self.ai_snake_cooldown = int(self.speed * 1.5)
-				if self.speed <= 0 or self.turbo: self.ai_snake_cooldown = 100
-				elif self.speed >= 140: self.ai_snake_cooldown = 5
-				elif self.speed >= 125: self.ai_snake_cooldown = 10
-				elif self.speed >= 100: self.ai_snake_cooldown = 20
-				if self.allow_ai_snake:
-					if self.angry_apple == 0:
-						if self.ai_snake == 1:
-							logger.log('AI Snake off.')
-							self.ai_snake = 0
-						else:
-							logger.log('AI Snake on. The game will now play itself!')
-							self.ai_snake = 1
-					else:
-						if self.holidayname == 'christmas': logger.log('AI Snake cannot be toggled in Angry Candy Cone mode.')
-						else: logger.log('AI Snake cannot be toggled in Angry Apple mode.')
+			if key_pressed[self.X_BIND] and self.allow_ai_snake and self.angry_apple == 0: self.ai_snake = 1
+			elif self.angry_apple == 0: self.ai_snake = 0
 			if self.ai_snake == 1 and self.angry_apple == 0 and self.speed <= 0: self.cheater = True
 
 			if key_pressed[self.CTRL_BIND] and self.allow_speed_up:
 				if self.angry_apple == 0:
-					if self.speed_percent < 100: self.turbo = True
+					if self.speed > 0: self.turbo = True
 				else:
 					if self.speed > 100: self.turbo = True
 
@@ -1139,72 +1209,7 @@ class Game():
 					if not self.demo: pygame.draw.rect(self.display,self.red,(target[0],target[1],self.cell_size,self.cell_size))
 				except IndexError: pass
 
-			if self.curled_up == 0:
-				if (target[1] < self.snake_head[1] and self.direction != 'DOWN'
-				and not self.snake_head[1] - self.cell_size <= self.border_y - 10
-				and [self.snake_head[0],self.snake_head[1] - self.cell_size] not in self.snake):
-					if self.direction != 'UP':
-						self.direction = 'UP'
-						self.allowmovesound = True
-
-				elif (target[1] > self.snake_head[1] and self.direction != 'UP' 
-				and not self.snake_head[1] + self.cell_size >= self.DISPLAY_H - 20	
-				and [self.snake_head[0],self.snake_head[1] + self.cell_size] not in self.snake):
-					if self.direction != 'DOWN':
-						self.direction = 'DOWN'
-						self.allowmovesound = True
-
-				elif (target[0] > self.snake_head[0] and self.direction != 'LEFT' 
-				and not self.snake_head[0] + self.cell_size >= self.DISPLAY_W - 20
-				and [self.snake_head[0] + self.cell_size,self.snake_head[1]] not in self.snake):
-					if self.direction != 'RIGHT':
-						self.direction = 'RIGHT'
-						self.allowmovesound = True
-
-				elif (target[0] < self.snake_head[0] and self.direction != 'RIGHT' 
-				and not self.snake_head[0] - self.cell_size <= self.border_x - 10
-				and [self.snake_head[0] - self.cell_size,self.snake_head[1]] not in self.snake):
-					if self.direction != 'LEFT':
-						self.direction = 'LEFT'
-						self.allowmovesound = True
-
-				elif self.direction == 'RIGHT' or self.direction == 'LEFT':
-					if [self.snake_head[0],self.snake_head[1] - self.cell_size] not in self.snake:
-						if self.direction != 'UP':
-							self.direction = 'UP'
-							self.allowmovesound = True
-					else:
-						if self.direction != 'DOWN':
-							self.direction = 'DOWN'
-							self.allowmovesound = True
-
-				elif self.direction == 'UP' or self.direction == 'DOWN':
-					if [self.snake_head[0] + self.cell_size,self.snake_head[1]] not in self.snake:
-						if self.direction != 'RIGHT':
-							self.direction = 'RIGHT'
-							self.allowmovesound = True
-					else:
-						if self.direction != 'LEFT':
-							self.direction = 'LEFT'
-							self.allowmovesound = True
-
-			else:
-				if target[1] < self.snake_head[1]:
-					if self.direction != 'UP':
-						self.direction = 'UP'
-						self.allowmovesound = True
-				elif target[1] > self.snake_head[1]:
-					if self.direction != 'DOWN':
-						self.direction = 'DOWN'
-						self.allowmovesound = True
-				elif target[0] > self.snake_head[0]:
-					if self.direction != 'RIGHT':
-						self.direction = 'RIGHT'
-						self.allowmovesound = True
-				elif target[0] < self.snake_head[0]:
-					if self.direction != 'LEFT':
-						self.direction = 'LEFT'
-						self.allowmovesound = True
+			self.calc_nearest_path(target)
 
 		if self.angry_apple == 0:
 			if self.ai_snake == 0:
@@ -1271,8 +1276,7 @@ class Game():
 							self.allowmovesound = True
 							self.direction = 'LEFT'
 							self.allowmove = True
-		else:
-			self.move_apple()
+		elif self.angry_apple == 1: self.move_apple()
 
 		# check direction
 		if self.direction == 'UP':
@@ -1307,7 +1311,6 @@ class Game():
 				self.playing = False
 				self.g_over = True
 				if self.angry_apple == 1: self.win = True
-				self.GSdie.play()
 		
 		if self.break_border == 0:
 		#hit border
@@ -1321,7 +1324,6 @@ class Game():
 					self.playing = False
 					self.g_over = True
 					if self.angry_apple == 1: self.win = True
-					self.GSdie.play()
 				else:
 					# portal border
 					if self.snake_head[0] < self.border_x:
@@ -1403,7 +1405,7 @@ class Game():
 			self.allowmode4 = True
 			self.allow_ai_snake = True
 			self.allow_speed_up = True
-		elif not self.cheater and self.score == 3000 and self.portal_border == 1 and self.curled_up == 1 and self.apple_bag == 1 and not self.allowsecretmode and not self.newmoded:
+		elif not self.cheater and self.score == 3000:
 			self.newmode = True
 			self.allowsecretmode = True
 			
@@ -1616,8 +1618,8 @@ class Game():
 		self.snake_instinct = snake_instinct
 		self.angry_apple = angry_apple
 		self.poison_apples = poison_apples
-		if self.demo: self.ai_snake = 1
-		else: self.ai_snake = angry_apple
+		if self.demo or self.angry_apple == 1: self.ai_snake = 1
+		else: self.ai_snake = 0
 		self.ai_snake_cooldown = 0
 
 	def new_game(self):
@@ -1721,26 +1723,27 @@ class Game():
 			color2 = self.red
 
 		# speed percent
-		self.speed_percent = (150 - self.speed) / 150 * 100
+		speed_percent = (150 - self.speed) / 150 * 100
+		speed_percent_display = int(speed_percent * 100) / 100
 		
 		if self.angry_apple == 1:
 			if self.turbo:
 				self.draw_text('Snake speed: 33.33%', size, self.DISPLAY_W - 200, 30, color, font)
 				self.draw_text('Temporary!'.format(29 / 30 * 100), size2, self.DISPLAY_W - 200, 50, color2, font)
 			else:
-				if self.speed_percent >= 100:
+				if self.speed <= 0:
 					self.draw_text('Snake speed: 100.00%', size, self.DISPLAY_W - 200, 30, color, font)
 					self.draw_text('Max!'.format(29 / 30 * 100), size2, self.DISPLAY_W - 200, 50, color2, font)
-				else: self.draw_text('Snake speed: {:.2f}%'.format(self.speed_percent), size, self.DISPLAY_W - 200, 30, color, font)
+				else: self.draw_text(f'Snake speed: {speed_percent_display:0.2f}%', size, self.DISPLAY_W - 200, 30, color, font)
 		else:
 			if self.turbo:
 				self.draw_text('Speed: 100.00%', size, self.DISPLAY_W - 200, 30, color, font)
 				self.draw_text('Temporary!'.format(29 / 30 * 100), size2, self.DISPLAY_W - 200, 50, color2, font)
 			else:
-				if self.speed_percent >= 100:
+				if speed_percent >= 100:
 					self.draw_text('Speed: 100.00%', size, self.DISPLAY_W - 200, 30, color, font)
 					self.draw_text('Max!'.format(29 / 30 * 100), size2, self.DISPLAY_W - 200, 50, color2, font)
-				else: self.draw_text('Speed: {:.2f}%'.format(self.speed_percent), size, self.DISPLAY_W - 200, 30, color, font)
+				else: self.draw_text(f'Speed: {speed_percent_display:0.2f}%', size, self.DISPLAY_W - 200, 30, color, font)
 
 	def show_aligned(self):
 		if (self.native_res or (self.native_res and self.fullscreen and not self.scaled)) and (not self.g_over or (self.g_over and self.win)):
@@ -1809,11 +1812,21 @@ class Game():
 		self.display.blit(self.imgGWE, self.imgGWE_rect)
 		self.window.blit(self.display, (0,0))
 		pygame.display.update()
-		logger.log('Loading music')
+		logger.log('Loading music...')
 		self.print_loading('Loading music')
 		self.load_music()
 
 		self.print_loading('Loading settings and save data')
+		try:
+			from settings import version
+			if version > self.version:
+				logger.log('Newer save detected, asking if user wants to load save.')
+				load_save = self.press_start.newer_save()
+			else: load_save = True
+		except: load_save = True
+
+		if not load_save: logger.log('Not loading save, Sneky session closed.\n'); sys.exit()
+
 		for item in self.items_to_import:
 			try:
 				if item != 'fullscreen' and item != 'scaled' and item != 'native_res':
@@ -1925,7 +1938,7 @@ class Game():
 		if not os.path.exists(self.appdata_path + self.settings_fn): logger.log('No settings file found, creating new settings file.')
 		# save settings to settings.py
 		with open(self.appdata_path + self.settings_fn, 'w', encoding = 'utf8') as f:
-			f.write('# WARNING! This script is AUTO-GENERATED by Sneky.\n# You should NOT modify it in any way!\n\n# Nevermind, you won\'t even listen anyway. Go ahead and do anything you want.\n\n')
+			f.write(f'# WARNING! This script is AUTO-GENERATED by Sneky.\n# You should NOT modify it in any way!\n\n# Nevermind, you won\'t even listen anyway. Go ahead and do anything you want.\n\nversion = \'{self.version}\'\n\n')
 			for item in self.items_to_import: exec('f.write(f\'{0} = {{self.{0}}}\\n\')'.format(item))
 			f.close()
 
