@@ -530,21 +530,16 @@ class ClearData(Menu):
 
 	def clear_data(self, cleardata = True, clearlogs = False):
 		if cleardata:
-			self.allowmode0 = False
-			self.allowmode1 = False
-			self.allowmode2 = False
-			self.allowmode3 = False
-			self.allowmode4 = False
-			self.allowsecretmode = False
-			self.never_entered_unknown = True
-			self.high_scores = {
-			'Classic': 0,
-			'Apple Bag': 0,
-			'Portal Border': 0,
-			'Angry Apple': 0,
-			'Ultimate Snake': 0
-			}
-			self.game.angry_apple_halloween_hs = 3599000
+			print('clear!')
+			self.game.allowmode0 = False
+			self.game.allowmode1 = False
+			self.game.allowmode2 = False
+			self.game.allowmode3 = False
+			self.game.allowmode4 = False
+			self.game.allowsecretmode = False
+			self.game.never_entered_unknown = True
+			self.game.high_scores = {'Classic': 0, 'Apple Bag': 0, 'Portal Border': 0, 'Angry Apple': 0, 'Ultimate Snake': 0}
+			self.game.angry_apple_halloween_hs = 3599999
 			self.game.save_settings()
 		if os.path.exists(self.game.appdata_path) and os.path.exists(self.game.appdata_path + logger.logfile) and clearlogs: os.remove(self.game.appdata_path + logger.logfile)
 		if clearlogs:
@@ -561,14 +556,14 @@ class ClearData(Menu):
 			while clear4_run_display:
 				self.game.reset_keys()
 				self.game.check_events()
-				if self.game.BACK_KEY or back_button_click():
+				if self.game.BACK_KEY or self.game.menu.back_button_click():
 					clear4_run_display = False
 					self.game.DRsnd_select.play()
 					self.run_display = True
 				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, self.game.imgMenuBG_rect)
 				self.game.menu.back_button()
 				self.game.draw_text('CLEAR DATA', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size)
-				self.game.draw_text('All game data has been cleared.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, color = self.game.red, font_name = self.game.menu2_font)
+				self.game.draw_text('All game data has been cleared.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
 				self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: BACK', int(self.game.font_size / 2), self.mid_w, self.mid_h + 50, font_name = self.game.menu2_font)
 				self.blit_screen()
 
@@ -2140,7 +2135,7 @@ class ModeMenu(Menu):
 						self.debug_mode()
 						if not self.start_game_debug: logger.log('You exited the Unknown...')
 						break
-					else: self.game.mode(1,1,1, poison_apples = 0); break
+					else: self.game.mode(de_snake = 1, poison_apples = 0); break
 
 		elif self.game.CLICK and self.game.mousex in range(*self.menumousex):
 			if self.game.mousey in range(*self.opt0mousey):
@@ -2181,7 +2176,7 @@ class ModeMenu(Menu):
 			elif self.game.mousey in range(*self.opt5mousey) and self.game.allowmode4:
 				self.start_game = True
 				logger.log('De Snake Mode loaded.')
-				self.game.mode(1,1,1, poison_apples = 0)
+				self.game.mode(de_snake = 1, poison_apples = 0)
 				self.game.DRsnd_select.play()
 
 			elif self.game.mousey in range(*self.opt6mousey) and self.game.allowmode4:
@@ -2201,7 +2196,7 @@ class ModeMenu(Menu):
 			self.game.show_instructions = True
 			self.game.save_high_score = self.save_high_score
 		elif self.start_game_debug:
-			logger.log(f'Loaded custom mode. Settings:\n portal_border: {self.portal_border}\n curled_up: {self.curled_up}\n apple_bag: {self.apple_bag}\n break_border: {self.break_border}\n snake_instinct: {self.snake_instinct}\n angry_apple: {self.angry_apple}\n poison_apples: {self.poison_apples}', tag = 'DEBUG MODE')
+			logger.log(f'Loaded custom mode. Settings:\n portal_border: {self.portal_border}\n curled_up: {self.curled_up}\n apple_bag: {self.apple_bag}\n break_border: {self.break_border}\n snake_instinct: {self.snake_instinct}\n angry_apple: {self.angry_apple}\n de_snake: {self.de_snake}\n poison_apples: {self.poison_apples}', tag = 'DEBUG MODE')
 			self.game.playing = True
 			self.game.inmenu = False
 			self.run_display = False
@@ -2209,7 +2204,7 @@ class ModeMenu(Menu):
 			self.game.gamemus.play(-1)
 
 	def move_cursor(self):
-		if  self.game.BACK_KEY:
+		if self.game.BACK_KEY:
 			self.game.curr_menu = self.game.main_menu
 			self.run_display = False
 		if self.game.DOWN_KEY:
@@ -2227,9 +2222,14 @@ class ModeMenu(Menu):
 			or (self.stateIndex == 4 and not self.game.allowmode3)
 			or (self.stateIndex == 5 and not self.game.allowmode4)
 			or (self.stateIndex == 6 and not self.game.allowsecretmode)):
-				self.cursor_rect.midtop = (self.classicx + self.offset, self.classicy)
-				self.stateIndex = 0
-				self.state = self.allState[0]
+				if self.game.allowsecretmode:
+					self.cursor_rect.midtop = (self.debugx + self.offset, self.debugy)
+					self.stateIndex = len(self.allState) - 1
+					self.state = self.allState[self.stateIndex]
+				else:
+					self.cursor_rect.midtop = (self.classicx + self.offset, self.classicy)
+					self.stateIndex = 0
+					self.state = self.allState[0]
 			self.game.DRsnd_menumove.play()
 
 		if self.game.MOUSEMOVE and self.game.mousex in range(*self.menumousex):
@@ -2277,25 +2277,17 @@ class ModeMenu(Menu):
 				self.state = self.allState[self.stateIndex]
 			else:
 				self.cursor_rect.midtop = (self.cursor_rect.midtop[0], self.cursor_rect.midtop[1] + self.game.font_size * (len(self.allState) - 1))
-				self.stateIndex += (len(self.allState) - 1)
+				self.stateIndex = len(self.allState) - 1
 				self.state = self.allState[self.stateIndex]
-			if (self.stateIndex == 6 and not self.game.allowsecretmode):
-				self.stateIndex = 5
-				if (self.stateIndex == 5 and not self.game.allowmode4):
-					self.stateIndex = 4
-				if (self.stateIndex == 4 and not self.game.allowmode3):
-					self.stateIndex = 3
-				if (self.stateIndex == 3 and not self.game.allowmode2):
-					self.stateIndex = 2
-				if (self.stateIndex == 2 and not self.game.allowmode1):
-					self.stateIndex = 1
-				if (self.stateIndex == 1 and not self.game.allowmode0):
-					self.stateIndex = 0
-				self.state = self.allState[self.stateIndex]
-				if self.stateIndex == 0:
-					self.cursor_rect.midtop = (self.cursor_rect.midtop[0], self.classicy)
-				else:
-					self.cursor_rect.midtop = (self.cursor_rect.midtop[0], self.cursor_rect.midtop[1] - self.game.font_size * (len(self.allState) - (self.stateIndex + 1)))
+			if (self.stateIndex == 6 and not self.game.allowsecretmode): self.stateIndex = 5
+			if (self.stateIndex == 5 and not self.game.allowmode4): self.stateIndex = 4
+			if (self.stateIndex == 4 and not self.game.allowmode3): self.stateIndex = 3
+			if (self.stateIndex == 3 and not self.game.allowmode2): self.stateIndex = 2
+			if (self.stateIndex == 2 and not self.game.allowmode1): self.stateIndex = 1
+			if (self.stateIndex == 1 and not self.game.allowmode0): self.stateIndex = 0
+			self.state = self.allState[self.stateIndex]
+			if self.stateIndex == 0: self.cursor_rect.midtop = (self.cursor_rect.midtop[0], self.classicy)
+			else: self.cursor_rect.midtop = (self.cursor_rect.midtop[0], self.mid_h + self.game.font_size * (self.stateIndex + 1))
 			self.game.DRsnd_menumove.play()
 
 	def debug_mode(self):
@@ -2326,6 +2318,7 @@ class ModeMenu(Menu):
 		self.break_border = 0
 		self.snake_instinct = 0
 		self.angry_apple = 0
+		self.de_snake = 0
 		self.poison_apples = 1
 
 		while self.debug_run_display:
@@ -2354,6 +2347,9 @@ class ModeMenu(Menu):
 						self.angry_apple += 1
 						if self.angry_apple == 2: self.angry_apple = 0
 					elif event.key == pygame.K_7 or event.key == pygame.K_KP7:
+						self.de_snake += 1
+						if self.de_snake == 2: self.de_snake = 0
+					elif event.key == pygame.K_8 or event.key == pygame.K_KP8:
 						self.poison_apples += 1
 						if self.poison_apples == 2: self.poison_apples = 0
 					elif event.key == pygame.K_RETURN:
@@ -2368,13 +2364,14 @@ class ModeMenu(Menu):
 			self.game.display.fill(self.game.BLACK)
 			self.game.draw_text('SNEKY DEBUG MODE', self.game.font_size, self.mid_w, 0, font_name = self.game.pygame_font, anchor = 'midtop')
 			self.game.draw_text('NOTE: High scores are NOT saved in this mode.', self.game.font_size, self.mid_w, self.game.font_size, font_name = self.game.pygame_font, anchor = 'midtop')
-			self.game.draw_text('portal_border: ' + str(self.portal_border), self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3, font_name = self.game.pygame_font)
-			self.game.draw_text('curled_up: ' + str(self.curled_up), self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 2, font_name = self.game.pygame_font)
-			self.game.draw_text('apple_bag: ' + str(self.apple_bag), self.game.font_size, self.mid_w, self.mid_h - self.game.font_size, font_name = self.game.pygame_font)
-			self.game.draw_text('break_border: ' + str(self.break_border), self.game.font_size, self.mid_w, self.mid_h, font_name = self.game.pygame_font)
-			self.game.draw_text('snake_instinct: ' + str(self.snake_instinct), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size, font_name = self.game.pygame_font)
-			self.game.draw_text('angry_apple: ' + str(self.angry_apple), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 2, font_name = self.game.pygame_font)
-			self.game.draw_text('poison_apples (Halloween theme only): ' + str(self.poison_apples), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 3, font_name = self.game.pygame_font)
-			self.game.draw_text('Use number keys 1-7 to toggle between 0 & 1', self.game.font_size, self.mid_w, self.game.DISPLAY_H - self.game.font_size, font_name = self.game.pygame_font, anchor = 'midbottom')
+			self.game.draw_text('portal_border: ' + str(self.portal_border), self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3.5, font_name = self.game.pygame_font)
+			self.game.draw_text('curled_up: ' + str(self.curled_up), self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 2.5, font_name = self.game.pygame_font)
+			self.game.draw_text('apple_bag: ' + str(self.apple_bag), self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 1.5, font_name = self.game.pygame_font)
+			self.game.draw_text('break_border: ' + str(self.break_border), self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 0.5, font_name = self.game.pygame_font)
+			self.game.draw_text('snake_instinct: ' + str(self.snake_instinct), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 0.5, font_name = self.game.pygame_font)
+			self.game.draw_text('angry_apple: ' + str(self.angry_apple), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 1.5, font_name = self.game.pygame_font)
+			self.game.draw_text('de_snake: ' + str(self.de_snake), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 2.5, font_name = self.game.pygame_font)
+			self.game.draw_text('poison_apples (Halloween theme only): ' + str(self.poison_apples), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 3.5, font_name = self.game.pygame_font)
+			self.game.draw_text('Use number keys 1-8 to toggle between 0 & 1', self.game.font_size, self.mid_w, self.game.DISPLAY_H - self.game.font_size, font_name = self.game.pygame_font, anchor = 'midbottom')
 			self.game.draw_text('ENTER: Start - ESC: Return', self.game.font_size, self.mid_w, self.game.DISPLAY_H, font_name = self.game.pygame_font, anchor = 'midbottom')
 			self.blit_screen('pygame')
