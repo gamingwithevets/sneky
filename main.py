@@ -21,8 +21,8 @@ except:
 	sys.exit()
 
 if pygame.version.ver < pygame_requirement:
-	print('Oops! Your Python version is too old.\n')
-	print(f'Requirement: Pygame {pygame_requirement}\nYou have   : Pygame {pygame.version.ver}')
+	print('Oops! Your Pygame version is too old.\n')
+	print(f'Requirement: Pygame {pygame_requirement}+\nYou have   : Pygame {pygame.version.ver}')
 	print('\nGet a newer version!')
 	sys.exit()
 

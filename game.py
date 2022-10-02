@@ -14,16 +14,93 @@ pygame.display.set_caption('Sneky')
 
 import platform
 import os
-import math
 from menu import *
-import numpy
 import updater
 import traceback
 import random
-import time
 from decimal import *
-from pygame import mixer
 from datetime import datetime
+
+class GameButtons(object):
+	def __init__(self, game):
+		self.game = game
+		self.ai_snake_button_highlighted = False
+		self.turbo_button_highlighted = False
+		self.turbo_button_disabled = False
+		self.game_button_condition_reload()
+
+	def ai_snake_button(self):
+		transparent = False
+		for pos in self.game.snake + self.game.apple_List + self.game.poison_Apple_List:
+			if pos[0] in range(*self.ai_snake_rangex) and pos[1] in range(*self.ai_snake_rangey): transparent = True
+
+		if self.game.holidayname == 'halloween' and self.game.angry_apple == 1 and self.game.poison_apples == 1:
+			if transparent:
+				if not self.ai_snake_button_highlighted: self.game.display.blit(self.game.imgPoison_Apple_transparent, self.game.imgAI_rect)
+				else: self.game.display.blit(self.game.imgPoison_Apple_highlight_transparent, self.game.imgAI_rect)
+			else:
+				if not self.ai_snake_button_highlighted: self.game.display.blit(self.game.imgPoison_Apple, self.game.imgAI_rect)
+				else: self.game.display.blit(self.game.imgPoison_Apple_highlight, self.game.imgAI_rect)
+		else:
+			if transparent:
+				if not self.ai_snake_button_highlighted: self.game.display.blit(self.game.imgAI_transparent, self.game.imgAI_rect)
+				else: self.game.display.blit(self.game.imgAI_highlight_transparent, self.game.imgAI_rect)
+			else:
+				if not self.ai_snake_button_highlighted: self.game.display.blit(self.game.imgAI, self.game.imgAI_rect)
+				else: self.game.display.blit(self.game.imgAI_highlight, self.game.imgAI_rect)
+
+		self.game_button_condition_reload()
+		if self.ai_snake_button_condition and not self.ai_snake_button_highlighted:
+			self.game.DRsnd_menumove.play()
+			self.ai_snake_button_highlighted = True
+		elif not self.ai_snake_button_condition and self.ai_snake_button_highlighted: self.ai_snake_button_highlighted = False
+
+	def turbo_button(self):
+		if not self.turbo_button_disabled and self.game.speed_percent >= 100: self.turbo_button_disabled = True
+		
+		transparent = False
+		for pos in self.game.snake + self.game.apple_List + self.game.poison_Apple_List:
+			if pos[0] in range(*self.turbo_rangex) and pos[1] in range(*self.turbo_rangey): transparent = True
+
+		if transparent:
+			if self.turbo_button_disabled: self.game.display.blit(self.game.imgTurbo_disabled_transparent, self.game.imgTurbo_rect)
+			else:
+				if self.turbo_button_highlighted: self.game.display.blit(self.game.imgTurbo_highlight_transparent, self.game.imgTurbo_rect)
+				else: self.game.display.blit(self.game.imgTurbo_transparent, self.game.imgTurbo_rect)
+		else:
+			if self.turbo_button_disabled: self.game.display.blit(self.game.imgTurbo_disabled, self.game.imgTurbo_rect)
+			else:
+				if self.turbo_button_highlighted: self.game.display.blit(self.game.imgTurbo_highlight, self.game.imgTurbo_rect)
+				else: self.game.display.blit(self.game.imgTurbo, self.game.imgTurbo_rect)
+
+		self.game_button_condition_reload()
+		if self.turbo_button_condition and not self.turbo_button_highlighted:
+			if not self.turbo_button_disabled: self.game.DRsnd_menumove.play()
+			self.turbo_button_highlighted = True
+		elif not self.turbo_button_condition and self.turbo_button_highlighted: self.turbo_button_highlighted = False
+
+	def game_button_condition_reload(self):
+		self.ai_snake_rangex = (self.game.imgAI_rect.topleft[0], self.game.imgAI_rect.topright[0])
+		self.ai_snake_rangey = (self.game.imgAI_rect.topleft[1], self.game.imgAI_rect.bottomright[1])
+
+		self.turbo_rangex = (self.game.imgTurbo_rect.topleft[0], self.game.imgTurbo_rect.topright[0])
+		self.turbo_rangey = (self.game.imgTurbo_rect.topleft[1], self.game.imgTurbo_rect.bottomright[1])
+
+		self.ai_snake_button_condition = self.game.mousex in range(*self.ai_snake_rangex) and self.game.mousey in range(*self.ai_snake_rangey)
+		self.turbo_button_condition = self.game.mousex in range(*self.turbo_rangex) and self.game.mousey in range(*self.turbo_rangey)
+
+	def ai_snake_button_click(self):
+		self.game_button_condition_reload()
+		if self.game.holidayname == 'halloween' and self.game.angry_apple == 1 and self.game.poison_apples == 1:
+			if self.game.CLICK and self.ai_snake_button_condition and self.ai_snake_button_highlighted: return True
+		else:
+			if pygame.mouse.get_pressed()[0] and self.ai_snake_button_condition and self.ai_snake_button_highlighted: return True
+
+	def turbo_button_click(self):
+		self.game_button_condition_reload()
+		if pygame.mouse.get_pressed()[0] and self.turbo_button_condition and self.turbo_button_highlighted:
+			if self.turbo_button_disabled: self.game.DRsnd_cantselect.play()
+			else: return True
 
 class Game():
 	def __init__(self):
@@ -34,7 +111,7 @@ class Game():
 		
 		# game version
 		self.version = '1.3.0'
-		self.version_suffix = '-pre4'
+		self.version_suffix = ' - Release Candidate'
 
 		self.mousex, self.mousey = 0, 0
 
@@ -135,8 +212,8 @@ class Game():
 		self.native_res = False
 		self.scaled = True
 
-		# native resolution option toggle
-		self.enable_native = True
+		# native resolution option toggle; must be set to False in production releases
+		self.enable_native = False
 
 		try:
 			self.import_settings('fullscreen')
@@ -201,7 +278,7 @@ class Game():
 		self.BLACK, self.WHITE = (0,0,0), (255,255,255)
 		
 		# default holiday
-		self.holidayname = ''
+		self.holidayname = 'halloween' # only change this
 		self.holidaydir = ''
 		
 		self.auto_update = True
@@ -220,12 +297,14 @@ class Game():
 		self.legacy_experience = False
 		self.dark_mode = False
 
-		# DEBUG PURPOSES ONLY
-		self.check_save_tampering = False
-		self.allow_cheater = False
+		# DEBUG PURPOSES ONLY; must be set to True in production releases
+		self.check_save_tampering = True
+		self.allow_cheater = True
 
 		self.mode()
 		self.new_game()
+
+		self.gamebuttons = GameButtons(self)
 
 	def init_menus(self):
 		self.menu = Menu(self)
@@ -293,21 +372,20 @@ class Game():
 
 	def check_holidays(self):
 		# check for Christmas
-		if datetime.now().month == 12 and datetime.now().day >= 21 and datetime.now().day <= 31:
-			self.holidayname = 'christmas'
-			self.holidaydir = 'christmas_exclusive/'
+		if datetime.now().month == 12 and datetime.now().day >= 21 and datetime.now().day <= 31: self.holidayname = 'christmas'
 		# check for Halloween
-		elif (datetime.now().month == 10 and datetime.now().day >= 20) or \
-			(datetime.now().month == 11 and datetime.now().day <= 5):
-			self.holidayname = 'halloween'
-			self.holidaydir = 'halloween_exclusive/'
+		elif (datetime.now().month == 10 and datetime.now().day >= 20) or (datetime.now().month == 11 and datetime.now().day <= 5): self.holidayname = 'halloween'
 		# check for New Year's Day
 		elif datetime.now().month == 1 and datetime.now().day == 1: self.holidayname = 'new_year'
-		# check for devs' bday (Jan 19/Sep 28)
+		# check for devs' bday
 		elif datetime.now().month == 1 and datetime.now().day == 19: self.holidayname = 'bday_gwe'
 		elif datetime.now().month == 9 and datetime.now().day == 28: self.holidayname = 'bday_sj'
-		# check for Sneky's birthday (Dec 10)
+		# check for Sneky's birthday
 		elif datetime.now().month == 12 and datetime.now().day == 10: self.holidayname = 'bday_sneky'
+
+		# set theme asset paths
+		if self.holidayname == 'christmas': self.holidaydir = 'christmas_exclusive/'
+		elif self.holidayname == 'halloween': self.holidaydir = 'halloween_exclusive/'
 
 	def generate_splash(self):
 		self.global_splashes = [
@@ -428,7 +506,6 @@ class Game():
 		exec('text_rect.' + anchor + ' = (x,y)')
 		screen.blit(text_surface, text_rect)
 
-
 	def game_loop(self):
 		if self.playing:
 			self.new_game()
@@ -476,7 +553,7 @@ class Game():
 			'You are an angry apple! Sneky has eaten your apple friends,',
 			'so you join forces with the poison apples! Here your goal',
 			'is to trick Sneky into killing himself!',
-			f'Press {pygame.key.name(self.SPACE_BIND).upper()} to place a poison apple.'
+			f'Press {pygame.key.name(self.SPACE_BIND).upper()} or the Enter button to place a poison apple.'
 			]
 			self.classic_intro = [
 			'It\'s Halloween, and Sneky recently recieved a bag of apples.',
@@ -510,7 +587,7 @@ class Game():
 					if self.win and self.angry_apple_halloween_time < self.angry_apple_halloween_hs: self.angry_apple_halloween_hs = self.angry_apple_halloween_time
 				else:
 					if self.score > self.high_scores['Angry Apple']: self.high_scores['Angry Apple'] = self.score
-			if not self.cheater or (self.cheater and not self.allow_cheater):
+			if not (self.cheater or (self.cheater and not self.allow_cheater)):
 				if self.snake_instinct == 1:
 					if self.score > self.high_scores['Ultimate Snake']: self.high_scores['Ultimate Snake'] = self.score
 				elif self.apple_bag == 1:
@@ -572,21 +649,28 @@ class Game():
 				self.GSwin.play()
 			else:
 				if self.ai_snake == 0:
-					self.GSdie.play()
-					if self.angry_apple == 0: logger.log('Sneky died!\nGame over!')
+					if self.angry_apple == 0:
+						if self.poisoned:
+							self.SMB2down.play()
+							logger.log('Sneky ate a poison apple!\nGame over!')
+						else:
+							self.GSdie.play()
+							logger.log('Sneky died!\nGame over!')
 					self.draw_text('You died!', size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font, color = color)
 				else:
 					if self.angry_apple == 0:
-						self.GSdie.play()
+						if self.poisoned:
+							self.SMB2down.play()
+							logger.log('Sneky ate a poison apple!\nCheaters never win. And you cheated and lost.')
+						else:
+							self.GSdie.play()
+							logger.log('Sneky died!\nCheaters never win. And you cheated and lost.')
 						self.draw_text('You died and you cheated!', size4, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font, color = color)
-						logger.log('Cheaters never win. And you cheated and lost.')
 						if self.save_high_score and self.allow_cheater: logger.log('Your score will not be saved.')
 					else:
 						self.draw_text('You died!', size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font, color = color)
-						if self.holidayname == 'christmas':
-							logger.log('Sneky ate the Angry Candy Cone!\nGame over!')
-						else:
-							logger.log('Sneky ate the Angry Apple!\nGame over!')
+						if self.holidayname == 'christmas': logger.log('Sneky ate the Angry Candy Cone!\nGame over!')
+						else: logger.log('Sneky ate the Angry Apple!\nGame over!')
 						self.SMB2down.play()
 			self.draw_text(f'{pygame.key.name(self.SPACE_BIND).upper()} / Enter button: Play again', size3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = font, color = color)
 			self.draw_text(f'{pygame.key.name(self.BACK_BIND).upper()}/{pygame.key.name(self.MENU_BIND).upper()} / Back button: Quit', size3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 3, font_name = font, color = color)
@@ -706,8 +790,8 @@ class Game():
 				self.draw_text('...!', self.font_size * 2, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font)
 				self.draw_text('You suddenly hear a secret door opening...', size2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size, font_name = font2, color = color)
 				self.draw_text('maybe you should go check?', size2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = font2, color = color)
-				self.draw_text(f'{pygame.key.name(self.BACK_BIND).upper()}/{pygame.key.name(self.MENU_BIND).upper()} / Enter button: Yeah sure', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 4, font_name = font2, color = color)
-				self.draw_text(f'{pygame.key.name(self.SPACE_BIND).upper()} / Back button: Nah, later', self.font_size *2/3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 5, font_name = font2, color = color)
+				self.draw_text(f'{pygame.key.name(self.BACK_BIND).upper()}/{pygame.key.name(self.MENU_BIND).upper()} / Enter button: Yeah sure', size3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 4, font_name = font2, color = color)
+				self.draw_text(f'{pygame.key.name(self.SPACE_BIND).upper()} / Back button: Nah, later', size3, self.DISPLAY_W/2, self.DISPLAY_H/2  + self.font_size * 5, font_name = font2, color = color)
 			elif self.snake_instinct == 1 and self.allow_ai_snake and self.allow_speed_up:
 				self.draw_text('CONGRATS...', size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font, color = color)
 				self.draw_text('You have reached the HARDEST part of Ultimate Snake Mode.', size2, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size, font_name = font2, color = color)
@@ -795,6 +879,20 @@ class Game():
 				if self.angry_apple == 1: pygame.time.delay(100)
 			else: pygame.time.delay(int(self.speed))
 					
+		# playfield
+		if not self.legacy_experience:
+			for x in range(self.border_x, self.DISPLAY_W - self.cell_size, 2*self.cell_size):
+				for y in range(self.border_y, self.DISPLAY_H - self.cell_size, 2*self.cell_size):
+					pygame.draw.rect(self.display,(170, 215, 81),(x,y,self.cell_size,self.cell_size))
+					pygame.draw.rect(self.display,(162, 209, 72),(x + self.cell_size,y,self.cell_size,self.cell_size))
+				for y in range(self.border_y + self.cell_size, self.DISPLAY_H - self.cell_size, 2*self.cell_size):
+					pygame.draw.rect(self.display,(170, 215, 81),(x + self.cell_size,y,self.cell_size,self.cell_size))
+					pygame.draw.rect(self.display,(162, 209, 72),(x,y,self.cell_size,self.cell_size))
+
+		# border
+		if self.dark_mode: pygame.draw.rect(self.display,self.white,(self.border_x,self.border_y,self.DISPLAY_W - self.border_x - 20,self.DISPLAY_H - self.border_y - 10),10)
+		else: pygame.draw.rect(self.display,self.gray,(self.border_x,self.border_y,self.DISPLAY_W - self.border_x - 20,self.DISPLAY_H - self.border_y - 10),10)
+
 		if not self.g_over: self.show_turbo()
 
 		self.update_fps()
@@ -806,7 +904,10 @@ class Game():
 		else: self.show_score()
 
 		# speed
-		if not (self.holidayname == 'halloween' and self.angry_apple == 1): self.show_speed()
+		if not (self.holidayname == 'halloween' and self.angry_apple == 1 and self.poison_apples == 1): self.show_speed()
+
+		if (self.holidayname == 'halloween' and self.angry_apple == 1 and self.poison_apples == 1) or (self.angry_apple == 0 and self.allow_ai_snake): self.gamebuttons.ai_snake_button()
+		if not (self.holidayname == 'halloween' and self.angry_apple == 1 and self.poison_apples == 1): self.gamebuttons.turbo_button()
 
 		# swipe debug text
 		#self.draw_text(f'Mouse: {self.mousex}, {self.mousey} - Timer: {self.swipe_timer}/{self.swipe_time}', 25, 50, 30, self.gray, self.game_font, anchor = 'midleft')
@@ -825,20 +926,6 @@ class Game():
 
 		# direction
 		#self.draw_text('Direction: ' + self.direction, 25, 350, 30, self.gray, self.game_font)
-
-		# playfield
-		if not self.legacy_experience:
-			for x in range(self.border_x, self.DISPLAY_W - self.cell_size, 2*self.cell_size):
-				for y in range(self.border_y, self.DISPLAY_H - self.cell_size, 2*self.cell_size):
-					pygame.draw.rect(self.display,(170, 215, 81),(x,y,self.cell_size,self.cell_size))
-					pygame.draw.rect(self.display,(162, 209, 72),(x + self.cell_size,y,self.cell_size,self.cell_size))
-				for y in range(self.border_y + self.cell_size, self.DISPLAY_H - self.cell_size, 2*self.cell_size):
-					pygame.draw.rect(self.display,(170, 215, 81),(x + self.cell_size,y,self.cell_size,self.cell_size))
-					pygame.draw.rect(self.display,(162, 209, 72),(x,y,self.cell_size,self.cell_size))
-
-		# border
-		if self.dark_mode: pygame.draw.rect(self.display,self.white,(self.border_x,self.border_y,self.DISPLAY_W - self.border_x - 20,self.DISPLAY_H - self.border_y - 10),10)
-		else: pygame.draw.rect(self.display,self.gray,(self.border_x,self.border_y,self.DISPLAY_W - self.border_x - 20,self.DISPLAY_H - self.border_y - 10),10)
 
 		if self.snake_instinct == 1:
 			if self.score == 10: self.apple_bag = 0
@@ -920,7 +1007,15 @@ class Game():
 		elif key_pressed[self.LEFT_BIND] or self.SWIPE_LEFT:
 			self.apple_List[0][0] -= self.cell_size
 
-		if self.holidayname != 'halloween':
+		if self.holidayname == 'halloween' and self.poison_apples == 1:
+			if self.apple_List[0][0] >= self.DISPLAY_W - 20: self.apple_List[0][0] -= self.cell_size
+			elif self.apple_List[0][0] <= self.border_x - 10: self.apple_List[0][0] += self.cell_size
+			elif self.apple_List[0][1] >= self.DISPLAY_H - 20: self.apple_List[0][1] -= self.cell_size
+			elif self.apple_List[0][1] <= self.border_y - 10: self.apple_List[0][1] += self.cell_size
+
+			if (self.SPACE_KEY or self.gamebuttons.ai_snake_button_click()) and self.apple_List[0] not in self.poison_Apple_List: self.poison_Apple_List.insert(-1, list(self.apple_List[0]))
+
+		else:
 			if (self.apple_List[0][0] >= self.DISPLAY_W - 20
 			or self.apple_List[0][0] <= self.border_x - 10
 			or self.apple_List[0][1] >= self.DISPLAY_H - 20
@@ -932,13 +1027,6 @@ class Game():
 				self.speed *= 0.97
 				
 				self.spawn_apple()
-		else:
-			if self.apple_List[0][0] >= self.DISPLAY_W - 20: self.apple_List[0][0] -= self.cell_size
-			elif self.apple_List[0][0] <= self.border_x - 10: self.apple_List[0][0] += self.cell_size
-			elif self.apple_List[0][1] >= self.DISPLAY_H - 20: self.apple_List[0][1] -= self.cell_size
-			elif self.apple_List[0][1] <= self.border_y - 10: self.apple_List[0][1] += self.cell_size
-
-			if self.SPACE_KEY: self.poison_Apple_List.insert(-1, list(self.apple_List[0]))
 
 	def spawn_apple(self):
 		def rand_apple():
@@ -973,10 +1061,10 @@ class Game():
 										if random.choice([True, False]): self.apple_List.insert(-1,self.apple)
 										else: self.poison_Apple_List.insert(-1,self.apple)
 										break
-					elif self.score >= 5000:
-						# generate 500 apples
+					elif self.score >= 1000:
+						# generate 100 apples
 						if len(self.apple_List) <= 10:
-							for i in range(500):
+							for i in range(100):
 								self.apple = rand_apple()
 								if self.apple not in self.apple_List and self.apple not in self.poison_Apple_List and self.apple not in self.snake:
 									if random.choice([True, False]): self.apple_List.insert(-1,self.apple)
@@ -998,9 +1086,9 @@ class Game():
 						if self.apple not in self.apple_List and self.apple not in self.poison_Apple_List and self.apple not in self.snake:
 							if random.randint(0, 9) == 0: self.apple_List.insert(-1,self.apple)
 							else: self.poison_Apple_List.insert(-1,self.apple)
-				elif self.score >= 500:
-					# generate 500 apples
-					for i in range(500):
+				elif self.score >= 100:
+					# generate 100 apples
+					for i in range(100):
 						self.apple = rand_apple()
 						if self.apple not in self.apple_List and self.apple not in self.poison_Apple_List and self.apple not in self.snake:
 							if random.randint(0, 9) == 0: self.apple_List.insert(-1,self.apple)
@@ -1025,14 +1113,12 @@ class Game():
 				if [self.snake_head[0] - self.cell_size, self.snake_head[1]] == pos and 'LEFT' in possible_directions: possible_directions.remove('LEFT')
 				if [self.snake_head[0] + self.cell_size, self.snake_head[1]] == pos and 'RIGHT' in possible_directions: possible_directions.remove('RIGHT')
 
-		if self.holidayname == 'halloween' and not self.de_snake: applist = self.apple_List
-		else: applist = self.apple_List + self.poison_Apple_List
-
-		for pos in applist:
-			if [self.snake_head[0], self.snake_head[1] - self.cell_size] == pos and 'UP' in possible_directions: possible_directions.remove('UP')
-			if [self.snake_head[0], self.snake_head[1] + self.cell_size] == pos and 'DOWN' in possible_directions: possible_directions.remove('DOWN')
-			if [self.snake_head[0] - self.cell_size, self.snake_head[1]] == pos and 'LEFT' in possible_directions: possible_directions.remove('LEFT')
-			if [self.snake_head[0] + self.cell_size, self.snake_head[1]] == pos and 'RIGHT' in possible_directions: possible_directions.remove('RIGHT')
+		if self.holidayname == 'halloween' and self.poison_apples == 1:
+			for pos in self.poison_Apple_List:
+				if [self.snake_head[0], self.snake_head[1] - self.cell_size] == pos and 'UP' in possible_directions: possible_directions.remove('UP')
+				if [self.snake_head[0], self.snake_head[1] + self.cell_size] == pos and 'DOWN' in possible_directions: possible_directions.remove('DOWN')
+				if [self.snake_head[0] - self.cell_size, self.snake_head[1]] == pos and 'LEFT' in possible_directions: possible_directions.remove('LEFT')
+				if [self.snake_head[0] + self.cell_size, self.snake_head[1]] == pos and 'RIGHT' in possible_directions: possible_directions.remove('RIGHT')
 
 		if self.snake_head[1] - self.cell_size < self.border_y: possible_directions.remove('UP')
 		if self.snake_head[1] + self.cell_size >= self.DISPLAY_H - self.cell_size: possible_directions.remove('DOWN')
@@ -1102,22 +1188,22 @@ class Game():
 			self.BAcorrect.play()
 			self.spawn_apple()
 
-		self.turbo = False
 		if not self.demo:
 			# check function input
 			if self.BACK_KEY: self.paused = True
 			elif self.MENU_KEY: self.playing = False
 
 			key_pressed = pygame.key.get_pressed()
-			if key_pressed[self.X_BIND] and self.allow_ai_snake and self.angry_apple == 0: self.ai_snake = 1
+			if (key_pressed[self.X_BIND] or self.gamebuttons.ai_snake_button_click()) and self.allow_ai_snake and self.angry_apple == 0: self.ai_snake = 1
 			elif self.angry_apple == 0: self.ai_snake = 0
 			if self.ai_snake == 1 and self.angry_apple == 0 and self.speed <= 0: self.cheater = True
 
-			if key_pressed[self.CTRL_BIND] and self.allow_speed_up:
-				if self.angry_apple == 0:
-					if self.speed > 0: self.turbo = True
-				else:
+			self.turbo = False
+			if (key_pressed[self.CTRL_BIND] or self.gamebuttons.turbo_button_click()) and self.allow_speed_up:
+				if self.angry_apple == 1:
 					if self.speed > 100: self.turbo = True
+				else:
+					if self.speed_percent < 100: self.turbo = True
 
 		self.draw_game_screen()
 
@@ -1126,7 +1212,7 @@ class Game():
 			if not self.allowmove: self.allowmove = True
 
 			# calculate target
-			if self.holidayname == 'halloween' and self.apple_List == []:
+			if self.holidayname == 'halloween' and self.poison_apples == 1 and self.apple_List == []:
 				# make the snake spin in circles
 				if self.direction == 'UP' or self.direction == 'RIGHT': target = [0, 0]
 				elif self.direction == 'DOWN' or self.direction == 'LEFT': target = [0, self.DISPLAY_H]
@@ -1282,7 +1368,7 @@ class Game():
 				self.g_over = True
 				return
 			
-			self.speed *= 0.97
+			if self.speed_percent < 100: self.speed *= 0.97
 
 			# generate apple
 			self.spawn_apple()
@@ -1291,13 +1377,12 @@ class Game():
 			self.GSeatapple.play()
 			self.poison_Apple_List.remove(self.snake_head)
 			if self.poison_apples == 1 and self.holidayname == 'halloween':
-				logger.log('Sneky ate a poison apple!')
 				self.window.blit(self.display, (0,0))
 				pygame.display.update()
 				self.playing = False
 				self.g_over = True
+				self.poisoned = True
 				if self.angry_apple == 1: self.win = True
-				else: self.SMB2down.play()
 				return
 			else:
 				self.score += 1
@@ -1311,29 +1396,29 @@ class Game():
 			else: self.disallowpopping = False
 
 		# unlock modes
-		if (not self.cheater or (self.cheater and not self.allow_cheater)) and self.score == 20 and self.portal_border == 0 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode0 and not self.newmoded:
+		if (not (self.cheater or (self.cheater and not self.allow_cheater))) and self.score == 20 and self.portal_border == 0 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode0 and not self.newmoded:
 			self.newmode = True
 			self.allowmode0 = True
 			self.thenewmode = 'Apple Bag'
-		elif (not self.cheater or (self.cheater and not self.allow_cheater)) and self.score == 40 and self.portal_border == 0 and self.curled_up == 0 and self.apple_bag == 1 and not self.allowmode1 and not self.newmoded:
+		elif (not (self.cheater or (self.cheater and not self.allow_cheater))) and self.score == 40 and self.portal_border == 0 and self.curled_up == 0 and self.apple_bag == 1 and not self.allowmode1 and not self.newmoded:
 			self.newmode = True
 			self.allowmode1 = True
 			self.thenewmode = 'Portal Border'
-		elif (not self.cheater or (self.cheater and not self.allow_cheater)) and self.score == 40 and self.portal_border == 1 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode2 and not self.newmoded:
+		elif (not (self.cheater or (self.cheater and not self.allow_cheater))) and self.score == 40 and self.portal_border == 1 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode2 and not self.newmoded:
 			self.newmode = True
 			self.allowmode2 = True
 			if self.holidayname == 'christmas': self.thenewmode = 'Angry Candy Cone'
 			else: self.thenewmode = 'Angry Apple'
-		elif (not self.cheater or (self.cheater and not self.allow_cheater)) and self.score == 30 and self.angry_apple == 1 and not self.allowmode3 and not self.newmoded:
+		elif (not (self.cheater or (self.cheater and not self.allow_cheater))) and self.score == 30 and self.angry_apple == 1 and not self.allowmode3 and not self.newmoded:
 			self.newmode = True
 			self.allowmode3 = True
 			self.thenewmode = 'Ultimate Snake'
-		elif (not self.cheater or (self.cheater and not self.allow_cheater)) and self.score == 90 and self.snake_instinct == 1 and not self.allowmode4 and not self.newmoded:
+		elif (not (self.cheater or (self.cheater and not self.allow_cheater))) and self.score == 90 and self.snake_instinct == 1 and not self.allowmode4 and not self.newmoded:
 			self.newmode = True
 			self.allowmode4 = True
 			self.allow_ai_snake = True
 			self.allow_speed_up = True
-		elif (not self.cheater or (self.cheater and not self.allow_cheater)) and self.score == 3000:
+		elif (not (self.cheater or (self.cheater and not self.allow_cheater))) and self.score == 3000:
 			self.newmode = True
 			self.allowsecretmode = True
 			
@@ -1346,7 +1431,9 @@ class Game():
 
 		if self.holidayname == 'halloween' and self.angry_apple == 1: self.angry_apple_halloween_time += self.deltatime * 1000
 
-		if self.poison_Apple_List != [] and self.apple_List == [] and self.holidayname == 'halloween' and self.angry_apple == 0 and self.poison_apples == 1: self.poison_apple_timer += self.deltatime
+		if self.poison_Apple_List != [] and self.apple_List == [] and self.holidayname == 'halloween' and self.angry_apple == 0 and self.poison_apples == 1:
+			if self.turbo: self.poison_apple_timer += 0.1
+			else: self.poison_apple_timer += self.deltatime
 
 	def play_demo(self):
 		self.demo = True
@@ -1408,6 +1495,14 @@ class Game():
 
 		return f'{x}:{y}'
 
+	def convert_alpha(self, image_og):
+		image = image_og.convert_alpha()
+		surface = pygame.Surface(image.get_size(), pygame.SRCALPHA)
+		surface.fill((*self.WHITE, 128))
+		image.blit(surface, (0, 0), special_flags = pygame.BLEND_RGBA_MULT)
+
+		return image
+
 	def mode(self, portal_border = 0, curled_up = 0, apple_bag = 0, break_border = 0, snake_instinct = 0, angry_apple = 0, de_snake = 0, poison_apples = 1):
 		# size each cell
 		if self.native_playfield:
@@ -1423,6 +1518,10 @@ class Game():
 			for ar in widescreen_ar:
 				if current_ar == ar: widescreen = True; break
 		else: widescreen = False
+
+		# border
+		self.border_x = 20
+		self.border_y = 60
 
 		#load image
 		if widescreen and self.allow_widescreen: self.imgMenuBG = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'menubg_16_9.png'), (self.DISPLAY_W, self.DISPLAY_H))
@@ -1466,6 +1565,21 @@ class Game():
 		self.imgVolUp1_highlight = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/volup1_highlight.png'), (68, 52))
 		self.imgVolUp5_highlight = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/volup5_highlight.png'), (68, 52))
 
+		self.imgAI = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/ai_snake.png'), (68, 52))
+		self.imgAI_rect = self.imgAI.get_rect()
+		self.imgAI_rect.topleft = (self.border_x, self.border_y)
+		self.imgAI_highlight = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/ai_snake_highlight.png'), (68, 52))
+		self.imgAI_transparent = self.convert_alpha(self.imgAI)
+		self.imgAI_highlight_transparent = self.convert_alpha(self.imgAI_highlight)
+		self.imgTurbo = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/turbo_mode.png'), (68, 52))
+		self.imgTurbo_rect = self.imgTurbo.get_rect()
+		self.imgTurbo_rect.topright = (self.DISPLAY_W - self.border_x, self.border_y)
+		self.imgTurbo_highlight = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/turbo_mode_highlight.png'), (68, 52))
+		self.imgTurbo_disabled = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/buttons/turbo_mode_disabled.png'), (68, 52))
+		self.imgTurbo_transparent = self.convert_alpha(self.imgTurbo)
+		self.imgTurbo_highlight_transparent = self.convert_alpha(self.imgTurbo_highlight)
+		self.imgTurbo_disabled_transparent = self.convert_alpha(self.imgTurbo_disabled)
+
 		self.imgHead_r = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_r.png'),(self.cell_size,self.cell_size))
 		self.imgHead_l = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_l.png'),(self.cell_size,self.cell_size))
 		self.imgHead_u = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/head_u.png'),(self.cell_size,self.cell_size))
@@ -1478,11 +1592,16 @@ class Game():
 			self.imgHead_hat = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'hat.png'),(int(32 * (self.cell_size / 27)), self.cell_size))
 			self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'apple.png'),(int(11 * (self.cell_size / 21)), self.cell_size))
 			self.imgApple_menu = pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'apple.png')
-		elif self.holidayname == 'halloween':
+		elif self.holidayname == 'halloween': 
 			self.imgHead_hat = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'hat.png'),(round(self.cell_size / 12) * 12, round(self.cell_size / 12) * 12))
 			self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/apple.png'),(int(40 * (self.cell_size / 46)), self.cell_size))
 			self.imgApple_menu = pygame.image.load(self.temp_path + 'images/apple.png')
 			self.imgApple_poison = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'apple_poison.png'),(int(40 * (self.cell_size / 46)), self.cell_size))
+			
+			self.imgPoison_Apple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'buttons/poison_apple.png'), (68, 52))
+			self.imgPoison_Apple_transparent = self.convert_alpha(self.imgPoison_Apple)
+			self.imgPoison_Apple_highlight = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'buttons/poison_apple_highlight.png'), (68, 52))
+			self.imgPoison_Apple_highlight_transparent = self.convert_alpha(self.imgPoison_Apple_highlight)
 		else:
 			self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/apple.png'),(int(40 * (self.cell_size / 46)), self.cell_size))
 			self.imgApple_menu = pygame.image.load(self.temp_path + 'images/apple.png')
@@ -1534,10 +1653,6 @@ class Game():
 		self.super_yellow = (254, 246, 107)
 		self.black = (0,0,0)
 
-		# border
-		self.border_x = 20
-		self.border_y = 60
-
 		# feature
 		self.de_snake = de_snake
 		if self.de_snake == 1:
@@ -1583,7 +1698,7 @@ class Game():
 		else: self.allowmove = False
 		
 		# speed - lower => faster
-		if self.holidayname == 'halloween' and self.angry_apple == 1: self.speed = 50
+		if self.holidayname == 'halloween' and self.angry_apple == 1 and self.poison_apples == 1: self.speed = 50
 		else: self.speed = 150
 		self.turbo = False
 
@@ -1596,6 +1711,7 @@ class Game():
 		self.paused = False
 		self.g_over = False
 		self.win = False
+		self.poisoned = False
 
 		# AI SNAKE: set to true if AI snake is used when speed is 100%
 		self.cheater = False
@@ -1627,17 +1743,17 @@ class Game():
 				self.draw_text(f'High score: {self.high_scores[name]}', size, 50, 5, color, font, anchor = 'topleft')
 				if self.score > self.high_scores[name]: self.draw_text('High score!', size, 50, 45, color2, font, anchor = 'topleft')
 
-		def print_fast_time(font, size, color):
-			self.draw_text(f'Fastest time: {self.timecode(self.angry_apple_halloween_hs)}', size, 50, 5, color, font, anchor = 'topleft')
+		def print_fast_time(font, size, color): self.draw_text(f'Fastest time: {self.timecode(self.angry_apple_halloween_hs)}', size, 50, 5, color, font, anchor = 'topleft')
 
-		if self.holidayname == 'halloween' and self.angry_apple == 1: self.draw_text(f'Time: {self.timecode(self.angry_apple_halloween_time)}', size, 50, 20, color, font, anchor = 'topleft')
+		if self.holidayname == 'halloween' and self.angry_apple == 1 and self.poison_apples == 1: self.draw_text(f'Time: {self.timecode(self.angry_apple_halloween_time)}', size, 50, 20, color, font, anchor = 'topleft')
 		else: self.draw_text(f'Score: {self.score}', size, 50, 20, color, font, anchor = 'topleft')
 		if self.save_high_score:
 			if self.snake_instinct == 1: print_high_score('Ultimate Snake', font, size2, color, color2)
 			elif self.apple_bag == 1: print_high_score('Apple Bag', font, size2, color, color2)
 			elif self.portal_border == 1: print_high_score('Portal Border', font, size2, color, color2)
 			elif self.angry_apple == 1:
-				if self.holidayname == 'halloween': print_fast_time(font, size2, color)
+				if self.holidayname == 'halloween' and self.poison_apples == 1:
+					if self.angry_apple_halloween_hs < 3599999: print_fast_time(font, size2, color)
 				else: print_high_score('Angry Apple', font, size2, color, color2)
 			else: print_high_score('Classic', font, size2, color, color2)
 
@@ -1659,10 +1775,11 @@ class Game():
 
 		# speed percent
 		speed_percent = (150 - self.speed) / 150 * 100
+		self.speed_percent = speed_percent
 		speed_percent_display = int(speed_percent * 100) / 100
 		
 		if self.angry_apple == 1:
-			if self.turbo:
+			if self.turbo and not self.g_over:
 				self.draw_text('Snake speed: 33.33%', size, self.DISPLAY_W - 200, 30, color, font)
 				self.draw_text('Temporary!'.format(29 / 30 * 100), size2, self.DISPLAY_W - 200, 50, color2, font)
 			else:
@@ -1671,7 +1788,7 @@ class Game():
 					self.draw_text('Max!'.format(29 / 30 * 100), size2, self.DISPLAY_W - 200, 50, color2, font)
 				else: self.draw_text(f'Snake speed: {speed_percent_display:0.2f}%', size, self.DISPLAY_W - 200, 30, color, font)
 		else:
-			if self.turbo:
+			if self.turbo and not self.g_over:
 				self.draw_text('Speed: 100.00%', size, self.DISPLAY_W - 200, 30, color, font)
 				self.draw_text('Temporary!'.format(29 / 30 * 100), size2, self.DISPLAY_W - 200, 50, color2, font)
 			else:

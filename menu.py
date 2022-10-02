@@ -5,12 +5,7 @@ if __name__ == '__main__':
 
 import pygame
 import os
-import math
-import time
 import logger, updater
-import shutil
-import random
-from datetime import datetime
 import webbrowser
 
 class Menu(object):
@@ -1273,7 +1268,7 @@ class Updater(Menu):
 					if not self.auto: self.game.curr_menu = self.game.updatemenu
 					self.run_display = False
 
-	def download(self): webbrowser.open_new_tab('https://github.com/gamingwithevets/sneky/releases/tag/v' + self.updstat['tag_name'])
+	def download(self): webbrowser.open_new_tab(f'https://github.com/gamingwithevets/sneky/releases/tag/{self.updstat["tag_name"]}')
 
 class VolumeMenu(Menu):
 	def __init__(self,game):
@@ -1942,7 +1937,7 @@ class ControlsMenu(Menu):
 			self.game.draw_text('REBIND CONTROLS', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size)
 			if paren: self.game.draw_text(f'{pygame.key.name(old_value).upper()} ({paren}) - {desc}', int(self.game.font_size / 2), x, y, font_name = self.game.menu2_font)
 			else: self.game.draw_text(f'{pygame.key.name(old_value).upper()} - {desc}', int(self.game.font_size / 2), x, y, font_name = self.game.menu2_font)
-			self.game.draw_text(f'Press a key within {math.ceil(checks)} seconds to rebind.', int(self.game.font_size / 2), self.opt11x, self.opt11y + 20, font_name = self.game.menu2_font)
+			self.game.draw_text(f'Press a key within {int(checks) + (checks % 1 > 0)} seconds to rebind.', int(self.game.font_size / 2), self.opt11x, self.opt11y + 20, font_name = self.game.menu2_font)
 			self.blit_screen()
 			for event in pygame.event.get():
 				if event.type == pygame.KEYDOWN:
@@ -2353,7 +2348,7 @@ class ModeMenu(Menu):
 						self.poison_apples += 1
 						if self.poison_apples == 2: self.poison_apples = 0
 					elif event.key == pygame.K_RETURN:
-						self.game.mode(self.portal_border, self.curled_up, self.apple_bag, self.break_border, self.snake_instinct, self.angry_apple, self.poison_apples)
+						self.game.mode(self.portal_border, self.curled_up, self.apple_bag, self.break_border, self.snake_instinct, self.angry_apple, self.de_snake, self.poison_apples)
 						self.start_game_debug = True
 						self.debug_run_display = False
 					elif event.key == pygame.K_ESCAPE:
