@@ -26,7 +26,7 @@ if pygame.version.ver < pygame_requirement:
 	print('\nGet a newer version!')
 	sys.exit()
 
-print('''  ###   #   ##   #### ##  ## ##    ## ‾|‾|\\/|
+print('''  ###   #   ##   #### ##  ## ##    ## ‾|‾|\\/|	
  ####  ###  ##  ##### ##  ## ###  ###  | |  |
 ##     #### ## ##     ## ##   ######
  ####  ####### #####  ####     ####

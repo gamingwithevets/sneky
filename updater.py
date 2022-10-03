@@ -20,13 +20,11 @@ def check_internet(log = True):
 	try:
 		print_tag(f'Connecting to URL: {url}')
 		requests.get(url)
-		print_tag(f'Successfully connected to URL: {url}')
-		print_tag('Connection test succeeded!')
+		print_tag(f'Successfully connected to URL: {url}\nConnection test succeeded!')
 		return True
 	except:
 		if log:
-			print_tag(f'Cannot connect to URL: {url}')
-			print_tag('Either the Internet connection is slow, or there is no Internet connection. Aborting update process.')
+			print_tag(f'Cannot connect to URL: {url}\nEither the Internet connection is slow, or there is no Internet connection. Aborting update process.')
 		return False
 
 def print_tag(text):
@@ -86,8 +84,8 @@ def check_updates(currver, prerelease):
 			print_tag('Finished getting release tags.')
 			pass
 
-		if 'v' + currver not in versions:
-			print_tag(f'Tag v{currver} not in tag list! Checking more data.')
+		if currver not in versions:
+			print_tag(f'Tag {currver} not in tag list! Checking more data.')
 			try:
 				testvar = response.json()['message']
 				if 'API rate limit exceeded for' in testvar:
@@ -99,7 +97,7 @@ def check_updates(currver, prerelease):
 					'exceeded': True
 					}
 				else:
-					print_tag(f'Unofficial/development version of Sneky (v{currver}) has been detected.')
+					print_tag(f'Unofficial/development version of Sneky ({currver}) has been detected.')
 					print_rate_limit(totalrequests)
 					return {
 					'newupdate': False,
@@ -107,7 +105,7 @@ def check_updates(currver, prerelease):
 					'unofficial': True
 					}
 			except:
-				print_tag(f'Unofficial/development version of Sneky (v{currver}) has been detected.')
+				print_tag(f'Unofficial/development version of Sneky ({currver}) has been detected.')
 				print_rate_limit(totalrequests)
 				return {
 				'newupdate': False,
@@ -115,9 +113,9 @@ def check_updates(currver, prerelease):
 				'unofficial': True
 				}
 		if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
-		print_tag(f'Getting data for release v{currver} from repository: {username}/{reponame}')
+		print_tag(f'Getting data for release {currver} from repository: {username}/{reponame}')
 		try:
-			response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases/tags/v' + currver)
+			response = requests.get(f'https://api.github.com/repos/{username}/{reponame}/releases/tags/{currver}')
 			totalrequests += 1
 			print_tag('Successfully connected.')
 		except:
@@ -134,7 +132,7 @@ def check_updates(currver, prerelease):
 				'exceeded': True
 				}
 			else:
-				print_tag('Unofficial/development version of Sneky (v.' + currver + ') has been detected.')
+				print_tag(f'Unofficial/development version of Sneky ({currver}) has been detected.')
 				print_rate_limit(totalrequests)
 				return {
 				'newupdate': False,
@@ -148,7 +146,7 @@ def check_updates(currver, prerelease):
 			if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
 			print_tag(f'Getting latest release from repository: {username}/{reponame}')
 			try:
-				response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases/latest')
+				response = requests.get(f'https://api.github.com/repos/{username}/{reponame}/releases/latest')
 				totalrequests += 1
 				print_tag('Successfully connected.')
 			except:
@@ -165,7 +163,7 @@ def check_updates(currver, prerelease):
 					'exceeded': True
 					}
 				else:
-					print_tag('Unofficial/development version of Sneky (v.' + currver + ') has been detected.')
+					print_tag(f'Unofficial/development version of Sneky ({currver}) has been detected.')
 					print_rate_limit(totalrequests)
 					return {
 					'newupdate': False,
@@ -174,12 +172,13 @@ def check_updates(currver, prerelease):
 					}
 			except:
 				pass
-			if response.json()['tag_name'] != 'v' + currver and response.json()['published_at'] > currvertime:
+			if response.json()['tag_name'] != currver and response.json()['published_at'] > currvertime:
 				print_tag('Updates available. Prompting to update.')
 				tag_name, title = response.json()['tag_name'], response.json()['name']
 				print_rate_limit(totalrequests)
 				return {
 				'newupdate': True,
+				'prerelease': False,
 				'error': False,
 				'tag_name': tag_name,
 				'title': title
@@ -197,7 +196,7 @@ def check_updates(currver, prerelease):
 				if not check_internet(): return {'newupdate': False, 'error': True, 'exceeded': False, 'nomodule': False, 'nowifi': True}
 				print_tag(f'Getting data for release {version} from repository: {username}/{reponame}')
 				try:
-					response = requests.get('https://api.github.com/repos/' + username + '/' + reponame + '/releases/tags/' + version)
+					response = requests.get(f'https://api.github.com/repos/{username}/{reponame}/releases/tags/{version}')
 					totalrequests += 1
 					print_tag('Successfully connected.')
 				except:
@@ -214,21 +213,21 @@ def check_updates(currver, prerelease):
 						'exceeded': True
 						}
 					else:
-						print_tag('Unofficial/development version of Sneky (v.' + currver + ') has been detected.')
+						print_tag(f'Unofficial/development version of Sneky ({currver}) has been detected.')
 						print_rate_limit(totalrequests)
 						return {
 						'newupdate': False,
 						'error': False,
 						'unofficial': True
 						}
-				except:
-					pass
+				except: pass
 				if currvertime < response.json()['published_at']:
 					print_tag('Updates available. Prompting to update.')
 					tag_name, title = response.json()['tag_name'], response.json()['name']
 					print_rate_limit(totalrequests)
 					return {
 					'newupdate': True,
+					'prerelease': response.json()['prerelease'],
 					'error': False,
 					'tag_name': tag_name,
 					'title': title
@@ -242,7 +241,7 @@ def check_updates(currver, prerelease):
 					'error': False
 					}
 	except:
-		print_tag('An error occurred while checking for updates!\n' + traceback.format_exc() + ' Aborting update process.')
+		print_tag(f'An error occurred while checking for updates!\n{traceback.format_exc()}\nAborting update process.')
 		print_rate_limit(totalrequests)
 		return {
 		'newupdate': False,

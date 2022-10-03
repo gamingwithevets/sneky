@@ -468,7 +468,7 @@ class ClearData(Menu):
 					self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: CANCEL', int(self.game.font_size / 2), self.mid_w, self.mid_h + 110, font_name = self.game.menu2_font)
 				else:
 					self.game.draw_text('This cannot be undone!', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, color = self.game.red, font_name = self.game.menu2_font)
-					self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CLEAR ALL SAVED DATA', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
+					self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CLEAR SAVED HIGH SCORES', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
 					self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: CANCEL', int(self.game.font_size / 2), self.mid_w, self.mid_h + 90, font_name = self.game.menu2_font)
 			elif clearlogs:
 				self.game.draw_text('WARNING! You are about to clear all your session logs.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, color = self.game.red, font_name = self.game.menu2_font)
@@ -513,7 +513,7 @@ class ClearData(Menu):
 				else:
 					self.game.draw_text('Are you REALLY sure you wanna clear your high scores?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, color = self.game.red, font_name = self.game.menu2_font)
 					if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CLEAR SAVED HIGH SCORES ({int(timer) + (timer % 1 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font, color = self.game.gray)
-					else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CLEAR ALL SAVED DATA', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
+					else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CLEAR SAVED HIGH SCORES', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
 			elif clearlogs:
 				self.game.draw_text('Are you REALLY sure you wanna clear all session logs?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, color = self.game.red, font_name = self.game.menu2_font)
 				if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CLEAR ALL SESSION LOGS ({int(timer) + (timer % 1 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font, color = self.game.gray)
@@ -536,6 +536,7 @@ class ClearData(Menu):
 			self.game.high_scores = {'Classic': 0, 'Apple Bag': 0, 'Portal Border': 0, 'Angry Apple': 0, 'Ultimate Snake': 0}
 			self.game.angry_apple_halloween_hs = 3599999
 			self.game.save_settings()
+			self.game.mode_menu.stateIndex = 0
 		if os.path.exists(self.game.appdata_path) and os.path.exists(self.game.appdata_path + logger.logfile) and clearlogs: os.remove(self.game.appdata_path + logger.logfile)
 		if clearlogs:
 			logger.log('The following has been cleared:', allowlog = False)
@@ -558,7 +559,7 @@ class ClearData(Menu):
 				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, self.game.imgMenuBG_rect)
 				self.game.menu.back_button()
 				self.game.draw_text('CLEAR DATA', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size)
-				self.game.draw_text('All game data has been cleared.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
+				self.game.draw_text('All high scores have been reset.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
 				self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: BACK', int(self.game.font_size / 2), self.mid_w, self.mid_h + 50, font_name = self.game.menu2_font)
 				self.blit_screen()
 
@@ -1163,7 +1164,7 @@ class Updater(Menu):
 			self.game.draw_text('Checking for updates. Please wait...', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
 			if self.auto: self.game.draw_text('To disable automatic updates, please go to Settings -> Updates.', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 			self.blit_screen()
-			self.updstat = updater.check_updates(self.game.version, self.game.check_prerelease)
+			self.updstat = updater.check_updates(self.game.internal_version, self.game.check_prerelease)
 			if self.updstat['newupdate']: self.cursor_rect.midtop = (self.opt3x + self.offset, self.opt3y)	
 			while self.run_display:
 				self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, self.game.imgMenuBG_rect)
@@ -1192,7 +1193,8 @@ class Updater(Menu):
 				elif self.updstat['newupdate']:
 					self.check_input()
 					self.game.draw_text('An update is available!', int(self.game.font_size / 2), self.opt0x, self.opt0y, font_name = self.game.menu2_font)
-					self.game.draw_text(f'{self.updstat["tag_name"]} - {self.updstat["title"]}', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
+					if self.updstat['prerelease']: self.game.draw_text(f'{self.updstat["tag_name"]} (prerelease) - {self.updstat["title"]}', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
+					else: self.game.draw_text(f'{self.updstat["tag_name"]} - {self.updstat["title"]}', int(self.game.font_size / 2), self.opt1x, self.opt1y, font_name = self.game.menu2_font)
 					self.game.draw_text('VISIT DOWNLOAD PAGE', int(self.game.font_size / 2), self.opt3x, self.opt3y, font_name = self.game.menu2_font)
 					self.game.draw_text('REMIND ME LATER', int(self.game.font_size / 2), self.opt4x, self.opt4y, font_name = self.game.menu2_font)
 				elif self.updstat['unofficial']:
