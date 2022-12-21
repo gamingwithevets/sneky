@@ -43,5 +43,7 @@ Witch Hat: William Chen
 Menu Music: "Emertane" - LR Friberg  
 Game music from the game "Bounce Tales"
 
-**© 2021-2022 GamingWithEvets Inc. All rights go to their respective owners.  
+**© 2021-2023 GamingWithEvets Inc. All rights go to their respective owners.  
 Sneky is a trademark of GamingWithEvets Inc.**
+
+[Licensed under the MIT license](LICENSE)
