@@ -16,17 +16,17 @@
 
 # Credits
 Apple Graphic: Luna4s  
-Title Screen & Snake Graphics: GamingWithEvets
-Menu Music: Wii Menu Music - Nintendo
+Title Screen & Snake Graphics: GamingWithEvets  
+Menu Music: Wii Menu Music - Nintendo  
 Game Music: "Nothing to Say" - Md Abdul Kader Zilani  
-Sounds from DELTARUNE, Google Snake Game, Super Mario Bros. 2 USA, Brain Age  
+Sounds from DELTARUNE, Google Snake Game, Super Mario Bros. 2 USA, Brain Age
 
 Menu Template: ChristianD37  
-Mode Menu: SeverusFate 
+Mode Menu: SeverusFate  
 Other Menu Code: GamingWithEvets  
 Game Code & Graphics Injection: SeverusFate & GamingWithEvets  
 Music & SFX Injection: GamingWithEvets  
-Crash Handler & Logger: GamingWithEvets  
+Crash Handler & Logger: GamingWithEvets
 
 ## Theme Credits
 Themes: GamingWithEvets  
