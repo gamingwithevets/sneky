@@ -3,8 +3,13 @@ if __name__ == '__main__':
 	print('Please run main.py to start Sneky.')
 	sys.exit()
 
+import platform
 import pygame
 import logger
+
+version = 'v1.3.0'
+
+logger.log(f'Sneky {version}\nRunning on {platform.system()} x{"64" if platform.machine().endswith("64") else "86"}, Python {platform.python_version()} ({"64" if sys.maxsize > 2 ** 32 else "32"}-bit), Pygame {pygame.version.ver}')
 
 logger.log('Initializing Pygame...', allowlog = False)
 pygame.init()
@@ -12,24 +17,25 @@ logger.log('Pygame initialized, loading Sneky.', allowlog = False)
 pygame.display.set_caption('Sneky')
 
 
-import platform
 import os
+import ast
 from menu import *
+import random
 import updater
 import traceback
-import random
+import configparser
 from decimal import *
 from datetime import datetime
 
-class Game():
+class Game:
 	def __init__(self):
 		try: self.temp_path = f'{os.path.join(sys._MEIPASS)}/'
 		except: self.temp_path = ''
 		
 		# game version
 		self.version = '1.3.0'
-		self.version_suffix = ' - Release Candidate 2'
-		self.internal_version = 'v1.3.0-rc2'
+		self.version_suffix = ''
+		self.internal_version = version
 
 		self.mousex, self.mousey = 0, 0
 
@@ -74,47 +80,48 @@ class Game():
 		self.allow_speed_up = False
 
 		# variables to import on startup, as well as store in settings.py (in sneky appdata folder)
-		self.items_to_import = [
-		'volume',
-		'musicvol',
-		'soundvol',
-		'CTRL_BIND',
-		'START_BIND',
-		'BACK_BIND',
-		'MENU_BIND',
-		'SPACE_BIND',
-		'X_BIND',
-		'UP_BIND',
-		'DOWN_BIND',
-		'LEFT_BIND',
-		'RIGHT_BIND',
-		'allowmode0',
-		'allowmode1',
-		'allowmode2',
-		'allowmode3',
-		'allowmode4',
-		'allowsecretmode',
-		'auto_update',
-		'check_prerelease',
-		'fullscreen',
-		'scaled',
-		'native_res',
-		'allow_ai_snake',
-		'allow_speed_up',
-		'never_entered_unknown',
-		'legacy_experience',
-		'dark_mode',
-		'showfps',
-		'high_scores',
-		'angry_apple_halloween_hs'
-		]
+		self.items_to_import = (
+		('volume', float),
+		('musicvol', float),
+		('soundvol', float),
+		('CTRL_BIND', int),
+		('START_BIND', int),
+		('BACK_BIND', int),
+		('MENU_BIND', int),
+		('SPACE_BIND', int),
+		('X_BIND', int),
+		('UP_BIND', int),
+		('DOWN_BIND', int),
+		('LEFT_BIND', int),
+		('RIGHT_BIND', int),
+		('allowmode0', bool),
+		('allowmode1', bool),
+		('allowmode2', bool),
+		('allowmode3', bool),
+		('allowmode4', bool),
+		('allowsecretmode', bool),
+		('auto_update', bool),
+		('check_prerelease', bool),
+		('fullscreen', bool),
+		('scaled', bool),
+		('native_res', bool),
+		('allow_ai_snake', bool),
+		('allow_speed_up', bool),
+		('never_entered_unknown', bool),
+		('legacy_experience', bool),
+		('dark_mode', bool),
+		('showfps', bool),
+		('high_scores', dict),
+		('angry_apple_halloween_hs', int),
+		)
 
-		if os.name == 'nt': self.appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky\\'
+		if os.name == 'nt': self.appdata_path = f'{os.getenv("LOCALAPPDATA")}\\Sneky\\'
 		elif os.name == 'posix':
 			if platform.system() != 'Darwin': self.appdata_path = os.path.expanduser('~/.config/Sneky/')
 			else: self.appdata_path = os.path.expanduser('~/Library/Application Support/Sneky/')
 
-		self.settings_fn = 'settings.py'
+		self.settings_fn = 'settings.ini'
+		self.settings_fn_legacy = 'settings.py'
 
 		self.running, self.playing, self.inmenu, self.show_instructions, self.newmode, self.newmoded, self.demo = True, False, True, False, False, False, False
 		self.reset_keys()
@@ -133,7 +140,7 @@ class Game():
 			self.oldsave = False
 		except:
 			try:
-				self.import_settings('fullscreen_mode')
+				self.import_settings_legacy('fullscreen_mode')
 				self.oldsave = True
 			except: self.oldsave = False
 
@@ -424,11 +431,12 @@ class Game():
 			while self.playing:
 				self.check_events()
 				self.run()
-				self.reset_keys()
+				if self.allow_run_delay_reset and self.run_delay > 0:
+					self.reset_keys()
+					self.allow_run_delay_reset = False
 				if self.g_over: self.draw_game_screen()
 				self.window.blit(self.display, (0,0))
-				if self.paused or self.newmode:
-					self.trans_scr()
+				if self.paused or self.newmode: self.trans_scr()
 
 				pygame.display.update()
 			
@@ -498,7 +506,7 @@ class Game():
 					if self.win and self.angry_apple_halloween_time < self.angry_apple_halloween_hs: self.angry_apple_halloween_hs = self.angry_apple_halloween_time
 				else:
 					if self.score > self.high_scores['Angry Apple']: self.high_scores['Angry Apple'] = self.score
-			if not (self.cheater or (self.cheater and not self.allow_cheater)):
+			if not self.cheater or (self.cheater and not self.allow_cheater):
 				if self.snake_instinct == 1:
 					if self.score > self.high_scores['Ultimate Snake']: self.high_scores['Ultimate Snake'] = self.score
 				elif self.apple_bag == 1:
@@ -620,6 +628,8 @@ class Game():
 			pygame.display.update()
 
 			while self.paused:
+				self.reset_keys()
+
 				self.menu.back_button()
 				self.menu.enter_button()
 				self.window.blit(self.display, (0, 0))
@@ -678,6 +688,8 @@ class Game():
 			pygame.display.update()
 
 			while self.show_instructions:
+				self.reset_keys()
+
 				self.menu.back_button()
 				self.menu.enter_button()
 				self.window.blit(self.display, (0, 0))
@@ -693,7 +705,6 @@ class Game():
 					self.show_instructions = False
 					self.gamemus.play(-1)
 					return
-				self.reset_keys()
 
 		elif self.newmode:
 			# new mode message
@@ -729,6 +740,8 @@ class Game():
 			self.save_settings()
 
 			while self.newmode:
+				self.reset_keys()
+
 				self.menu.back_button()
 				self.menu.enter_button()
 				self.window.blit(self.display, (0, 0))
@@ -745,7 +758,6 @@ class Game():
 					self.newmoded = True
 					pygame.mixer.unpause()
 					return
-				self.reset_keys()
 
 		if not self.inmenu and not self.playing:
 			logger.log('You quit the game!')
@@ -786,10 +798,12 @@ class Game():
 
 		if not self.show_instructions:
 			# speed
-			if self.turbo:
-				if self.angry_apple == 1: pygame.time.delay(100)
-			else: pygame.time.delay(int(self.speed))
-					
+			if self.allow_run_delay_reset:
+				if self.turbo:
+					if self.angry_apple == 1: self.run_delay = 100
+					else: self.run_delay = 0
+				else: self.run_delay = int(self.speed)
+
 		# playfield
 		if not self.legacy_experience:
 			for x in range(self.border_x, self.DISPLAY_W - self.cell_size, 2*self.cell_size):
@@ -838,6 +852,9 @@ class Game():
 
 		# direction
 		#self.draw_text('Direction: ' + self.direction, 25, 350, 30, self.gray, self.game_font)
+
+		# run timer display
+		#self.draw_text(f'Run timer: {self.run_delay}', 25, 350, 30, self.gray, self.game_font)
 
 		if self.snake_instinct == 1:
 			if self.score == 10: self.apple_bag = 0
@@ -905,8 +922,8 @@ class Game():
 			if snakepos0 == None: snakepos0 = self.snake_head[0]
 			if snakepos1 == None: snakepos1 = self.snake_head[1]
 
-			if self.direction == 'LEFT' or self.direction == 'RIGHT': self.display.blit(self.imgHead_hat,pygame.Rect(snakepos0, snakepos1 - self.cell_size, self.cell_size, self.cell_size))
-			if self.direction == 'UP' or self.direction == 'DOWN': self.display.blit(self.imgHead_hat,pygame.Rect(snakepos0, snakepos1 - self.cell_size - 3, self.cell_size, self.cell_size))
+			if self.direction in ('LEFT', 'RIGHT'): self.display.blit(self.imgHead_hat, pygame.Rect(snakepos0 + 2, snakepos1 - self.cell_size + 2, self.cell_size, self.cell_size))
+			if self.direction in ('UP', 'DOWN'): self.display.blit(self.imgHead_hat, pygame.Rect(snakepos0, snakepos1 - self.cell_size + 2, self.cell_size, self.cell_size))
 
 	def move_apple(self):
 		key_pressed = pygame.key.get_pressed()
@@ -1032,10 +1049,10 @@ class Game():
 				if [self.snake_head[0] - self.cell_size, self.snake_head[1]] == pos and 'LEFT' in possible_directions: possible_directions.remove('LEFT')
 				if [self.snake_head[0] + self.cell_size, self.snake_head[1]] == pos and 'RIGHT' in possible_directions: possible_directions.remove('RIGHT')
 
-		if self.snake_head[1] - self.cell_size < self.border_y: possible_directions.remove('UP')
-		if self.snake_head[1] + self.cell_size >= self.DISPLAY_H - self.cell_size: possible_directions.remove('DOWN')
-		if self.snake_head[0] - self.cell_size < self.border_x: possible_directions.remove('LEFT')
-		if self.snake_head[0] + self.cell_size >= self.DISPLAY_W - self.cell_size: possible_directions.remove('RIGHT')
+		if self.snake_head[1] - self.cell_size < self.border_y and 'UP' in possible_directions: possible_directions.remove('UP')
+		if self.snake_head[1] + self.cell_size >= self.DISPLAY_H - self.cell_size and 'DOWN' in possible_directions: possible_directions.remove('DOWN')
+		if self.snake_head[0] - self.cell_size < self.border_x and 'LEFT' in possible_directions: possible_directions.remove('LEFT')
+		if self.snake_head[0] + self.cell_size >= self.DISPLAY_W - self.cell_size and 'RIGHT' in possible_directions: possible_directions.remove('RIGHT')
 
 		if len(possible_directions) == 1: direction = possible_directions[0]
 		else:
@@ -1108,14 +1125,18 @@ class Game():
 			key_pressed = pygame.key.get_pressed()
 			if (key_pressed[self.X_BIND] or self.gamebuttons.ai_snake_button_click()) and self.allow_ai_snake and self.angry_apple == 0: self.ai_snake = 1
 			elif self.angry_apple == 0: self.ai_snake = 0
-			if self.ai_snake == 1 and self.angry_apple == 0 and self.speed <= 0: self.cheater = True
+			if self.ai_snake == 1 and self.angry_apple == 0 and self.speed <= 100: self.cheater = True
 
 			self.turbo = False
 			if (key_pressed[self.CTRL_BIND] or self.gamebuttons.turbo_button_click()) and self.allow_speed_up:
 				if self.angry_apple == 1:
-					if self.speed > 100: self.turbo = True
+					if self.speed > 100:
+						self.turbo = True
+						self.run_delay = 0
 				else:
-					if self.speed_percent < 100: self.turbo = True
+					if self.speed_percent < 100:
+						self.turbo = True
+						self.run_delay = 0
 
 		self.draw_game_screen()
 
@@ -1137,175 +1158,178 @@ class Game():
 
 			self.calc_nearest_path(target)
 
-		if self.angry_apple == 0:
-			if self.ai_snake == 0:
-				# check input
+		if self.run_delay == 0:
+			if self.angry_apple == 0:
+				if self.ai_snake == 0:
+					# check input
+					if self.allowmove:
+						if self.curled_up == 0:
+							if (self.UP_KEY or self.SWIPE_UP) and self.direction != 'DOWN' and self.direction != 'UP':
+								self.direction = 'UP'
+								self.allowmovesound = True
+							elif (self.DOWN_KEY or self.SWIPE_DOWN) and self.direction != 'UP' and self.direction != 'DOWN':
+								self.direction = 'DOWN'
+								self.allowmovesound = True
+							elif (self.RIGHT_KEY or self.SWIPE_RIGHT) and self.direction != 'LEFT' and self.direction != 'RIGHT':
+								self.direction = 'RIGHT'
+								self.allowmovesound = True
+							elif (self.LEFT_KEY or self.SWIPE_LEFT) and self.direction != 'RIGHT' and self.direction != 'LEFT':
+								self.direction = 'LEFT'
+								self.allowmovesound = True
+						else:
+							if (self.UP_KEY or self.SWIPE_UP) and self.direction != 'UP':
+								self.allowmovesound = True
+								self.direction = 'UP'
+							elif (self.DOWN_KEY or self.SWIPE_DOWN) and self.direction != 'DOWN':
+								self.direction = 'DOWN'
+								self.allowmovesound = True
+							elif (self.RIGHT_KEY or self.SWIPE_RIGHT) and self.direction != 'RIGHT':
+								self.direction = 'RIGHT'
+								self.allowmovesound = True
+							elif (self.LEFT_KEY or self.SWIPE_LEFT) and self.direction != 'LEFT':
+								self.direction = 'LEFT'
+								self.allowmovesound = True
+					else:
+						if self.curled_up == 0:
+							if (self.UP_KEY or self.SWIPE_UP) and self.direction != 'DOWN':
+								self.allowmovesound = True
+								self.direction = 'UP'
+								self.allowmove = True
+							elif (self.DOWN_KEY or self.SWIPE_DOWN) and self.direction != 'UP':
+								self.allowmovesound = True
+								self.direction = 'DOWN'
+								self.allowmove = True
+							elif (self.RIGHT_KEY or self.SWIPE_RIGHT) and self.direction != 'LEFT':
+								self.allowmovesound = True
+								self.direction = 'RIGHT'
+								self.allowmove = True
+							elif (self.LEFT_KEY or self.SWIPE_LEFT) and self.direction != 'RIGHT':
+								self.allowmovesound = True
+								self.direction = 'LEFT'
+								self.allowmove = True
+						else:
+							if (self.UP_KEY or self.SWIPE_UP):
+								self.allowmovesound = True
+								self.direction = 'UP'
+								self.allowmove = True
+							elif (self.DOWN_KEY or self.SWIPE_DOWN):
+								self.allowmovesound = True
+								self.direction = 'DOWN'
+								self.allowmove = True
+							elif (self.RIGHT_KEY or self.SWIPE_RIGHT):
+								self.allowmovesound = True
+								self.direction = 'RIGHT'
+								self.allowmove = True
+							elif (self.LEFT_KEY or self.SWIPE_LEFT):
+								self.allowmovesound = True
+								self.direction = 'LEFT'
+								self.allowmove = True
+			elif self.angry_apple == 1: self.move_apple()
+
+			# check direction
+			if self.direction == 'UP':
+				if self.allowmovesound:
+					self.GSmove_u.play()
+					self.allowmovesound = False
+					self.UP_KEY = False
+				if self.allowmove: self.snake_head[1] -= self.cell_size * self.delta_ms
+			elif self.direction == 'DOWN':
+				if self.allowmovesound:
+					self.GSmove_d.play()
+					self.allowmovesound = False
+					self.DOWN_KEY = False
+				if self.allowmove: self.snake_head[1] += self.cell_size
+			elif self.direction == 'RIGHT':
+				if self.allowmovesound:
+					self.GSmove_r.play()
+					self.allowmovesound = False
+					self.RIGHT_KEY = False
+				if self.allowmove: self.snake_head[0] += self.cell_size
+			elif self.direction == 'LEFT':
+				if self.allowmovesound:
+					self.GSmove_l.play()
+					self.allowmovesound = False
+					self.LEFT_KEY = False
+				if self.allowmove: self.snake_head[0] -= self.cell_size
+
+			# eat yourself
+			if self.curled_up == 0 and self.snake_head in self.snake:
 				if self.allowmove:
-					if self.curled_up == 0:
-						if (self.UP_KEY or self.SWIPE_UP) and self.direction != 'DOWN' and self.direction != 'UP':
-							self.direction = 'UP'
-							self.allowmovesound = True
-						elif (self.DOWN_KEY or self.SWIPE_DOWN) and self.direction != 'UP' and self.direction != 'DOWN':
-							self.direction = 'DOWN'
-							self.allowmovesound = True
-						elif (self.RIGHT_KEY or self.SWIPE_RIGHT) and self.direction != 'LEFT' and self.direction != 'RIGHT':
-							self.direction = 'RIGHT'
-							self.allowmovesound = True
-						elif (self.LEFT_KEY or self.SWIPE_LEFT) and self.direction != 'RIGHT' and self.direction != 'LEFT':
-							self.direction = 'LEFT'
-							self.allowmovesound = True
-					else:
-						if (self.UP_KEY or self.SWIPE_UP) and self.direction != 'UP':
-							self.allowmovesound = True
-							self.direction = 'UP'
-						elif (self.DOWN_KEY or self.SWIPE_DOWN) and self.direction != 'DOWN':
-							self.direction = 'DOWN'
-							self.allowmovesound = True
-						elif (self.RIGHT_KEY or self.SWIPE_RIGHT) and self.direction != 'RIGHT':
-							self.direction = 'RIGHT'
-							self.allowmovesound = True
-						elif (self.LEFT_KEY or self.SWIPE_LEFT) and self.direction != 'LEFT':
-							self.direction = 'LEFT'
-							self.allowmovesound = True
-				else:
-					if self.curled_up == 0:
-						if (self.UP_KEY or self.SWIPE_UP) and self.direction != 'DOWN':
-							self.allowmovesound = True
-							self.direction = 'UP'
-							self.allowmove = True
-						elif (self.DOWN_KEY or self.SWIPE_DOWN) and self.direction != 'UP':
-							self.allowmovesound = True
-							self.direction = 'DOWN'
-							self.allowmove = True
-						elif (self.RIGHT_KEY or self.SWIPE_RIGHT) and self.direction != 'LEFT':
-							self.allowmovesound = True
-							self.direction = 'RIGHT'
-							self.allowmove = True
-						elif (self.LEFT_KEY or self.SWIPE_LEFT) and self.direction != 'RIGHT':
-							self.allowmovesound = True
-							self.direction = 'LEFT'
-							self.allowmove = True
-					else:
-						if (self.UP_KEY or self.SWIPE_UP):
-							self.allowmovesound = True
-							self.direction = 'UP'
-							self.allowmove = True
-						elif (self.DOWN_KEY or self.SWIPE_DOWN):
-							self.allowmovesound = True
-							self.direction = 'DOWN'
-							self.allowmove = True
-						elif (self.RIGHT_KEY or self.SWIPE_RIGHT):
-							self.allowmovesound = True
-							self.direction = 'RIGHT'
-							self.allowmove = True
-						elif (self.LEFT_KEY or self.SWIPE_LEFT):
-							self.allowmovesound = True
-							self.direction = 'LEFT'
-							self.allowmove = True
-		elif self.angry_apple == 1: self.move_apple()
-
-		# check direction
-		if self.direction == 'UP':
-			if self.allowmovesound:
-				self.GSmove_u.play()
-				self.allowmovesound = False
-				self.UP_KEY = False
-			if self.allowmove: self.snake_head[1] -= self.cell_size * self.delta_ms
-		elif self.direction == 'DOWN':
-			if self.allowmovesound:
-				self.GSmove_d.play()
-				self.allowmovesound = False
-				self.DOWN_KEY = False
-			if self.allowmove: self.snake_head[1] += self.cell_size
-		elif self.direction == 'RIGHT':
-			if self.allowmovesound:
-				self.GSmove_r.play()
-				self.allowmovesound = False
-				self.RIGHT_KEY = False
-			if self.allowmove: self.snake_head[0] += self.cell_size
-		elif self.direction == 'LEFT':
-			if self.allowmovesound:
-				self.GSmove_l.play()
-				self.allowmovesound = False
-				self.LEFT_KEY = False
-			if self.allowmove: self.snake_head[0] -= self.cell_size
-
-		# eat yourself
-		if self.curled_up == 0 and self.snake_head in self.snake:
-			if self.allowmove:
-				pygame.draw.rect(self.display, self.snake_color,(self.snake[0][0],self.snake[0][1],self.cell_size,self.cell_size))
-				self.playing = False
-				self.g_over = True
-				if self.angry_apple == 1: self.win = True
-		
-		if self.break_border == 0:
-		#hit border
-			if (self.snake_head[0] >= self.DISPLAY_W - self.cell_size
-			or self.snake_head[0] < self.border_x
-			or self.snake_head[1] >= self.DISPLAY_H - self.cell_size
-			or self.snake_head[1] < self.border_y):
-				if self.portal_border == 0:
-					# snake border die
 					pygame.draw.rect(self.display, self.snake_color,(self.snake[0][0],self.snake[0][1],self.cell_size,self.cell_size))
 					self.playing = False
 					self.g_over = True
 					if self.angry_apple == 1: self.win = True
-				else:
-					# portal border
-					if self.snake_head[0] < self.border_x:
-						self.snake_head[0] = self.DISPLAY_W - 2*self.cell_size
-						self.GSportal.play()
-					elif self.snake_head[0] >= self.DISPLAY_W - self.cell_size:
-						self.snake_head[0] = self.border_x
-						self.GSportal.play()
-					elif self.snake_head[1] >= self.DISPLAY_H - self.cell_size:
-						self.snake_head[1] = self.border_y
-						self.GSportal.play()
-					elif self.snake_head[1] < self.border_y:
-						self.snake_head[1] = self.DISPLAY_H - 2*self.cell_size
-						self.GSportal.play()
-		
-		# snake moving
-		if not self.g_over and self.allowmove: self.snake.insert(0, list(self.snake_head))
-
-		# eat apple
-		if self.snake_head in self.apple_List:
-			self.GSeatapple.play()
-			self.apple_List.remove(self.snake_head)
-			if self.angry_apple == 0: self.score += 1
-			else:
-				self.window.blit(self.display, (0,0))
-				pygame.display.update()
-				self.playing = False
-				self.g_over = True
-				return
 			
-			if self.speed_percent < 100: self.speed *= 0.97
+			if self.break_border == 0:
+			#hit border
+				if (self.snake_head[0] >= self.DISPLAY_W - self.cell_size
+				or self.snake_head[0] < self.border_x
+				or self.snake_head[1] >= self.DISPLAY_H - self.cell_size
+				or self.snake_head[1] < self.border_y):
+					if self.portal_border == 0:
+						# snake border die
+						pygame.draw.rect(self.display, self.snake_color,(self.snake[0][0],self.snake[0][1],self.cell_size,self.cell_size))
+						self.playing = False
+						self.g_over = True
+						if self.angry_apple == 1: self.win = True
+					else:
+						# portal border
+						if self.snake_head[0] < self.border_x:
+							self.snake_head[0] = self.DISPLAY_W - 2*self.cell_size
+							self.GSportal.play()
+						elif self.snake_head[0] >= self.DISPLAY_W - self.cell_size:
+							self.snake_head[0] = self.border_x
+							self.GSportal.play()
+						elif self.snake_head[1] >= self.DISPLAY_H - self.cell_size:
+							self.snake_head[1] = self.border_y
+							self.GSportal.play()
+						elif self.snake_head[1] < self.border_y:
+							self.snake_head[1] = self.DISPLAY_H - 2*self.cell_size
+							self.GSportal.play()
+			
+			# snake moving
+			if not self.g_over and self.allowmove: self.snake.insert(0, list(self.snake_head))
 
-			# generate apple
-			self.spawn_apple()
-
-		elif self.snake_head in self.poison_Apple_List:
-			self.GSeatapple.play()
-			self.poison_Apple_List.remove(self.snake_head)
-			if self.poison_apples == 1 and self.holidayname == 'halloween':
-				self.window.blit(self.display, (0,0))
-				pygame.display.update()
-				self.playing = False
-				self.g_over = True
-				self.poisoned = True
-				if self.angry_apple == 1: self.win = True
-				return
-			else:
-				self.score += 1
-				self.speed *= 0.97
+			# eat apple
+			if self.snake_head in self.apple_List:
+				self.GSeatapple.play()
+				self.apple_List.remove(self.snake_head)
+				if self.angry_apple == 0: self.score += 1
+				else:
+					self.window.blit(self.display, (0,0))
+					pygame.display.update()
+					self.playing = False
+					self.g_over = True
+					return
+				
+				if self.speed_percent < 100: self.speed *= 0.97
 
 				# generate apple
 				self.spawn_apple()
 
-		else:
-			if not self.disallowpopping and not self.g_over and self.allowmove: self.snake.pop()
-			else: self.disallowpopping = False
+			elif self.snake_head in self.poison_Apple_List:
+				self.GSeatapple.play()
+				self.poison_Apple_List.remove(self.snake_head)
+				if self.poison_apples == 1 and self.holidayname == 'halloween':
+					self.window.blit(self.display, (0,0))
+					pygame.display.update()
+					self.playing = False
+					self.g_over = True
+					self.poisoned = True
+					if self.angry_apple == 1: self.win = True
+					return
+				else:
+					self.score += 1
+					self.speed *= 0.97
+
+					# generate apple
+					self.spawn_apple()
+
+			else:
+				if not self.disallowpopping and not self.g_over and self.allowmove: self.snake.pop()
+				else: self.disallowpopping = False
+
+			self.allow_run_delay_reset = True
 
 		# unlock modes
 		if (not (self.cheater or (self.cheater and not self.allow_cheater))) and self.score == 20 and self.portal_border == 0 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode0 and not self.newmoded:
@@ -1348,6 +1372,10 @@ class Game():
 			else: self.poison_apple_timer += self.deltatime
 
 		if self.speed < 0: self.speed = 0
+
+		if self.run_delay > 0:
+			self.run_delay = int(self.run_delay - self.deltatime * 3000)
+			if self.run_delay < 0: self.run_delay = 0
 
 	def play_demo(self):
 		self.demo = True
@@ -1507,7 +1535,7 @@ class Game():
 			self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'apple.png'),(int(11 * (self.cell_size / 21)), self.cell_size))
 			self.imgApple_menu = pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'apple.png')
 		elif self.holidayname == 'halloween': 
-			self.imgHead_hat = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'hat.png'),(round(self.cell_size / 12) * 12, round(self.cell_size / 12) * 12))
+			self.imgHead_hat = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'hat.png'),(int(12 * (self.cell_size / 12)), self.cell_size))
 			self.imgApple = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/apple.png'),(int(40 * (self.cell_size / 46)), self.cell_size))
 			self.imgApple_menu = pygame.image.load(self.temp_path + 'images/apple.png')
 			self.imgApple_poison = pygame.transform.scale(pygame.image.load(self.temp_path + 'images/' + self.holidaydir + 'apple_poison.png'),(int(40 * (self.cell_size / 46)), self.cell_size))
@@ -1614,6 +1642,8 @@ class Game():
 		# speed - lower => faster
 		if self.holidayname == 'halloween' and self.angry_apple == 1 and self.poison_apples == 1: self.speed = 50
 		else: self.speed = 150
+		self.run_delay = 0
+		self.allow_run_delay_reset = True
 		self.turbo = False
 
 		# check if move sound should play and avoid repeated plays
@@ -1783,24 +1813,57 @@ class Game():
 		self.load_music()
 
 		self.print_loading('Loading settings and save data')
-		try:
-			from settings import version
-			if version > self.version:
-				logger.log('Newer save detected, asking if user wants to load save.')
-				load_save = self.press_start.newer_save()
+
+		self.config_list = configparser.ConfigParser()
+		test = self.config_list.read(self.appdata_path + self.settings_fn)
+		if test and self.config_list.sections() != []:
+			if 'version' in self.config_list:
+				if self.config_list['version']['version'] > self.version:
+					logger.log('Detected save from newer version, asking if user wants to load save.')
+					load_save = self.press_start.newer_save()
+				elif self.config_list['version']['version'] < self.version:
+					logger.log('Detected save from older version, asking if user wants to load save.')
+					load_save = self.press_start.newer_save(True)
+				else: load_save = True
 			else: load_save = True
-		except: load_save = True
 
-		if not load_save: logger.log('Not loading save, Sneky session closed.\n'); sys.exit()
+			if not load_save: logger.log('Not loading save, Sneky session closed.\n'); sys.exit()
+			else:
+				for item in self.items_to_import:
+					if item[0] not in ['fullscreen', 'scaled', 'native_res']:
+						if item[0] in self.config_list['settings']:
+							self.import_settings(*item)
+							logger.log(f'Importing setting "{item[0]}": success')
+						else: logger.log(f'Importing setting "{item[0]}": not found - using default value')
+		else:
+			logger.log(f'Cannot load save data from {self.settings_fn}! Trying to load legacy save.')
+			if self.temp_path:
+				logger.log('Binary detected, asking to reset game.')
+				cont = self.press_start.old_save_binary()
+				if not cont: logger.log('Not resetting, Sneky session closed.\n'); sys.exit()
+			else:
+				try:
+					import settings
+					try:
+						if settings.version < self.version:
+							logger.log('Detected 1.3.0-pre2 ~ -rc2 save, asking if user wants to load save.')
+							load_save = self.press_start.newer_save(True)
+						else: load_save = True
+					except:
+						if os.path.exists(self.appdata_path + self.settings_fn):
+							logger.log('Detected pre-1.3.0 save, asking if user wants to load save.')
+							load_save = self.press_start.newer_save(too_old = True)
+						else: load_save = True
 
-		for item in self.items_to_import:
-			try:
-				if item != 'fullscreen' and item != 'scaled' and item != 'native_res':
-					self.import_settings(item)
-					logger.log(f'Importing setting "{item}": success')
-			except:
-				logger.log(f'Importing setting "{item}": error - using default value')
-				traceback.format_exc()
+					if not load_save: logger.log('Not loading save, Sneky session closed.\n'); sys.exit()
+					else:
+						for item in self.items_to_import:
+							try:
+								if item != 'fullscreen' and item != 'scaled' and item != 'native_res':
+									self.import_settings_legacy(item[0])
+									logger.log(f'Importing setting "{item[0]}": success')
+							except: logger.log(f'Importing setting "{item[0]}": error - using default value')
+				except: self.save_settings()
 
 		if self.check_save_tampering:
 			self.print_loading('Checking saved data')
@@ -1903,14 +1966,23 @@ class Game():
 		logger.log('Finished initialization.')
 		
 	def save_settings(self):
-		if not os.path.exists(self.appdata_path + self.settings_fn): logger.log('No settings file found, creating new settings file.')
-		# save settings to settings.py
+		if not os.path.exists(self.appdata_path + self.settings_fn): logger.log(f'No {self.settings_fn} file found, creating new {self.settings_fn} file.')
+		# save settings to settings.ini
+		self.config_list = configparser.ConfigParser()
+		self.config_list['version'] = {'version': self.version}
+		self.config_list['settings'] = {}
+		for var in self.items_to_import: exec(f'self.config_list["settings"]["{var[0]}"] = str(self.{var[0]})')
 		with open(self.appdata_path + self.settings_fn, 'w', encoding = 'utf8') as f:
-			f.write(f'# WARNING! This script is AUTO-GENERATED by Sneky.\n# You should NOT modify it in any way!\n\n# Nevermind, you won\'t even listen anyway. Go ahead and do anything you want.\n\nversion = \'{self.version}\'\n\n')
-			for item in self.items_to_import: exec('f.write(f\'{0} = {{self.{0}}}\\n\')'.format(item))
+			f.write(f'# WARNING! This script is AUTO-GENERATED by Sneky.\n# You should NOT modify it in any way!\n\n# Nevermind, you won\'t even listen anyway. Go ahead and do anything you want.\n\n')
+			self.config_list.write(f)
 			f.close()
 
-	def import_settings(self, var):
+	def import_settings(self, var, typ):
+		if typ == bool: exec(f'self.{var} = self.config_list["settings"].getboolean("{var}")')
+		elif typ in [dict, list]: exec(f'self.{var} = ast.literal_eval(self.config_list["settings"]["{var}"])')
+		else: exec(f'self.{var} = {typ.__name__}(self.config_list["settings"]["{var}"])')
+
+	def import_settings_legacy(self, var):
 		exec('from settings import {0}; self.{0} = {0}'.format(var))
 
 class GameButtons(object):

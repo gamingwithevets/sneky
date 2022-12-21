@@ -6,7 +6,6 @@ if __name__ == '__main__':
 logfile = 'sneky.log'
 
 import os
-import platform as platforn
 from datetime import datetime
 
 def log(text, allowprint = True, allowlog = True, tag = 'MAIN', print_blank = False):
@@ -43,10 +42,6 @@ else:
 	else:
 		appdata_path = os.path.expanduser('~/.config/Sneky')
 		appdata_path1 = os.path.expanduser('~/.config/Sneky/')
-
-platform = platforn.system()
-if platform == 'Darwin':
-	platform = 'macOS'
 
 log(f'Sneky logger initialized. Begin logging for this session.\nLog file: {appdata_path1}{logfile}', allowlog = False, tag = 'LOGGER')
 log('Sneky logger initialized. Begin logging for this session.', allowprint = False, tag = 'LOGGER')

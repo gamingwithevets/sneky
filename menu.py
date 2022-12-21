@@ -579,7 +579,7 @@ class CreditsMenu(Menu):
 			self.game.menu.back_button()
 			self.game.draw_text('CREDITS', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size)
 			self.game.draw_text('Original version by SeverusFate and GamingWithEvets', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
-			self.game.draw_text('(c) 2021-2022 GamingWithEvets Inc. All rights reserved.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, font_name = self.game.menu2_font)
+			self.game.draw_text('(c) 2021-2023 GamingWithEvets Inc. All rights reserved.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, font_name = self.game.menu2_font)
 			self.game.draw_text('See full credits in the README, either on GitHub or', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
 			self.game.draw_text('included with the source code', int(self.game.font_size / 2), self.mid_w, self.mid_h + 90, font_name = self.game.menu2_font)
 			self.blit_screen()
@@ -873,8 +873,8 @@ class VideoMenu(Menu):
 			self.game.menu.enter_button()
 			if enter_button_disabled: self.game.draw_text(f'{int(timer) + (timer % 1 > 0)}', self.game.font_size, *self.game.imgEnter_rect.center, font_name = self.game.menu2_font, color = self.game.red_god)
 			self.game.draw_text('VIDEO SETTINGS', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
-			self.game.draw_text('WARNING! Fullscreen without scaled mode or native', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
-			self.game.draw_text('resolution may cause screen issues!', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, font_name = self.game.menu2_font)
+			self.game.draw_text('WARNING! Fullscreen without scaled mode', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
+			self.game.draw_text('may cause screen issues!', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, font_name = self.game.menu2_font)
 			self.game.draw_text('Are you sure you want to continue?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 50, font_name = self.game.menu2_font)
 			if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES ({int(timer) + (timer % 1 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 90, font_name = self.game.menu2_font, color = self.game.gray)
 			else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES', int(self.game.font_size / 2), self.mid_w, self.mid_h + 90, font_name = self.game.menu2_font)
@@ -1998,11 +1998,11 @@ class PressStart(Menu):
 			self.game.draw_text(f'v{self.game.version}{self.game.version_suffix}', self.game.font_size / 2, 20, self.game.DISPLAY_H - 50, anchor = 'topleft', font_name = self.game.menu2_font)
 			self.game.draw_text(self.game.curr_splash, self.game.font_size / 2, self.mid_w, 20, color = self.game.red_god, font_name = self.game.menu2_font)
 			self.game.draw_text('PRESS START', self.game.font_size, self.mid_w, int(self.game.DISPLAY_H - 130))
-			self.game.draw_text('(c) 2021-2022 GamingWithEvets Inc. All rights go to their respective owners.', int(self.game.font_size/2.5), self.mid_w, int(self.game.DISPLAY_H - int(self.game.font_size/2.5)), font_name = self.game.menu2_font)
+			self.game.draw_text('(c) 2021-2023 GamingWithEvets Inc. All rights go to their respective owners.', int(self.game.font_size/2.5), self.mid_w, int(self.game.DISPLAY_H - int(self.game.font_size/2.5)), font_name = self.game.menu2_font)
 			self.blit_screen()
 			self.timer += 1
 
-	def newer_save(self):
+	def newer_save(self, old = False, too_old = False):
 		run_display = True
 		self.game.menu.enter_button_disabled = True
 		enter_button_disabled = True
@@ -2032,13 +2032,72 @@ class PressStart(Menu):
 			self.game.menu.enter_button()
 			if enter_button_disabled: self.game.draw_text(f'{int(timer) + (timer % 1 > 0)}', self.game.font_size, *self.game.imgEnter_rect.center, font_name = self.game.menu2_font, color = self.game.red_god)
 			self.game.draw_text('WARNING', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
-			self.game.draw_text('This save file is from a newer version. Loading data', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
-			self.game.draw_text('from it will cause newer save data to be cleared.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, font_name = self.game.menu2_font)
-			self.game.draw_text('It is recommended to back up this save file first.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 50, font_name = self.game.menu2_font)
-			self.game.draw_text('Do you want to load this save file?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
-			if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES ({int(timer) + (timer % 1 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 110, font_name = self.game.menu2_font, color = self.game.gray)
-			else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES', int(self.game.font_size / 2), self.mid_w, self.mid_h + 110, font_name = self.game.menu2_font)
-			self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: NO', int(self.game.font_size / 2), self.mid_w, self.mid_h + 130, font_name = self.game.menu2_font)
+			if old:
+				self.game.draw_text('This save file is from an older version of Sneky.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
+				self.game.draw_text('Unfortunately, some of your save data may have been', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, font_name = self.game.menu2_font)
+				self.game.draw_text('erased when the old version rewrote the save file.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 50, font_name = self.game.menu2_font)
+				self.game.draw_text('Load the save file anyway?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
+				if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES ({int(timer) + (timer % 1 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 110, font_name = self.game.menu2_font, color = self.game.gray)
+				else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES', int(self.game.font_size / 2), self.mid_w, self.mid_h + 110, font_name = self.game.menu2_font)
+				self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: NO', int(self.game.font_size / 2), self.mid_w, self.mid_h + 130, font_name = self.game.menu2_font)
+			elif too_old:
+				self.game.draw_text('This save file is from an older version that appears', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
+				self.game.draw_text('to not handle save data from newer versions correctly.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, font_name = self.game.menu2_font)
+				self.game.draw_text('Unfortunately, some of your save data may have been', int(self.game.font_size / 2), self.mid_w, self.mid_h + 50, font_name = self.game.menu2_font)
+				self.game.draw_text('erased when the old version rewrote the save file.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
+				self.game.draw_text('Load the save file anyway?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 90, font_name = self.game.menu2_font)
+				if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES ({int(timer) + (timer % 1 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 130, font_name = self.game.menu2_font, color = self.game.gray)
+				else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES', int(self.game.font_size / 2), self.mid_w, self.mid_h + 130, font_name = self.game.menu2_font)
+				self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: NO', int(self.game.font_size / 2), self.mid_w, self.mid_h + 150, font_name = self.game.menu2_font)
+			else:
+				self.game.draw_text('This save file is from a newer version. Loading data', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
+				self.game.draw_text('from it will cause newer save data to be cleared.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, font_name = self.game.menu2_font)
+				self.game.draw_text('It is recommended to back up this save file first.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 50, font_name = self.game.menu2_font)
+				self.game.draw_text('Do you want to load this save file?', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
+				if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES ({int(timer) + (timer % 1 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 110, font_name = self.game.menu2_font, color = self.game.gray)
+				else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: YES', int(self.game.font_size / 2), self.mid_w, self.mid_h + 110, font_name = self.game.menu2_font)
+				self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: NO', int(self.game.font_size / 2), self.mid_w, self.mid_h + 130, font_name = self.game.menu2_font)
+			self.blit_screen()
+			timer -= self.game.deltatime
+
+	def old_save_binary(self):
+		run_display = True
+		self.game.menu.enter_button_disabled = True
+		enter_button_disabled = True
+		timer = 5
+		while run_display:
+			self.game.reset_keys()
+			self.game.check_events()
+			if self.game.BACK_KEY or self.game.menu.back_button_click():
+				run_display = False
+				self.game.menu.enter_button_disabled = False
+				enter_button_disabled = False
+				self.game.DRsnd_select.play()
+				self.game.reset_keys()
+				return False
+			elif self.game.START_KEY or self.game.menu.enter_button_click():
+				if enter_button_disabled: self.game.DRsnd_cantselect.play()
+				else:
+					run_display = False
+					self.game.DRsnd_select.play()
+					self.game.reset_keys()
+					return True
+			if timer <= 0:
+				self.game.menu.enter_button_disabled = False
+				enter_button_disabled = False
+			self.game.draw_tiled_bg(); self.game.display.blit(self.game.imgMenuBG, self.game.imgMenuBG_rect)
+			self.game.menu.back_button()
+			self.game.menu.enter_button()
+			if enter_button_disabled: self.game.draw_text(f'{int(timer) + (timer % 1 > 0)}', self.game.font_size, *self.game.imgEnter_rect.center, font_name = self.game.menu2_font, color = self.game.red_god)
+			self.game.draw_text('WARNING', self.game.font_size, self.mid_w, self.mid_h - self.game.font_size * 3/2)
+			self.game.draw_text('Sneky has found a save file in the old .py format.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 10, font_name = self.game.menu2_font)
+			self.game.draw_text('From v1.3.0 .ini files are used instead.', int(self.game.font_size / 2), self.mid_w, self.mid_h + 30, font_name = self.game.menu2_font)
+			self.game.draw_text('Unfortunately, PyInstaller binaries cannot import', int(self.game.font_size / 2), self.mid_w, self.mid_h + 50, font_name = self.game.menu2_font)
+			self.game.draw_text('the save file, so you must either use the old version', int(self.game.font_size / 2), self.mid_w, self.mid_h + 70, font_name = self.game.menu2_font)
+			self.game.draw_text('or start fresh. (Your old save file will be kept.)', int(self.game.font_size / 2), self.mid_w, self.mid_h + 90, font_name = self.game.menu2_font)
+			if enter_button_disabled: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CREATE A NEW SAVE FILE ({int(timer) + (timer % 1 > 0)})', int(self.game.font_size / 2), self.mid_w, self.mid_h + 130, font_name = self.game.menu2_font, color = self.game.gray)
+			else: self.game.draw_text(f'{pygame.key.name(self.game.START_BIND).upper()} / ENTER BUTTON: CREATE A NEW SAVE FILE', int(self.game.font_size / 2), self.mid_w, self.mid_h + 130, font_name = self.game.menu2_font)
+			self.game.draw_text(f'{pygame.key.name(self.game.BACK_BIND).upper()} / BACK BUTTON: EXIT', int(self.game.font_size / 2), self.mid_w, self.mid_h + 150, font_name = self.game.menu2_font)
 			self.blit_screen()
 			timer -= self.game.deltatime
 
@@ -2368,7 +2427,8 @@ class ModeMenu(Menu):
 			self.game.draw_text('snake_instinct: ' + str(self.snake_instinct), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 0.5, font_name = self.game.pygame_font)
 			self.game.draw_text('angry_apple: ' + str(self.angry_apple), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 1.5, font_name = self.game.pygame_font)
 			self.game.draw_text('de_snake: ' + str(self.de_snake), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 2.5, font_name = self.game.pygame_font)
-			self.game.draw_text('poison_apples (Halloween theme only): ' + str(self.poison_apples), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 3.5, font_name = self.game.pygame_font)
+			self.game.draw_text('poison_apples*: ' + str(self.poison_apples), self.game.font_size, self.mid_w, self.mid_h + self.game.font_size * 3.5, font_name = self.game.pygame_font)
+			self.game.draw_text('* Halloween theme only', self.game.font_size, self.mid_w, self.game.DISPLAY_H - self.game.font_size * 2, font_name = self.game.pygame_font, anchor = 'midbottom')
 			self.game.draw_text('Use number keys 1-8 to toggle between 0 & 1', self.game.font_size, self.mid_w, self.game.DISPLAY_H - self.game.font_size, font_name = self.game.pygame_font, anchor = 'midbottom')
 			self.game.draw_text('ENTER: Start - ESC: Return', self.game.font_size, self.mid_w, self.game.DISPLAY_H, font_name = self.game.pygame_font, anchor = 'midbottom')
 			self.blit_screen('pygame')

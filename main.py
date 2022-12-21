@@ -1,7 +1,7 @@
 import sys
 
 # python + pygame version requirements
-python_requirement = '3.8.0'
+python_requirement = '3.7.0'
 pygame_requirement = '2.0.0'
 
 import platform
@@ -26,19 +26,21 @@ if pygame.version.ver < pygame_requirement:
 	print('\nGet a newer version!')
 	sys.exit()
 
-print('''  ###   #   ##   #### ##  ## ##    ## ‾|‾|\\/|	
+print('''\
+  ###   #   ##   #### ##  ## ##    ## ‾|‾|\\/|
  ####  ###  ##  ##### ##  ## ###  ###  | |  |
 ##     #### ## ##     ## ##   ######
  ####  ####### #####  ####     ####
     ## ## #### ##     ## ##     ##
 ###### ##  ### ###### ##  ##    ##
-#####  ##   #   ##### ##  ##    ##''')
+#####  ##   #   ##### ##  ##    ##\
+''')
 
 import os
 import traceback
 import logger
 
-if os.name == 'nt': appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
+if os.name == 'nt': appdata_path = f'{os.getenv("LOCALAPPDATA")}\\Sneky'
 elif os.name == 'posix':
 	if platform.system() != 'Darwin': appdata_path = os.path.expanduser('~/.config/Sneky')
 	else:
