@@ -7,7 +7,7 @@ import platform
 import pygame
 import logger
 
-version = 'v1.3.0'
+version = 'v1.3.0_01'
 
 logger.log(f'Sneky {version}\nRunning on {platform.system()} x{"64" if platform.machine().endswith("64") else "86"}, Python {platform.python_version()} ({"64" if sys.maxsize > 2 ** 32 else "32"}-bit), Pygame {pygame.version.ver}')
 
@@ -34,7 +34,7 @@ class Game:
 		
 		# game version
 		self.version = '1.3.0'
-		self.version_suffix = ''
+		self.version_suffix = ' - Post-release 1'
 		self.internal_version = version
 
 		self.mousex, self.mousey = 0, 0
@@ -319,7 +319,7 @@ class Game:
 			if self.holidayname == 'christmas':
 				self.splashes = [
 				'Merry Christmas!',
-				'Now with candy cones!',
+				'Now with candy canes!',
 				'Santa is actually fake, you kiddos!',
 				'Why is there no Christmas tree in Sneky?',
 				'This is your Christmas present :)'
@@ -444,20 +444,20 @@ class Game:
 
 	def init_intros(self):
 		if self.holidayname == 'christmas':
-			self.snake_instinct_intro = 'certain amount of candy cones. Let\'s use Sneky\'s powers to win!'
+			self.snake_instinct_intro = 'certain amount of candy canes. Let\'s use Sneky\'s powers to win!'
 			self.apple_bag_intro = [
-			'Santa\'s giving out more candy cones! Sneky doesn\'t hesitate',
+			'Santa\'s giving out more candy canes! Sneky doesn\'t hesitate',
 			'to eat \'em!'
 			]
 			self.portal_border_intro = 'Time to get some treats from Santa!'
 			self.angry_apple_intro = [
-			'You are an angry candy cone! You see that Sneky has eaten too much cones',
+			'You are an angry candy cane! You see that Sneky has eaten too much cones',
 			'and isn\'t stopping! He\'s gonna get fat at this rate. So you try to',
 			'escape him! Then you\'ll get a point and you and Sneky will speed up.',
 			'If Sneky dies, you win! But if he eats you, you lose!'
 			]
 			self.classic_intro = [
-			'It\'s Christmas! Sneky wants Santa\'s candy cones! Eat \'em and don\'t',
+			'It\'s Christmas! Sneky wants Santa\'s candy canes! Eat \'em and don\'t',
 			'touch yourself or the border, or you\'ll die!',
 			''
 			]
@@ -551,7 +551,7 @@ class Game:
 			self.gamemus.stop()
 			if self.win:
 				if self.angry_apple == 0:
-					if self.holidayname == 'christmas': logger.log('No more candy cones on the playfield!')
+					if self.holidayname == 'christmas': logger.log('No more candy canes on the playfield!')
 					else: logger.log('No more apples on the playfield!')
 				if self.ai_snake == 0:
 					logger.log('You won!')
@@ -588,7 +588,7 @@ class Game:
 						if self.save_high_score and self.allow_cheater: logger.log('Your score will not be saved.', print_blank = True)
 					else:
 						self.draw_text('You died!', size, self.DISPLAY_W/2, self.DISPLAY_H/2, font_name = font, color = color)
-						if self.holidayname == 'christmas': logger.log('Sneky ate the Angry Candy Cone!\nGame over!')
+						if self.holidayname == 'christmas': logger.log('Sneky ate the Angry candy cane!\nGame over!')
 						else: logger.log('Sneky ate the Angry Apple!\nGame over!')
 						self.SMB2down.play()
 			self.draw_text(f'{pygame.key.name(self.SPACE_BIND).upper()} / Enter button: Play again', size3, self.DISPLAY_W/2, self.DISPLAY_H/2 + self.font_size * 2, font_name = font, color = color)
@@ -1343,7 +1343,7 @@ class Game:
 		elif (not (self.cheater or (self.cheater and not self.allow_cheater))) and self.score == 40 and self.portal_border == 1 and self.curled_up == 0 and self.apple_bag == 0 and not self.allowmode2 and not self.newmoded:
 			self.newmode = True
 			self.allowmode2 = True
-			if self.holidayname == 'christmas': self.thenewmode = 'Angry Candy Cone'
+			if self.holidayname == 'christmas': self.thenewmode = 'Angry candy cane'
 			else: self.thenewmode = 'Angry Apple'
 		elif (not (self.cheater or (self.cheater and not self.allow_cheater))) and self.score == 30 and self.angry_apple == 1 and not self.allowmode3 and not self.newmoded:
 			self.newmode = True
@@ -1873,7 +1873,7 @@ class Game:
 					logger.log('Portal Border mode unlocked too early. Locking.')
 					self.allowmode1 = False
 				elif self.allowmode2:
-					if self.holidayname == 'christmas': logger.log('Angry Candy Cone mode unlocked too early. Locking.')
+					if self.holidayname == 'christmas': logger.log('Angry candy cane mode unlocked too early. Locking.')
 					else: logger.log('Angry Apple mode unlocked too early. Locking.')
 					self.allowmode2 = False
 				elif self.allowmode3:
@@ -1888,7 +1888,7 @@ class Game:
 
 			if not self.allowmode1:
 				if self.allowmode2:
-					if self.holidayname == 'christmas': logger.log('Angry Candy Cone mode unlocked too early. Locking.')
+					if self.holidayname == 'christmas': logger.log('Angry candy cane mode unlocked too early. Locking.')
 					else: logger.log('Angry Apple mode unlocked too early. Locking.')
 					self.allowmode2 = False
 				elif self.allowmode3:

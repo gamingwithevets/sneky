@@ -6,6 +6,7 @@ if __name__ == '__main__':
 logfile = 'sneky.log'
 
 import os
+import platform
 from datetime import datetime
 
 def log(text, allowprint = True, allowlog = True, tag = 'MAIN', print_blank = False):
@@ -36,7 +37,7 @@ if os.name == 'nt':
 	appdata_path = os.getenv('LOCALAPPDATA') + '\\Sneky'
 	appdata_path1 = os.getenv('LOCALAPPDATA') + '\\Sneky\\'
 else:
-	if platforn.system() == 'Darwin':
+	if platform.system() == 'Darwin':
 		appdata_path = os.path.expanduser('~/Library/Application Support/Sneky')
 		appdata_path1 = os.path.expanduser('~/Library/Application Support/Sneky/')
 	else:

@@ -2105,7 +2105,7 @@ class ModeMenu(Menu):
 	def __init__(self,game):
 		Menu.init_values(self,game)
 		self.allState = ['Classic', 'Apple Bag', 'Portal Border', 'Angry Apple', 'Ultimate Snake', 'De Snake Mode', 'Unknown']
-		if self.game.holidayname == 'christmas': self.allState[1], self.allState[3] = 'Treat Bag', 'Angry Candy Cone'
+		if self.game.holidayname == 'christmas': self.allState[1], self.allState[3] = 'Treat Bag', 'Angry Candy Cane'
 		elif self.game.holidayname == 'halloween': self.allState[1] = 'Poison Apple Hell'
 		self.stateIndex = 0
 		self.state = self.allState[self.stateIndex]
